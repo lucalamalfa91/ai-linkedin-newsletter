@@ -25,11 +25,20 @@ log = logging.getLogger(__name__)
 
 # ── RSS Sources ───────────────────────────────────────────────────────────────
 RSS_FEEDS = {
-    "ArXiv AI":        "https://rss.arxiv.org/rss/cs.AI",
-    "Hugging Face":    "https://huggingface.co/blog/feed.xml",
-    "Anthropic":       "https://www.anthropic.com/rss.xml",
-    "DeepMind":        "https://deepmind.google/blog/rss.xml",
-    "Papers With Code":"https://paperswithcode.com/rss",
+    # Research & primary sources
+    "ArXiv AI":          "https://rss.arxiv.org/rss/cs.AI",
+    "Papers With Code":  "https://paperswithcode.com/rss",
+    # AI labs — official blogs (high visual quality, authoritative)
+    "OpenAI":            "https://openai.com/news/rss.xml",
+    "Anthropic":         "https://www.anthropic.com/rss.xml",
+    "DeepMind":          "https://deepmind.google/blog/rss.xml",
+    "Google AI":         "https://blog.google/technology/ai/rss/",
+    # Engineering-focused blogs
+    "Hugging Face":      "https://huggingface.co/blog/feed.xml",
+    "MarkTechPost":      "https://www.marktechpost.com/feed/",
+    # Editorial / industry news (good visual appeal)
+    "MIT Tech Review AI": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
+    "AI Magazine":       "https://aimagazine.com/rss.xml",
 }
 
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
@@ -139,7 +148,7 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
 
     feed_lines = "\n".join(
         f"[{i + 1}] ({it['source']}) {it['title']} — {it['summary'][:200]}"
-        for i, it in enumerate(items[:25])
+        for i, it in enumerate(items[:30])
     )
 
     system = (
@@ -159,10 +168,10 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
 Selection criteria — score each story on three dimensions (1-10 each):
   A. Technical novelty & real engineering impact (not just a new model release).
   B. Relevance for AI architects and engineers at all levels.
-  C. Visual appeal of the linked page: prefer well-known sites (Hugging Face blog,
-     Anthropic blog, DeepMind blog, Papers With Code) over raw arXiv abstract pages
-     when content quality is comparable. A story with a rich preview image or a
-     polished article page scores higher here.
+  C. Visual appeal of the linked page: prefer well-known editorial sites (OpenAI blog,
+     Anthropic blog, DeepMind blog, Google AI blog, Hugging Face blog, MIT Tech Review,
+     AI Magazine, Papers With Code) over raw arXiv abstract pages when content quality
+     is comparable. A story with a rich preview image or a polished article page scores higher here.
 Final score = average of A, B, C (round to int).
 Reject vendor hype, generic "AI transforms X" pieces, and anything scoring below 6.
 If nothing scores ≥6 set "score": 0.
