@@ -30,17 +30,16 @@ RSS_FEEDS = {
     "Anthropic":          "https://www.anthropic.com/rss.xml",
     "DeepMind":           "https://deepmind.google/blog/rss.xml",
     "Google AI":          "https://blog.google/technology/ai/rss/",
-    # Engineering-focused blogs
+    # Engineering & practitioner blogs
     "Hugging Face":       "https://huggingface.co/blog/feed.xml",
-    "MarkTechPost":       "https://www.marktechpost.com/feed/",
-    # Editorial / industry news
-    "MIT Tech Review AI": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
-    "AI Magazine":        "https://aimagazine.com/rss.xml",
-    "TechCrunch AI":      "https://techcrunch.com/category/artificial-intelligence/feed/",
-    # Practitioner-oriented long-form
     "Medium — AI":        "https://medium.com/feed/tag/artificial-intelligence",
     "Medium — MLOps":     "https://medium.com/feed/tag/mlops",
     "Medium — LLM":       "https://medium.com/feed/tag/large-language-models",
+    # Industry & trend news
+    "MIT Tech Review AI": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
+    "TechCrunch AI":      "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "The Verge AI":       "https://www.theverge.com/ai-artificial-intelligence/rss/index.xml",
+    "VentureBeat AI":     "https://venturebeat.com/category/ai/feed/",
 }
 
 MIN_SCORE = 5       # Skip the whole run only when the best story is below this
@@ -158,40 +157,49 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
     )
 
     system = (
-        "You are an AI news curator writing daily LinkedIn posts for a senior AI architect. "
-        "Your posts are read by a mixed audience: senior engineers and architects who want depth, "
-        "plus junior/mid engineers who need clarity. "
-        "Use precise technical terminology (model architecture, inference, fine-tuning, RLHF, "
-        "RAG, latency, throughput, context window, quantisation, etc.) but always explain the "
-        "'so what' in plain terms so a mid-level engineer can follow. "
-        "Never use buzzwords like 'game-changer', 'revolutionary', 'unlock', 'empower'. "
+        "You write daily LinkedIn posts for an AI architect with 10+ years of experience. "
+        "The audience is a mix of engineers, architects, and tech managers who scroll LinkedIn on their phone. "
+        "Write like a real person, not a press release. "
+        "Short sentences. Conversational. A little personality. "
+        "2-3 emojis max per post — use them naturally, not as bullet points. "
+        "Never use: 'game-changer', 'revolutionary', 'unlock', 'empower', 'leverage', 'synergy'. "
         "Reply ONLY with valid JSON, no markdown fences."
     )
 
     user = f"""Today's AI items (last 24 h):
 {feed_lines}
 
-Task: rank the best {RANKED_TOP_N} stories from the list above and write a LinkedIn comment for each.
+Task: rank the best {RANKED_TOP_N} stories and write a LinkedIn comment for each.
 
-Scoring criteria (single score 1-10 per story):
-  - Technical novelty and real engineering impact (not just a new release announcement)
-  - Relevance for AI architects and engineers at all seniority levels
-  - Prefer sources with polished editorial pages: OpenAI, Anthropic, DeepMind, Google AI,
-    Hugging Face, MIT Tech Review, TechCrunch, Medium — stories with clear https:// article URLs
-    rank higher than items without a direct link
+Scoring criteria (single score 1-10):
+  - Is this something AI architects / senior engineers are actually talking about this week?
+  - Does it have real impact on how we design, build or deploy AI systems?
+  - Is it from a credible source with a clean article URL (OpenAI, Anthropic, DeepMind,
+    Google AI, Hugging Face, MIT Tech Review, TechCrunch, The Verge, VentureBeat, Medium)?
+  - Bonus points if it connects to a broader trend (agent frameworks, cost of inference,
+    RAG vs fine-tuning, open vs closed models, LLM reliability, multimodal, etc.)
+  - Penalise: pure product launches with no technical depth, sysadmin/ops-only content,
+    generic "AI is changing X" pieces
 
 IMPORTANT:
   - Always return exactly {RANKED_TOP_N} candidates ordered best-first (rank 1 = best).
-  - Copy the exact URL shown in the item list into the \"url\" field — do NOT invent URLs.
-  - Only omit a story if it is pure vendor marketing with zero technical content.
+  - Copy the exact URL from the item list — do NOT invent URLs.
 
-Comment writing rules (apply to every comment, STRICT):
-  - Maximum 3 lines, absolute hard limit 4 lines.
-  - Line 1: sharp, non-obvious technical insight or reframe — not a summary.
-  - Line 2: concrete architectural or engineering implication.
-  - Line 3 (optional line 4 max): intriguing close that invites discussion, ends with 👇
-  - No hashtags. No emojis except the final 👇. No fake statistics.
-  - Tone: direct, intellectually honest, zero hype.
+Comment style (STRICT — read carefully):
+  - 3 short punchy lines. Absolute max 4 lines.
+  - Line 1: one sharp observation or take — something you'd actually say to a colleague.
+    Not a summary. Start with an emoji if it fits naturally.
+  - Line 2: why it matters for architects / engineers building real systems. Plain English.
+  - Line 3: short question or provocative close that invites replies. Ends with 👇
+  - Use 2-3 emojis total across the whole post. Spread them, don't stack them.
+  - Short sentences — if a sentence needs a comma, split it in two.
+  - Zero jargon soup. If you use a technical term, make sure context makes it clear.
+  - Tone: curious, direct, like someone who genuinely finds this interesting.
+
+Examples of the RIGHT tone:
+  "Context windows keep growing — but most teams still chunk at 512 tokens by habit. 🤔\\nThere's a real architectural gap between what models can do and how we actually use them.\\nAre you revisiting your chunking strategy? 👇"
+
+  "Anthropic just published their full system prompt. Turns out 'be helpful' is 30 pages long. 😅\\nThe interesting part: they encode tradeoffs explicitly — not rules, but reasoning.\\nHow do you document your own prompt design decisions? 👇"
 
 Return exactly this JSON (no extra keys):
 {{
