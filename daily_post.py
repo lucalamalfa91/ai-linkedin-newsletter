@@ -7,6 +7,7 @@ Flow: fetch RSS feeds → Claude Haiku selects best story + writes comment → p
 import json
 import logging
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -62,6 +63,36 @@ def require_env(*keys):
         sys.exit(1)
 
 
+def normalize_url(url: str) -> str:
+    """Return a valid https:// URL, converting arXiv identifiers and DOIs.
+
+    Examples:
+        'arXiv:2604.04940v1'  → 'https://arxiv.org/abs/2604.04940v1'
+        '10.1234/example'     → 'https://doi.org/10.1234/example'
+        'https://example.com' → 'https://example.com'  (unchanged)
+        ''                    → ''
+    """
+    if not url:
+        return ""
+
+    # Already a valid absolute URL
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+
+    # arXiv citation identifier: arXiv:YYMM.NNNNNvN (case-insensitive)
+    arxiv_match = re.match(r"(?i)^arxiv:(\S+)$", url.strip())
+    if arxiv_match:
+        return f"https://arxiv.org/abs/{arxiv_match.group(1)}"
+
+    # DOI shorthand: 10.XXXX/...
+    if re.match(r"^10\.\d{4,}/", url.strip()):
+        return f"https://doi.org/{url.strip()}"
+
+    # Unrecognised format — return empty so callers can handle gracefully
+    log.warning("Could not normalise URL '%s' — treating as empty", url)
+    return ""
+
+
 def fetch_feeds() -> list[dict]:
     """Fetch all RSS feeds and return items published in the last 24 hours."""
     cutoff = datetime.now(timezone.utc) - timedelta(hours=24)
@@ -81,11 +112,15 @@ def fetch_feeds() -> list[dict]:
                 pub_dt = datetime(*pub_tuple[:6], tzinfo=timezone.utc)
                 if pub_dt < cutoff:
                     continue
+                # Normalise the link at ingestion time so downstream code
+                # always receives a valid https:// URL (fixes arXiv identifiers).
+                raw_link = entry.get("link", "")
+                link = normalize_url(raw_link)
                 items.append(
                     {
                         "source": source,
                         "title": entry.get("title", "").strip(),
-                        "link": entry.get("link", ""),
+                        "link": link,
                         "summary": (entry.get("summary", "") or "")[:400],
                         "published": pub_dt.isoformat(),
                     }
@@ -164,30 +199,48 @@ Return exactly this JSON (no extra keys):
         log.info("No story scored ≥6 today (best score: %s)", data.get("score"))
         return None, None
 
+    # Normalise the URL returned by the LLM (may be an arXiv identifier)
+    data["url"] = normalize_url(data.get("url", ""))
+
     return data["comment"], data
 
 
 def publish_linkedin(comment: str, article_url: str, article_title: str, person_id: str, token: str) -> str:
-    """Post a public text update with article link to LinkedIn. Returns the post ID."""
+    """Post a public text update to LinkedIn. Returns the post ID.
+
+    If article_url is a valid https:// URL the post will include an article
+    card; otherwise it falls back to a text-only post so the pipeline never
+    fails with a 422 due to an invalid URL.
+    """
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
         "X-Restli-Protocol-Version": "2.0.0",
         "LinkedIn-Version": LINKEDIN_VERSION,
     }
-    payload = {
+    payload: dict = {
         "author": person_id,
         "commentary": comment,
         "visibility": "PUBLIC",
         "distribution": {"feedDistribution": "MAIN_FEED"},
         "lifecycleState": "PUBLISHED",
-        "content": {
+        "isReshareDisabledByAuthor": False,
+    }
+
+    # Only attach article content when we have a valid absolute URL
+    if article_url and article_url.startswith("https://"):
+        payload["content"] = {
             "article": {
                 "source": article_url,
                 "title": article_title,
             }
-        },
-    }
+        }
+    else:
+        log.warning(
+            "article_url '%s' is not a valid https URL — publishing as text-only post",
+            article_url,
+        )
+
     resp = requests.post(LINKEDIN_API, headers=headers, json=payload, timeout=30)
 
     if not resp.ok:
