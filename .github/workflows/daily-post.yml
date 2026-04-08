@@ -2,9 +2,9 @@ name: Daily LinkedIn AI Post
 
 on:
   schedule:
-    # Runs at 6 AM UTC (7 AM CET / 8 AM CEST) every day
+    # Runs at 6 AM UTC (7 AM CET / 8 AM CEST) every monday
     # With random delay, posts between 7-9 AM Italian time
-    - cron: '0 6 * * *'
+    - cron: '0 6 * * 1'
   workflow_dispatch:  # Allows manual trigger from GitHub UI
 
 jobs:
