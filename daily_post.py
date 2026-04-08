@@ -26,20 +26,22 @@ log = logging.getLogger(__name__)
 # ── RSS Sources ───────────────────────────────────────────────────────────────
 RSS_FEEDS = {
     # Research & primary sources
-    "ArXiv AI":          "https://rss.arxiv.org/rss/cs.AI",
-    "Papers With Code":  "https://paperswithcode.com/rss",
+    "ArXiv AI":           "https://rss.arxiv.org/rss/cs.AI",
+    "Papers With Code":   "https://paperswithcode.com/rss",
     # AI labs — official blogs (high visual quality, authoritative)
-    "OpenAI":            "https://openai.com/news/rss.xml",
-    "Anthropic":         "https://www.anthropic.com/rss.xml",
-    "DeepMind":          "https://deepmind.google/blog/rss.xml",
-    "Google AI":         "https://blog.google/technology/ai/rss/",
+    "OpenAI":             "https://openai.com/news/rss.xml",
+    "Anthropic":          "https://www.anthropic.com/rss.xml",
+    "DeepMind":           "https://deepmind.google/blog/rss.xml",
+    "Google AI":          "https://blog.google/technology/ai/rss/",
     # Engineering-focused blogs
-    "Hugging Face":      "https://huggingface.co/blog/feed.xml",
-    "MarkTechPost":      "https://www.marktechpost.com/feed/",
+    "Hugging Face":       "https://huggingface.co/blog/feed.xml",
+    "MarkTechPost":       "https://www.marktechpost.com/feed/",
     # Editorial / industry news (good visual appeal)
     "MIT Tech Review AI": "https://www.technologyreview.com/topic/artificial-intelligence/feed/",
-    "AI Magazine":       "https://aimagazine.com/rss.xml",
+    "AI Magazine":        "https://aimagazine.com/rss.xml",
 }
+
+MIN_SCORE = 5  # Publish if best story scores at or above this threshold
 
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
 LINKEDIN_VERSION = "202603"  # March 2026 version
@@ -61,7 +63,6 @@ def load_env():
                 key, _, val = line.partition("=")
                 val = val.strip('"').strip("'")
                 key = key.strip()
-                # Always override with .env values (don't use setdefault)
                 os.environ[key] = val
 
 
@@ -73,31 +74,16 @@ def require_env(*keys):
 
 
 def normalize_url(url: str) -> str:
-    """Return a valid https:// URL, converting arXiv identifiers and DOIs.
-
-    Examples:
-        'arXiv:2604.04940v1'  → 'https://arxiv.org/abs/2604.04940v1'
-        '10.1234/example'     → 'https://doi.org/10.1234/example'
-        'https://example.com' → 'https://example.com'  (unchanged)
-        ''                    → ''
-    """
+    """Return a valid https:// URL, converting arXiv identifiers and DOIs."""
     if not url:
         return ""
-
-    # Already a valid absolute URL
     if url.startswith("http://") or url.startswith("https://"):
         return url
-
-    # arXiv citation identifier: arXiv:YYMM.NNNNNvN (case-insensitive)
     arxiv_match = re.match(r"(?i)^arxiv:(\S+)$", url.strip())
     if arxiv_match:
         return f"https://arxiv.org/abs/{arxiv_match.group(1)}"
-
-    # DOI shorthand: 10.XXXX/...
     if re.match(r"^10\.\d{4,}/", url.strip()):
         return f"https://doi.org/{url.strip()}"
-
-    # Unrecognised format — return empty so callers can handle gracefully
     log.warning("Could not normalise URL '%s' — treating as empty", url)
     return ""
 
@@ -121,8 +107,6 @@ def fetch_feeds() -> list[dict]:
                 pub_dt = datetime(*pub_tuple[:6], tzinfo=timezone.utc)
                 if pub_dt < cutoff:
                     continue
-                # Normalise the link at ingestion time so downstream code
-                # always receives a valid https:// URL (fixes arXiv identifiers).
                 raw_link = entry.get("link", "")
                 link = normalize_url(raw_link)
                 items.append(
@@ -165,29 +149,29 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
     user = f"""Today's AI items (last 24 h):
 {feed_lines}
 
-Selection criteria — score each story on three dimensions (1-10 each):
-  A. Technical novelty & real engineering impact (not just a new model release).
-  B. Relevance for AI architects and engineers at all levels.
-  C. Visual appeal of the linked page: prefer well-known editorial sites (OpenAI blog,
-     Anthropic blog, DeepMind blog, Google AI blog, Hugging Face blog, MIT Tech Review,
-     AI Magazine, Papers With Code) over raw arXiv abstract pages when content quality
-     is comparable. A story with a rich preview image or a polished article page scores higher here.
-Final score = average of A, B, C (round to int).
-Reject vendor hype, generic "AI transforms X" pieces, and anything scoring below 6.
-If nothing scores ≥6 set "score": 0.
+Task: pick the SINGLE best story and assign it ONE score 1-10 based on:
+  - Technical novelty and real engineering impact (not just a new release announcement)
+  - Relevance for AI architects and engineers at all seniority levels
+  - Visual appeal of the source page: prefer polished editorial sites (OpenAI, Anthropic,
+    DeepMind, Google AI, Hugging Face, MIT Tech Review, AI Magazine, Papers With Code)
+    over raw arXiv abstract pages when content quality is comparable
+
+IMPORTANT: you MUST always pick the best available story and return its score.
+Only set "score": 0 if every single item is pure vendor marketing with zero technical content.
+In all other cases return the best story even if it scores only 5.
 
 Comment writing rules (STRICT):
   - Maximum 3 lines, absolute hard limit 4 lines. No exceptions.
   - Line 1: one sharp, non-obvious technical insight or reframe — not a summary.
-  - Line 2: concrete architectural or engineering implication (what should an engineer do/think differently?).
+  - Line 2: concrete architectural or engineering implication.
   - Line 3 (optional line 4 max): intriguing close that invites discussion, ends with 👇
-  - Use precise AI/ML terms but keep sentences short enough for a mid engineer to parse in one read.
+  - Use precise AI/ML terms but keep sentences short enough for a mid engineer to parse.
   - No hashtags. No emojis except the final 👇. No fake statistics.
   - Tone: direct, intellectually honest, zero hype.
 
 Return exactly this JSON (no extra keys):
 {{
-  "score": <int>,
+  "score": <int 1-10>,
   "title": "<story title, max 12 words>",
   "url": "<canonical article URL or empty string>",
   "comment": "<post text, max 4 lines, newlines as \\n>"
@@ -208,9 +192,9 @@ Return exactly this JSON (no extra keys):
     if raw.startswith("```"):
         lines = raw.split("\n")
         if lines[0].startswith("```"):
-            lines = lines[1:]  # Remove opening fence
+            lines = lines[1:]
         if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]  # Remove closing fence
+            lines = lines[:-1]
         raw = "\n".join(lines).strip()
 
     try:
@@ -219,14 +203,17 @@ Return exactly this JSON (no extra keys):
         log.error("LLM returned invalid JSON: %s", raw)
         return None, None
 
-    if data.get("score", 0) < 6:
-        log.info("No story scored ≥6 today (best score: %s)", data.get("score"))
+    score = data.get("score", 0)
+    log.info("LLM score: %d (threshold: %d)", score, MIN_SCORE)
+
+    if score < MIN_SCORE:
+        log.info("Best story scored %d — below threshold %d, skipping.", score, MIN_SCORE)
         return None, None
 
-    # Normalise the URL returned by the LLM (may be an arXiv identifier)
+    # Normalise URL (may be an arXiv identifier from the LLM)
     data["url"] = normalize_url(data.get("url", ""))
 
-    # Hard-cap the comment to 4 lines regardless of what the LLM returned
+    # Hard-cap the comment to 4 lines regardless of LLM output
     comment_lines = data["comment"].split("\n")
     if len(comment_lines) > 4:
         log.warning("LLM comment exceeded 4 lines (%d) — truncating", len(comment_lines))
@@ -238,9 +225,7 @@ Return exactly this JSON (no extra keys):
 def publish_linkedin(comment: str, article_url: str, article_title: str, person_id: str, token: str) -> str:
     """Post a public text update to LinkedIn. Returns the post ID.
 
-    If article_url is a valid https:// URL the post will include an article
-    card; otherwise it falls back to a text-only post so the pipeline never
-    fails with a 422 due to an invalid URL.
+    Falls back to text-only post when article_url is missing/invalid.
     """
     headers = {
         "Authorization": f"Bearer {token}",
@@ -257,7 +242,6 @@ def publish_linkedin(comment: str, article_url: str, article_title: str, person_
         "isReshareDisabledByAuthor": False,
     }
 
-    # Only attach article content when we have a valid absolute URL
     if article_url and article_url.startswith("https://"):
         payload["content"] = {
             "article": {
@@ -283,7 +267,7 @@ def publish_linkedin(comment: str, article_url: str, article_title: str, person_
 
 
 def send_telegram(text: str, bot_token: str, chat_id: str) -> None:
-    """Send a Telegram message. Does not raise on failure (best-effort notification)."""
+    """Send a Telegram message. Does not raise on failure."""
     try:
         resp = requests.post(
             f"https://api.telegram.org/bot{bot_token}/sendMessage",
@@ -319,7 +303,7 @@ def main() -> None:
         comment, story = select_and_comment(items)
 
         if not comment:
-            msg = "📰 <b>Daily AI Post</b>: no qualifying news today (score &lt;6). Skipping."
+            msg = "📰 <b>Daily AI Post</b>: no qualifying news today (score &lt;{MIN_SCORE}). Skipping."
             log.info("No qualifying news — skipping LinkedIn post.")
             send_telegram(msg, tg_token, tg_chat)
             return
