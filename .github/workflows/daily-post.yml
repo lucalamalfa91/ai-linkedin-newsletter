@@ -25,12 +25,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Random delay (0-120 min)
-        run: |
-          DELAY=$((RANDOM % 7200))
-          echo "Waiting $DELAY seconds before posting..."
-          sleep $DELAY
-
       - name: Run daily post script
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
