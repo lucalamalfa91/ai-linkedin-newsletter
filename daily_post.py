@@ -32,7 +32,7 @@ RSS_FEEDS = {
 }
 
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
-LINKEDIN_VERSION = "202408"
+LINKEDIN_VERSION = "202603"  # March 2026 version
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -50,7 +50,9 @@ def load_env():
                 line = line.removeprefix("export ").strip()
                 key, _, val = line.partition("=")
                 val = val.strip('"').strip("'")
-                os.environ.setdefault(key.strip(), val)
+                key = key.strip()
+                # Always override with .env values (don't use setdefault)
+                os.environ[key] = val
 
 
 def require_env(*keys):
@@ -106,20 +108,21 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
     )
 
     system = (
-        "You are an AI news curator for a senior AI architect's LinkedIn. "
-        "Be concise and technical. Reply ONLY with valid JSON, no markdown fences."
+        "You are an AI news curator for LinkedIn. "
+        "Reply ONLY with valid JSON, no markdown fences."
     )
 
     user = f"""Today's AI items (last 24 h):
 {feed_lines}
 
 Instructions:
-1. Pick the SINGLE best story. Score it 1-10 on: novelty, real technical impact, relevance to senior engineers/architects.
+1. Pick the SINGLE best story. Score it 1-10 on: novelty, real technical impact, to senior engineers/architects.
    Reject vendor hype, generic "AI transforms X" pieces, and anything scoring below 6.
-2. Write a 3-line architect-style LinkedIn comment:
+2. Write a architect-style LinkedIn comment:
    - Line 1: fresh reframe or non-obvious angle (not a summary)
    - Line 2: strategic or architectural implication
    - Line 3: intriguing close, ends with 👇
+   - Focus: what's interesting and why it matters
    Tone: smart, authentic, no hype, no fake references.
 3. If nothing scores ≥6, set "score": 0.
 
@@ -128,7 +131,7 @@ Return exactly this JSON (no extra keys):
   "score": <int>,
   "title": "<max 12 words>",
   "url": "<url or empty string>",
-  "comment": "<line1>\\n\\n<line2>\\n\\n<line3> 👇"
+  "comment": "<1-2 lines, natural English>"
 }}"""
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
@@ -141,6 +144,15 @@ Return exactly this JSON (no extra keys):
 
     raw = msg.content[0].text.strip()
     log.debug("LLM raw response: %s", raw)
+
+    # Strip markdown code fences if present
+    if raw.startswith("```"):
+        lines = raw.split("\n")
+        if lines[0].startswith("```"):
+            lines = lines[1:]  # Remove opening fence
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]  # Remove closing fence
+        raw = "\n".join(lines).strip()
 
     try:
         data = json.loads(raw)
@@ -155,8 +167,8 @@ Return exactly this JSON (no extra keys):
     return data["comment"], data
 
 
-def publish_linkedin(comment: str, person_id: str, token: str) -> str:
-    """Post a public text update to LinkedIn. Returns the post ID."""
+def publish_linkedin(comment: str, article_url: str, article_title: str, person_id: str, token: str) -> str:
+    """Post a public text update with article link to LinkedIn. Returns the post ID."""
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",
@@ -169,6 +181,12 @@ def publish_linkedin(comment: str, person_id: str, token: str) -> str:
         "visibility": "PUBLIC",
         "distribution": {"feedDistribution": "MAIN_FEED"},
         "lifecycleState": "PUBLISHED",
+        "content": {
+            "article": {
+                "source": article_url,
+                "title": article_title,
+            }
+        },
     }
     resp = requests.post(LINKEDIN_API, headers=headers, json=payload, timeout=30)
 
@@ -228,6 +246,8 @@ def main() -> None:
         # 3 — Publish
         post_id = publish_linkedin(
             comment,
+            story.get("url", ""),
+            story["title"],
             os.environ["LINKEDIN_PERSON_ID"],
             os.environ["LINKEDIN_ACCESS_TOKEN"],
         )

@@ -51,12 +51,14 @@ The script requires these environment variables (defined in `.env` locally, or a
 3. **`publish_linkedin()`** — Posts to LinkedIn REST API using `X-Restli-Protocol-Version: 2.0.0` and `LinkedIn-Version: 202408`
 4. **`send_telegram()`** — Best-effort notification (doesn't fail pipeline on error)
 
-**Content scoring**: Claude Haiku scores stories 1-10 on novelty, technical impact, and relevance. Only scores ≥6 get published. This prevents low-quality posts.
+**Content scoring**: Claude Haiku scores stories 1-10 on novelty, technical impact, and broad relevance. Only scores ≥6 get published. This prevents low-quality posts.
 
-**Comment format**: 3-line LinkedIn comment with:
-- Line 1: fresh reframe or non-obvious angle
-- Line 2: strategic/architectural implication
-- Line 3: intriguing close ending with 👇
+**Post format**: LinkedIn post with article link + comment (max 2 lines, 3 only if score ≥9):
+- Technical but accessible to everyone (not just experts)
+- Natural, conversational English — smart but authentic
+- No fake hype, no forced emojis, no jargon
+- Focus: what's interesting and why it matters
+- The article link is included via LinkedIn's "content.article" field
 
 ## LinkedIn API Details
 

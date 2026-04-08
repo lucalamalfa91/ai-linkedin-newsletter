@@ -1,0 +1,49 @@
+name: Daily LinkedIn AI Post
+
+on:
+  schedule:
+    # Runs at 6 AM UTC (7 AM CET / 8 AM CEST) every day
+    # With random delay, posts between 7-9 AM Italian time
+    - cron: '0 6 * * *'
+  workflow_dispatch:  # Allows manual trigger from GitHub UI
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Random delay (0-120 min)
+        run: |
+          DELAY=$((RANDOM % 7200))
+          echo "Waiting $DELAY seconds before posting..."
+          sleep $DELAY
+
+      - name: Run daily post script
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_ID: ${{ secrets.LINKEDIN_PERSON_ID }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python daily_post.py
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d "chat_id=${{ secrets.TELEGRAM_CHAT_ID }}" \
+            -d "text=❌ GitHub Action FAILED: Daily LinkedIn post workflow encountered an error" \
+            -d "parse_mode=HTML"
