@@ -159,14 +159,13 @@ def fetch_feeds() -> list[dict]:
 
 
 def _truncate_comment(comment: str) -> str:
-    """Hard-cap comment to 4 lines (excluding hashtag line)."""
+    """Hard-cap comment to 2 content lines + hashtag line."""
     lines = comment.split("\n")
-    # Allow up to 5 lines if last line contains only hashtags
     content_lines = [l for l in lines if not l.strip().startswith("#")]
     hashtag_lines = [l for l in lines if l.strip().startswith("#")]
-    if len(content_lines) > 4:
-        log.warning("LLM comment exceeded 4 content lines (%d) — truncating", len(content_lines))
-        content_lines = content_lines[:4]
+    if len(content_lines) > 2:
+        log.warning("LLM comment exceeded 2 content lines (%d) — truncating", len(content_lines))
+        content_lines = content_lines[:2]
     return "\n".join(content_lines + hashtag_lines)
 
 
@@ -189,7 +188,7 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
         "His voice: friendly, direct, enthusiastic but never over-the-top. Like a colleague sharing something interesting at coffee. "
         "ONE idea per post. Short sentences. Breathe between thoughts. "
         "Never more than one technical term per post — and when you use one, explain it in plain words immediately after. "
-        "Posts must NOT sound AI-generated. No bullet lists. No structured breakdowns. No 'here are X patterns'. "
+        "Posts must NOT sound AI-generated. No bullet lists. No structured breakdowns. No 'here are X patterns'. No closing questions. "
         "Banned words: game-changer, revolutionary, unlock, empower, leverage, synergy, groundbreaking, orchestration layer, control loop, paradigm. "
         "End every post with 2-3 relevant hashtags on the last line. "
         "Reply ONLY with valid JSON, no markdown fences."
@@ -211,7 +210,7 @@ Scoring rules (1-10):
   +2  From a top source: OpenAI, Anthropic, LangChain, LlamaIndex, Hugging Face,
       Simon Willison, The Batch, Sebastian Raschka, The Gradient, Microsoft Research,
       TechCrunch, VentureBeat
-  +1  Story sparks a genuine question that anyone in tech would want to discuss
+  +1  Story sparks a genuine reaction from anyone in tech
   -3  Pure product marketing, no real content
   -3  Sysadmin / DevOps only, no AI angle
   -2  Generic "AI is transforming X" without concrete detail
@@ -221,24 +220,22 @@ IMPORTANT:
   - Copy the exact URL from the list — never invent one.
 
 Post style (STRICT — Luca's personal voice):
-  - 3 short sentences max. Hard max 4.
-  - Sentence 1: hook — share the news or finding simply, like you\'re telling a friend.
-    One relevant emoji at the start or naturally placed in the sentence.
-  - Sentence 2: why it matters — one clear, plain-language takeaway. No jargon.
-  - Sentence 3: open question that anyone in tech can answer, not just experts. Ends with 👇
-  - Last line: 2-3 hashtags relevant to the story (e.g. #AI #Agents #LLM).
-  - Total: warm, human, snappy. Someone who reads it should think \"this person knows their stuff\"
-    but NOT \"this was written by a bot\".
+  - Exactly 2 sentences. No more.
+  - NO closing question. NO call to action. Just share and comment.
+  - Sentence 1: share the news simply, like telling a friend. One emoji placed naturally.
+  - Sentence 2: one plain-language takeaway — why it matters or what you find interesting about it.
+  - Last line: 2-3 hashtags relevant to the story.
+  - Total feel: warm, human, snappy. A person sharing something cool — not a bot summarising news.
 
 Examples of Luca's REAL voice (copy this tone exactly):
 
-  "🚀 Anthropic just released a new way to structure AI agents — splitting them into planner, generator and checker roles.\nSimpler to debug, more reliable on long tasks. Honestly a smart move.\nAre you already splitting your agents by role, or still running everything in one? 👇\n#AI #Agents #Anthropic"
+  "🚀 Anthropic just released a new way to structure AI agents — splitting them into planner, generator and checker roles.\nSimpler to debug and more reliable on long tasks — honestly a smart move.\n#AI #Agents #Anthropic"
 
-  "OpenAI cut GPT-4o prices again. 💰\nA few months ago this would\'ve been unthinkable — now it\'s almost routine.\nIs cost still the main blocker for you when building with AI, or has something else taken its place? 👇\n#AI #OpenAI #LLM"
+  "OpenAI cut GPT-4o prices again. 💰\nA few months ago this would\'ve been unthinkable — now it\'s almost routine.\n#AI #OpenAI #LLM"
 
-  "LangGraph added persistent memory for agents. 🤔\nMeans your AI assistant can actually remember what you were working on last session — no more starting from scratch.\nHow are you handling memory in your projects today? 👇\n#AI #LangChain #Agents"
+  "LangGraph added persistent memory for agents. 🤔\nMeans your AI assistant can actually remember what you were working on last session — no more starting from scratch.\n#AI #LangChain #Agents"
 
-  "Hugging Face just open-sourced a new reasoning model that rivals GPT-4. 🔥\nOpen source keeps closing the gap — and that\'s good for everyone building in this space.\nDo you prefer open source or commercial models for your work? 👇\n#AI #OpenSource #LLM"
+  "Hugging Face just open-sourced a new reasoning model that rivals GPT-4. 🔥\nOpen source keeps closing the gap — and that\'s good for everyone building in this space.\n#AI #OpenSource #LLM"
 
 Return exactly this JSON:
 {{
@@ -248,7 +245,7 @@ Return exactly this JSON:
       "score": <int 1-10>,
       "title": "<story title, max 12 words>",
       "url": "<exact URL from the item list>",
-      "comment": "<post text, newlines as \\n, hashtags on last line>"
+      "comment": "<2 sentences + hashtag line, newlines as \\n>"
     }}
   ]
 }}"""
