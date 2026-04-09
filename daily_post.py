@@ -34,12 +34,12 @@ RSS_FEEDS = {
     "LangChain Blog":     "https://blog.langchain.dev/rss/",
     "LlamaIndex Blog":    "https://www.llamaindex.ai/blog/rss.xml",
     "Hugging Face":       "https://huggingface.co/blog/feed.xml",
-    # Practitioner / engineering deep-dives
+    # Practitioner / engineering deep-dives — open access, concise content
     "Simon Willison":     "https://simonwillison.net/atom/everything/",
     "The Batch (deeplearning.ai)": "https://www.deeplearning.ai/the-batch/feed/",
-    "Medium — LLM":       "https://medium.com/feed/tag/large-language-models",
-    "Medium — AI Agents": "https://medium.com/feed/tag/ai-agents",
-    "Medium — RAG":       "https://medium.com/feed/tag/retrieval-augmented-generation",
+    "Sebastian Raschka":  "https://magazine.sebastianraschka.com/feed",
+    "The Gradient":       "https://thegradient.pub/rss/",
+    "Microsoft Research": "https://www.microsoft.com/en-us/research/feed/",
     # Industry news with technical depth
     "TechCrunch AI":      "https://techcrunch.com/category/artificial-intelligence/feed/",
     "VentureBeat AI":     "https://venturebeat.com/category/ai/feed/",
@@ -190,7 +190,8 @@ Scoring rules (1-10):
       token cost, tool use, MCP, agent memory, Claude Code, etc.)
   +2  Practical implementation or pattern — not just an announcement
   +2  From a top source: OpenAI, Anthropic, LangChain, LlamaIndex, Hugging Face,
-      Simon Willison, The Batch, TechCrunch, VentureBeat, Medium
+      Simon Willison, The Batch, Sebastian Raschka, The Gradient, Microsoft Research,
+      TechCrunch, VentureBeat
   +1  Story connects to something engineers are actively debating right now
   -3  Pure product marketing, no technical substance
   -3  Sysadmin / DevOps only, no AI-specific insight
@@ -213,11 +214,11 @@ Comment style (STRICT):
 
 Examples of the RIGHT tone:
 
-  "🤔 LangGraph just added persistent memory across agent runs.\nFinally — stateful agents without rolling your own store. This changes how you design multi-step workflows.\nHow are you handling agent state today? 👇"
+  "🤔 LangGraph just added persistent memory across agent runs.\\nFinally — stateful agents without rolling your own store. This changes how you design multi-step workflows.\\nHow are you handling agent state today? 👇"
 
-  "RAG is not a silver bullet. 🤔\nMost failures I see come from retrieval quality, not the LLM. Reranking alone can cut hallucinations by half.\nWhat's your biggest RAG pain point right now? 👇"
+  "RAG is not a silver bullet. 🤔\\nMost failures I see come from retrieval quality, not the LLM. Reranking alone can cut hallucinations by half.\\nWhat's your biggest RAG pain point right now? 👇"
 
-  "💸 GPT-4o input tokens are now 5x cheaper than 6 months ago.\nCost is no longer the constraint — context design is. Are you still over-fetching context you don't need?\nHow do you decide what goes into the prompt? 👇"
+  "💸 GPT-4o input tokens are now 5x cheaper than 6 months ago.\\nCost is no longer the constraint — context design is. Are you still over-fetching context you don't need?\\nHow do you decide what goes into the prompt? 👇"
 
 Return exactly this JSON:
 {{
