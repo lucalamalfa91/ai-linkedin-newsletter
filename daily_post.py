@@ -430,10 +430,11 @@ def _write_post(story: dict, original: dict | None, client: anthropic.Anthropic)
         system=system,
         messages=[
             {"role": "user", "content": user},
-            {"role": "assistant", "content": "{"},
         ],
     )
-    raw = "{" + msg.content[0].text.strip()
+    raw = msg.content[0].text.strip()
+    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw)
     log.debug("Writing raw: %s", raw)
     try:
         data = json.loads(raw)
