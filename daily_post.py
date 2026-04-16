@@ -444,6 +444,42 @@ def _write_post(story: dict, original: dict | None, client: anthropic.Anthropic)
     return data.get("comment") or None
 
 
+_BANNED_WORDS = [
+    "game-changer", "revolutionary", "unlock", "empower", "leverage", "synergy",
+    "groundbreaking", "orchestration layer", "control loop", "paradigm", "delve", "transformative",
+]
+
+
+def _critique_post(comment: str, client: anthropic.Anthropic) -> dict:
+    """Call Haiku to quality-check the generated post. Returns {"score": int, "issues": list[str]}."""
+    system = "You are a strict LinkedIn post quality checker. Return valid JSON only — no markdown fences."
+    user = (
+        f"Evaluate this LinkedIn post on a 1-10 scale.\n\n"
+        f"POST:\n{comment}\n\n"
+        f"Scoring criteria:\n"
+        f"- Format (3 pts): exactly 2 sentences + one hashtag line, one emoji in sentence 1\n"
+        f"- Tone (3 pts): natural, not AI-sounding, no hyperbole, no call-to-action\n"
+        f"- Banned words (2 pts): none of: {', '.join(_BANNED_WORDS)}\n"
+        f"- Value (2 pts): clear takeaway, explains why it matters\n\n"
+        'Return: {"score": <1-10>, "issues": ["<issue1>", ...]}'
+    )
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=150,
+        temperature=0,
+        system=system,
+        messages=[{"role": "user", "content": user}],
+    )
+    raw = msg.content[0].text.strip()
+    raw = re.sub(r"^```(?:json)?\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        log.warning("Critic returned invalid JSON: %s — assuming OK", raw)
+        return {"score": 10, "issues": []}
+
+
 def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
     """Rank stories then write a LinkedIn post for the best qualifying one.
 
@@ -487,6 +523,19 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
         if not comment:
             log.warning("  -> failed to write post, trying next candidate")
             continue
+
+        for attempt in range(2):
+            critique = _critique_post(comment, client)
+            c_score = critique.get("score", 10)
+            c_issues = critique.get("issues", [])
+            log.info("Critic attempt=%d score=%d issues=%s", attempt + 1, c_score, c_issues)
+            if c_score >= 7:
+                break
+            if attempt == 0:
+                log.warning("Critic score=%d — retrying post generation", c_score)
+                retry = _write_post(candidate, original, client)
+                if retry:
+                    comment = retry
 
         comment = _truncate_comment(comment)
         log.info("Selected candidate rank=%s score=%d", rank, score)
