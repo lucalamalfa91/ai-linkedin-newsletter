@@ -10,6 +10,8 @@ import os
 import re
 import sys
 from datetime import datetime, timedelta, timezone
+from html.parser import HTMLParser
+from urllib.request import Request, urlopen
 
 import anthropic
 import feedparser
@@ -73,6 +75,7 @@ MIN_SCORE = 5
 RANKED_TOP_N = 5
 
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
+LINKEDIN_IMAGES_API = "https://api.linkedin.com/rest/images?action=initializeUpload"
 LINKEDIN_VERSION = "202603"
 
 
@@ -119,6 +122,111 @@ def normalize_url(url: str) -> str:
 
 def _is_valid_url(url: str) -> bool:
     return bool(url) and url.startswith("https://")
+
+
+def _fetch_og_meta(url: str) -> dict:
+    """Return og:image and og:description from url. Returns {} on any failure."""
+    class _OGParser(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.image = ""
+            self.description = ""
+
+        def handle_starttag(self, tag, attrs):
+            if tag != "meta":
+                return
+            attr = dict(attrs)
+            prop = attr.get("property", "") or attr.get("name", "")
+            content = attr.get("content", "").strip()
+            if not content:
+                return
+            if prop == "og:image" and not self.image:
+                self.image = content
+            elif prop == "og:description" and not self.description:
+                self.description = content
+
+    try:
+        req = Request(url, headers={"User-Agent": "Mozilla/5.0 (compatible; daily-post-bot/1.0)"})
+        with urlopen(req, timeout=10) as resp:
+            ct = resp.headers.get("Content-Type", "")
+            if "text/html" not in ct:
+                return {}
+            html = resp.read(102_400).decode("utf-8", errors="replace")
+        parser = _OGParser()
+        parser.feed(html)
+        result: dict = {}
+        if parser.image.startswith("http"):
+            result["image"] = parser.image
+        if parser.description:
+            desc = parser.description
+            if len(desc) > 250:
+                desc = desc[:250].rsplit(" ", 1)[0] + "\u2026"
+            result["description"] = desc
+        return result
+    except Exception as exc:  # noqa: BLE001
+        log.warning("OG meta fetch failed for %s: %s", url, exc)
+        return {}
+
+
+def _upload_linkedin_image(image_url: str, person_id: str, token: str) -> str | None:
+    """Upload image to LinkedIn Images API. Returns image URN or None on any failure."""
+    auth_headers = {
+        "Authorization": f"Bearer {token}",
+        "LinkedIn-Version": LINKEDIN_VERSION,
+    }
+    try:
+        # Step 1 — download image bytes
+        img_resp = requests.get(image_url, timeout=10)
+        if not img_resp.ok:
+            log.warning("Image download failed (%s): %s", img_resp.status_code, image_url)
+            return None
+        content_type = img_resp.headers.get("Content-Type", "image/jpeg").split(";")[0].strip()
+        if not content_type.startswith("image/"):
+            log.warning("Unexpected Content-Type '%s' for image URL", content_type)
+            return None
+        image_bytes = img_resp.content
+        if len(image_bytes) > 1_048_576:
+            log.warning("Image too large (%d bytes) — skipping thumbnail", len(image_bytes))
+            return None
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Image download error: %s", exc)
+        return None
+
+    try:
+        # Step 2 — initialise LinkedIn upload
+        init_resp = requests.post(
+            LINKEDIN_IMAGES_API,
+            headers={**auth_headers, "Content-Type": "application/json"},
+            json={"initializeUploadRequest": {"owner": person_id}},
+            timeout=15,
+        )
+        if not init_resp.ok:
+            log.warning("LinkedIn image init failed (%s): %s", init_resp.status_code, init_resp.text)
+            return None
+        value = init_resp.json()["value"]
+        upload_url: str = value["uploadUrl"]
+        image_urn: str = value["image"]
+    except Exception as exc:  # noqa: BLE001
+        log.warning("LinkedIn image init error: %s", exc)
+        return None
+
+    try:
+        # Step 3 — upload binary (pre-signed URL, no auth header)
+        put_resp = requests.put(
+            upload_url,
+            data=image_bytes,
+            headers={"Content-Type": content_type},
+            timeout=30,
+        )
+        if not put_resp.ok:
+            log.warning("LinkedIn image PUT failed (%s)", put_resp.status_code)
+            return None
+    except Exception as exc:  # noqa: BLE001
+        log.warning("LinkedIn image PUT error: %s", exc)
+        return None
+
+    log.info("LinkedIn image uploaded: %s", image_urn)
+    return image_urn
 
 
 def fetch_feeds() -> list[dict]:
@@ -341,6 +449,18 @@ def publish_linkedin(comment: str, article_url: str, article_title: str, person_
         "X-Restli-Protocol-Version": "2.0.0",
         "LinkedIn-Version": LINKEDIN_VERSION,
     }
+
+    # Best-effort OG enrichment — never blocks publishing
+    og = _fetch_og_meta(article_url)
+    thumbnail_urn = _upload_linkedin_image(og["image"], person_id, token) if og.get("image") else None
+    log.info("Article enrichment — thumbnail=%s desc_len=%d", thumbnail_urn, len(og.get("description", "")))
+
+    article: dict = {"source": article_url, "title": article_title}
+    if thumbnail_urn:
+        article["thumbnail"] = thumbnail_urn
+    if og.get("description"):
+        article["description"] = og["description"]
+
     payload: dict = {
         "author": person_id,
         "commentary": comment,
@@ -348,12 +468,7 @@ def publish_linkedin(comment: str, article_url: str, article_title: str, person_
         "distribution": {"feedDistribution": "MAIN_FEED"},
         "lifecycleState": "PUBLISHED",
         "isReshareDisabledByAuthor": False,
-        "content": {
-            "article": {
-                "source": article_url,
-                "title": article_title,
-            }
-        },
+        "content": {"article": article},
     }
 
     resp = requests.post(LINKEDIN_API, headers=headers, json=payload, timeout=30)
