@@ -71,7 +71,7 @@ FOCUS_TOPICS = (
     "agent memory, agent skills / capabilities"
 )
 
-MIN_SCORE = 5
+MIN_SCORE = 6
 RANKED_TOP_N = 5
 
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
@@ -277,15 +277,42 @@ def _truncate_comment(comment: str) -> str:
     return "\n".join(content_lines + hashtag_lines)
 
 
+def _detect_trending_topics(items: list[dict]) -> str:
+    """Return keywords that appear in titles/summaries of 3+ different sources — proxy for trending topics."""
+    _stop = {
+        "the", "and", "for", "with", "this", "that", "from", "have", "been",
+        "will", "are", "its", "how", "new", "more", "what", "can", "about",
+        "your", "our", "their", "using", "used", "based", "which", "model",
+        "models", "data", "blog", "post", "update", "deep", "neural", "large",
+        "language", "learn", "learning", "research", "paper", "work", "make",
+        "open", "like", "also", "they", "when", "into", "just", "some",
+    }
+    keyword_sources: dict[str, set] = {}
+    for item in items:
+        text = (item["title"] + " " + item.get("summary", "")).lower()
+        seen: set[str] = set()
+        for w in re.findall(r"\b[a-z]{4,15}\b", text):
+            if w in _stop or w in seen:
+                continue
+            seen.add(w)
+            keyword_sources.setdefault(w, set()).add(item["source"])
+    trending = sorted(
+        [w for w, srcs in keyword_sources.items() if len(srcs) >= 3],
+        key=lambda w: -len(keyword_sources[w]),
+    )
+    return ", ".join(trending[:12]) if trending else "none detected"
+
+
 def _rank_stories(items: list[dict], client: anthropic.Anthropic) -> list[dict]:
     """Call 1 — pure scoring at temperature=0: return ranked story list, no writing."""
+    trending_topics = _detect_trending_topics(items)
     feed_lines = "\n".join(
         f"[{i + 1}] ({it['source']}) {it['title']} — {it['link']} — {it['summary'][:200]}"
         for i, it in enumerate(items[:30])
     )
     top_sources = (
-        "OpenAI, Anthropic, LangChain, LlamaIndex, Hugging Face, Simon Willison, "
-        "The Batch, Sebastian Raschka, The Gradient, Microsoft Research, TechCrunch, VentureBeat"
+        "OpenAI, Anthropic, Google DeepMind, LangChain, LlamaIndex, Hugging Face, "
+        "Simon Willison, The Batch, Sebastian Raschka, The Gradient, Microsoft Research"
     )
     system = (
         "You are a content-ranking assistant. Score AI news stories for a LinkedIn audience. "
@@ -293,22 +320,42 @@ def _rank_stories(items: list[dict], client: anthropic.Anthropic) -> list[dict]:
     )
     user = (
         f"AI news from the last 24 hours:\n{feed_lines}\n\n"
-        f"Focus topics (score highest):\n{FOCUS_TOPICS}\n\n"
-        "Scoring rules (1-10):\n"
-        "  +3  Story directly covers a focus topic\n"
-        "  +2  Practical and relevant to people building or curious about AI today\n"
-        f"  +2  From a top source: {top_sources}\n"
-        "  +1  Sparks a genuine reaction from anyone in tech\n"
-        "  -3  Pure product marketing, no real content\n"
-        "  -3  Sysadmin / DevOps only, no AI angle\n"
-        "  -2  Generic \"AI is transforming X\" without concrete detail\n\n"
+        f"Topics trending across multiple sources right now: {trending_topics}\n\n"
+        f"Focus topics (always score highest when covered):\n{FOCUS_TOPICS}\n\n"
+        "Scoring rubric — start each story at 0, apply all applicable rules, cap at 10:\n"
+        "\n"
+        "CONTENT QUALITY\n"
+        "  +2  Concrete announcement: model/product release, open-source launch, measurable benchmark\n"
+        f"  +2  From a top-tier source: {top_sources}\n"
+        "  +1  Technical but accessible — a non-expert can understand why it matters\n"
+        "  -2  Pure opinion or commentary with no concrete news behind it\n"
+        "  -3  Pure product marketing, no substantive technical content\n"
+        "  -2  Vague 'AI is transforming X' framing with no concrete details\n"
+        "\n"
+        "TOPIC RELEVANCE\n"
+        "  +3  Directly covers a focus topic listed above\n"
+        "  +1  Clearly AI-relevant but tangential to focus topics\n"
+        "  -3  No meaningful AI angle (pure sysadmin, DevOps, or unrelated tech)\n"
+        "\n"
+        "TREND & TIMING\n"
+        "  +2  Topic appears in the trending list above (covered by multiple sources today)\n"
+        "  +1  Topic is at the center of current AI discourse: agentic AI, reasoning models,\n"
+        "      multimodal, cost reduction, AI coding, local/on-device AI\n"
+        "  -1  Story is clearly old news already widely covered days ago\n"
+        "\n"
+        "LINKEDIN PROFILE VALUE (for a senior software engineer's personal brand)\n"
+        "  +2  Surprising, specific or counterintuitive — makes someone stop scrolling\n"
+        "  +1  Sharing this positions the author as knowledgeable and ahead of the curve\n"
+        "  -1  Too niche for anyone outside a narrow research subfield\n"
+        "  -2  Sharing this looks like reposting a press release — zero credibility value\n"
+        "\n"
         f"Return exactly {RANKED_TOP_N} candidates, best-first. "
         "Copy URLs exactly from the list above — never invent one.\n\n"
         '{"ranked": [{"rank": 1, "score": <1-10>, "title": "<max 12 words>", "url": "<exact URL from list>"}, ...]}'
     )
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=400,
+        max_tokens=500,
         temperature=0,
         system=system,
         messages=[
