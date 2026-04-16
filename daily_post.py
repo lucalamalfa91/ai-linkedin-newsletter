@@ -151,7 +151,7 @@ def _fetch_og_meta(url: str) -> dict:
             ct = resp.headers.get("Content-Type", "")
             if "text/html" not in ct:
                 return {}
-            html = resp.read(102_400).decode("utf-8", errors="replace")
+            html = resp.read(512_000).decode("utf-8", errors="replace")
         parser = _OGParser()
         parser.feed(html)
         result: dict = {}
@@ -185,8 +185,8 @@ def _upload_linkedin_image(image_url: str, person_id: str, token: str) -> str | 
             log.warning("Unexpected Content-Type '%s' for image URL", content_type)
             return None
         image_bytes = img_resp.content
-        if len(image_bytes) > 1_048_576:
-            log.warning("Image too large (%d bytes) — skipping thumbnail", len(image_bytes))
+        if len(image_bytes) > 5_242_880:
+            log.warning("Image too large (%d bytes > 5 MB) — skipping thumbnail", len(image_bytes))
             return None
     except Exception as exc:  # noqa: BLE001
         log.warning("Image download error: %s", exc)
@@ -476,6 +476,12 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
         candidate["url"] = url
         original = next((it for it in items if it["link"] == url), None)
 
+        og = _fetch_og_meta(url)
+        if not og.get("image"):
+            log.info("  -> skipped (no thumbnail available), trying next")
+            continue
+        candidate["og"] = og
+
         log.info("Writing post for rank=%s score=%d", rank, score)
         comment = _write_post(candidate, original, client)
         if not comment:
@@ -490,7 +496,7 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
     return None, None
 
 
-def publish_linkedin(comment: str, article_url: str, article_title: str, person_id: str, token: str) -> str:
+def publish_linkedin(comment: str, article_url: str, article_title: str, person_id: str, token: str, og: dict | None = None) -> str:
     """Post a public article update to LinkedIn. Returns the post ID."""
     headers = {
         "Authorization": f"Bearer {token}",
@@ -499,8 +505,8 @@ def publish_linkedin(comment: str, article_url: str, article_title: str, person_
         "LinkedIn-Version": LINKEDIN_VERSION,
     }
 
-    # Best-effort OG enrichment — never blocks publishing
-    og = _fetch_og_meta(article_url)
+    if og is None:
+        og = _fetch_og_meta(article_url)
     thumbnail_urn = _upload_linkedin_image(og["image"], person_id, token) if og.get("image") else None
     log.info("Article enrichment — thumbnail=%s desc_len=%d", thumbnail_urn, len(og.get("description", "")))
 
@@ -576,6 +582,7 @@ def main() -> None:
             story["title"],
             os.environ["LINKEDIN_PERSON_ID"],
             os.environ["LINKEDIN_ACCESS_TOKEN"],
+            og=story.get("og"),
         )
 
         tg_msg = (
