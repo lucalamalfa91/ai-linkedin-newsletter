@@ -72,6 +72,11 @@ FOCUS_TOPICS = (
     "AI governance, AI regulation, EU AI Act, responsible AI, "
     "model robustness, out-of-distribution, hallucination detection, "
     "guardrails, content moderation, output filtering, "
+    # Mechanistic interpretability — understanding model internals
+    "mechanistic interpretability, model interpretability, neural network interpretability, "
+    "circuits, superposition, features, sparse autoencoders, SAE, "
+    "model internals, attention heads, MLP layers, residual stream, "
+    "Chris Olah, Anthropic interpretability, transformer circuits, "
     # LLM capabilities & reasoning
     "LLM capabilities, emergent capabilities, reasoning models, chain-of-thought, "
     "tree-of-thought, reflection, self-critique, model self-evaluation, "
