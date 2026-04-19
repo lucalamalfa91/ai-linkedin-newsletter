@@ -5,7 +5,12 @@ on:
     # Runs at 6 AM UTC (7 AM CET / 8 AM CEST) every monday
     # With random delay, posts between 7-9 AM Italian time
     - cron: '0 6 * * 1'
-  workflow_dispatch:  # Allows manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Custom focus topic (leave empty for default pipeline)'
+        required: false
+        default: ''
 
 jobs:
   post:
@@ -32,6 +37,7 @@ jobs:
           LINKEDIN_PERSON_ID: ${{ secrets.LINKEDIN_PERSON_ID }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          TOPIC: ${{ github.event.inputs.topic }}
         run: python post.py
 
       - name: Notify on failure
