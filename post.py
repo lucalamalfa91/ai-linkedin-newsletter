@@ -4,6 +4,7 @@
 Flow: fetch RSS feeds → Claude Haiku ranks top stories → pick first with valid URL → publish LinkedIn → notify Telegram.
 """
 
+import argparse
 import json
 import logging
 import os
@@ -333,7 +334,7 @@ def _detect_trending_topics(items: list[dict]) -> str:
     return ", ".join(trending[:12]) if trending else "none detected"
 
 
-def _rank_stories(items: list[dict], client: anthropic.Anthropic) -> list[dict]:
+def _rank_stories(items: list[dict], client: anthropic.Anthropic, focus_topics: str = FOCUS_TOPICS) -> list[dict]:
     """Call 1 — pure scoring at temperature=0: return ranked story list, no writing."""
     trending_topics = _detect_trending_topics(items)
     feed_lines = "\n".join(
@@ -351,7 +352,7 @@ def _rank_stories(items: list[dict], client: anthropic.Anthropic) -> list[dict]:
     )
     # Static part: criteria that never change between runs — eligible for prompt caching
     static_context = (
-        f"Focus topics (always score highest when covered):\n{FOCUS_TOPICS}\n\n"
+        f"Focus topics (always score highest when covered):\n{focus_topics}\n\n"
         "Scoring rubric — start each story at 0, apply all applicable rules, cap at 10:\n"
         "\n"
         "CONTENT QUALITY\n"
@@ -528,7 +529,7 @@ def _critique_post(comment: str, client: anthropic.Anthropic) -> dict:
         return {"score": 10, "issues": []}
 
 
-def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
+def select_and_comment(items: list[dict], focus_topics: str = FOCUS_TOPICS) -> tuple[str | None, dict | None]:
     """Rank stories then write a LinkedIn post for the best qualifying one.
 
     Returns the comment text and the selected story dict, or (None, None).
@@ -538,7 +539,7 @@ def select_and_comment(items: list[dict]) -> tuple[str | None, dict | None]:
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-    ranked = _rank_stories(items, client)
+    ranked = _rank_stories(items, client, focus_topics)
     if not ranked:
         return None, None
 
@@ -658,12 +659,19 @@ def main() -> None:
         "ANTHROPIC_API_KEY",
     )
 
+    parser = argparse.ArgumentParser(description="LinkedIn AI News Post")
+    parser.add_argument("--topic", type=str, default=None, help="Custom focus topic (overrides FOCUS_TOPICS)")
+    args = parser.parse_args()
+    focus = args.topic or os.environ.get("TOPIC") or FOCUS_TOPICS
+    if focus != FOCUS_TOPICS:
+        log.info("Using custom topic: %s", focus)
+
     tg_token = os.environ["TELEGRAM_BOT_TOKEN"]
     tg_chat  = os.environ["TELEGRAM_CHAT_ID"]
 
     try:
         items = fetch_feeds()
-        comment, story = select_and_comment(items)
+        comment, story = select_and_comment(items, focus_topics=focus)
 
         if not comment:
             msg = f"<b>AI LinkedIn Post</b>: no qualifying news (threshold={MIN_SCORE}/10 across 7 days). Skipping — consider checking feed sources."
