@@ -1,20 +1,22 @@
 # AI LinkedIn Newsletter
 
-Automated LinkedIn AI news pipeline that discovers, curates, and publishes the best AI story — with full editorial quality control powered by Claude.
+Automated LinkedIn AI news pipeline that discovers, curates, and publishes the best AI story — with full editorial quality control powered by Claude and a self-improving ranking engine that learns from post performance over time.
 
 ---
 
 ## What It Does
 
 1. **Fetches** AI news from 19 RSS sources spanning AI labs, framework authors, researchers, and industry media
-2. **Detects** trending topics by cross-referencing which keywords appear across multiple independent sources
-3. **Ranks** up to 40 candidate stories using Claude Haiku (scored 1–10 across 4 editorial dimensions)
-4. **Selects** the top-scoring candidate with a valid URL and accessible thumbnail image
-5. **Writes** a LinkedIn post using Claude Sonnet — natural, conversational, 2 sentences + hashtags
-6. **Critiques** the draft with Claude Haiku; if quality score < 7/10, regenerates the post (up to 1 retry)
-7. **Uploads** the article thumbnail to LinkedIn's Images API and attaches it to the post as rich media
-8. **Publishes** the post to LinkedIn via REST API (only if story score ≥ 6/10)
-9. **Notifies** via Telegram — success with full post preview, or error with exception detail
+2. **Collects analytics** for recent posts (7–21 days old) from the LinkedIn Analytics API — reactions, comments, reposts, impressions
+3. **Detects** trending topics by cross-referencing which keywords appear across multiple independent sources
+4. **Ranks** up to 40 candidate stories using Claude Haiku (scored 1–10 across 4 editorial dimensions), with adaptive bonuses derived from post performance history
+5. **Selects** the top-scoring candidate with a valid URL and accessible thumbnail image — penalising the same source published the previous week (source diversity)
+6. **Writes** a LinkedIn post using Claude Sonnet — natural, conversational, 2 sentences + hashtags
+7. **Critiques** the draft with Claude Haiku; if quality score < 7/10, regenerates the post (up to 1 retry)
+8. **Uploads** the article thumbnail to LinkedIn's Images API and attaches it to the post as rich media
+9. **Publishes** the post to LinkedIn via REST API (only if story score ≥ 6/10)
+10. **Records** the post metadata (title, source, score, hashtags, topics) to `history.json`, committed back to the repository
+11. **Notifies** via Telegram — success with full post preview, or error with exception detail
 
 The entire pipeline runs as a single Python script (`post.py`) with no external configuration files.
 
@@ -23,6 +25,17 @@ The entire pipeline runs as a single Python script (`post.py`) with no external 
 ## Pipeline Architecture
 
 ```
+load_history()              — load history.json (post metadata + analytics)
+       │
+       ▼
+update_analytics_for_       — fetch LinkedIn Analytics API for posts 7–21 days old
+  recent_posts()              reactions / comments / reposts / impressions → history.json
+       │
+       ▼
+_compute_performance_       — derive per-source and per-topic engagement bonuses
+  bonuses()                   from historical data (high performers +1, low performers −1)
+       │
+       ▼
 fetch_feeds()               — 19 RSS sources, last 7 days, sorted newest-first
        │
        ▼
@@ -30,7 +43,7 @@ _detect_trending_topics()   — keyword frequency across sources (proxy for what
        │
        ▼
 _rank_stories()             — Claude Haiku scores up to 40 stories, returns top 5 candidates
-       │
+       │                       (rubric + adaptive performance bonuses + source diversity penalty)
        ▼
   for each candidate (ranked best-first):
        │
@@ -54,6 +67,10 @@ _upload_linkedin_image()    — download og:image, upload to LinkedIn Images API
 publish_linkedin()          — POST to LinkedIn REST API with article card + thumbnail
        │
        ▼
+save_history() +            — record new post to history.json, commit and push to repo
+  commit_history_to_git()
+       │
+       ▼
 send_telegram()             — best-effort notification (never fails the pipeline)
 ```
 
@@ -72,6 +89,76 @@ send_telegram()             — best-effort notification (never fails the pipeli
 | **LLM Efficiency & Prompt Engineering** | Chip Huyen, Eugene Yan, Lilian Weng, Interconnects, Hamel Husain |
 
 Feed fetch failures are caught per-source and logged as warnings — a single failing feed never stops the pipeline.
+
+---
+
+## Analytics & Adaptive Ranking
+
+### How It Works
+
+After several weeks of publishing, the pipeline accumulates performance data in `history.json`. At the start of each run, it fetches LinkedIn analytics for posts that are between 7 and 21 days old — giving enough time for engagement to settle — and stores the results alongside the post metadata.
+
+The engagement score for each historical post is computed as:
+
+```
+engagement_score = reactions + comments × 2 + reposts × 3
+```
+
+Comments and reposts are weighted more heavily because the LinkedIn algorithm treats them as stronger signals than simple reactions.
+
+### Adaptive Bonuses in the Ranking Prompt
+
+Before Claude Haiku scores the weekly candidates, the pipeline injects a performance context block into the prompt:
+
+```
+ADAPTIVE RANKING (past performance):
+HISTORICAL PERFORMANCE BONUS — apply +1 to stories from: Anthropic, Simon Willison
+HISTORICAL PERFORMANCE PENALTY — apply -1 to stories from: VentureBeat AI, TechCrunch AI
+HIGH-ENGAGEMENT TOPICS: agents, reasoning, interpretability
+
+SOURCE DIVERSITY: 'Anthropic' published last week — apply -1 to avoid feed repetition.
+```
+
+**Bonus thresholds**: a source earns +1 when its mean engagement score is ≥ 1.3× the overall average; it receives −1 when it falls below 0.6× the average (minimum 3 published posts required before a penalty applies). Topic bonuses require at least 2 data points.
+
+The adaptive context is placed in the dynamic (non-cached) portion of the prompt so it never invalidates the prompt cache on the static scoring rubric.
+
+### `history.json` Schema
+
+Each entry is keyed by the LinkedIn post URN. The file is committed back to the repo by GitHub Actions after every run.
+
+```json
+{
+  "urn:li:share:1234567890": {
+    "post_id":       "urn:li:share:1234567890",
+    "published_at":  "2026-04-22T07:15:26+00:00",
+    "article_url":   "https://example.com/article",
+    "article_title": "Anthropic releases Claude 4 with extended thinking",
+    "source":        "Anthropic",
+    "score":         8,
+    "comment_text":  "Anthropic released Claude 4 with extended thinking...\n#AI #Anthropic",
+    "topics":        ["agents", "reasoning", "claude"],
+    "hashtags":      ["#AI", "#Anthropic"],
+    "analytics":     {
+      "fetched_at":       "2026-04-29T07:10:00+00:00",
+      "reactions":        142,
+      "comments":         17,
+      "reposts":          8,
+      "impressions":      3200,
+      "engagement_score": 201
+    }
+  }
+}
+```
+
+`analytics` is `null` until the post is at least 7 days old. Once fetched, it is not re-fetched (avoids redundant API calls and quota usage).
+
+### LinkedIn Analytics API
+
+- **Endpoint**: `GET https://api.linkedin.com/rest/memberCreatorPostAnalytics`
+- **Required scope**: `r_member_social` (see [OAuth scope requirements](#environment-variables))
+- **Query types**: `REACTION`, `COMMENT`, `REPOST`, `IMPRESSION`
+- **Graceful degradation**: if the API returns 403 (scope not granted), analytics collection is silently skipped for that run — the pipeline continues and the ranking falls back to the static rubric
 
 ---
 
@@ -259,7 +346,7 @@ When an image is available:
 | Variable | Description | How to Get |
 |----------|-------------|------------|
 | `ANTHROPIC_API_KEY` | Claude API key | [console.anthropic.com](https://console.anthropic.com/) |
-| `LINKEDIN_ACCESS_TOKEN` | OAuth 2.0 access token with `w_member_social` scope | [LinkedIn Developer Portal](https://www.linkedin.com/developers/) |
+| `LINKEDIN_ACCESS_TOKEN` | OAuth 2.0 access token | [LinkedIn Developer Portal](https://www.linkedin.com/developers/) |
 | `LINKEDIN_PERSON_ID` | Your LinkedIn person URN | Format: `urn:li:person:XXXXX` — retrieve from `https://api.linkedin.com/v2/userinfo` |
 | `TELEGRAM_BOT_TOKEN` | Telegram bot token | [@BotFather](https://t.me/botfather) |
 | `TELEGRAM_CHAT_ID` | Telegram chat ID | [@userinfobot](https://t.me/userinfobot) |
@@ -269,15 +356,18 @@ All 5 variables are required. The script calls `require_env()` at startup and ex
 ### Getting LinkedIn Credentials
 
 1. Create a LinkedIn App at [developers.linkedin.com](https://www.linkedin.com/developers/)
-2. Add the **"Share on LinkedIn"** product to your app
-3. Generate an OAuth 2.0 token with the `w_member_social` scope
-4. Retrieve your Person URN from `https://api.linkedin.com/v2/userinfo` after authenticating
+2. Add the **"Share on LinkedIn"** and **"Marketing Developer Platform"** products to your app
+3. Request the following OAuth 2.0 scopes:
+   - `w_member_social` — required for publishing posts and uploading images
+   - `r_member_social` — required for reading post analytics (reactions, comments, reposts, impressions). This scope is restricted and requires [LinkedIn partner approval](https://learn.microsoft.com/en-us/linkedin/marketing/community-management/members/post-statistics). Without it, analytics collection is silently skipped and the pipeline falls back to static ranking.
+4. Generate an OAuth 2.0 token including both scopes
+5. Retrieve your Person URN from `https://api.linkedin.com/v2/userinfo` after authenticating
 
 ---
 
 ## GitHub Actions Setup
 
-The workflow in `.github/workflows/post.yml` runs the pipeline on a schedule.
+The workflow in `.github/workflows/post.yml` runs the pipeline on a schedule and automatically commits `history.json` back to the repository after each run.
 
 ### 1. Add Repository Secrets
 
@@ -291,40 +381,65 @@ Go to **Settings → Secrets and variables → Actions → New repository secret
 
 ### 2. Enable Actions
 
-The workflow file is already present. GitHub Actions will run it automatically on the configured schedule.
+The workflow file is already present. GitHub Actions will run it automatically on the configured schedule (**every Tuesday at 7 AM UTC** — 8 AM CET / 9 AM CEST, peak LinkedIn engagement window).
 
-### 3. Manual Trigger
+### 3. Repository Write Permission
+
+The workflow uses `permissions: contents: write` to allow `git push` after each run. This is already configured in `post.yml`. No additional setup is needed — the default `GITHUB_TOKEN` is used.
+
+The commit message `chore: update history.json [skip ci]` prevents the push from triggering a recursive workflow run.
+
+### 4. Manual Trigger
 
 - Go to the **Actions** tab
 - Select "LinkedIn AI Post"
 - Click **Run workflow**
+- Optionally provide a custom focus topic to override the default ranking topics
 
 ---
 
 ## Expected Log Output
 
-A successful run looks like this:
+A successful run (with analytics and adaptive ranking active) looks like this:
 
 ```
-2026-04-17T07:15:01 INFO Fetching OpenAI ...
-2026-04-17T07:15:02 INFO Fetching Anthropic ...
-2026-04-17T07:15:03 INFO Fetching Google DeepMind ...
+2026-04-22T07:15:01 INFO Loading history.json (12 entries)
+2026-04-22T07:15:01 INFO Fetching analytics for post urn:li:share:7300000000 (age=7d)
+2026-04-22T07:15:02 INFO Analytics updated for 1 posts
+2026-04-22T07:15:02 INFO history.json saved (12 entries)
+2026-04-22T07:15:02 INFO Adaptive ranking bonuses computed:
+                         HISTORICAL PERFORMANCE BONUS — apply +1 to stories from: Anthropic, Simon Willison
+                         HIGH-ENGAGEMENT TOPICS: agents, reasoning, interpretability
+2026-04-22T07:15:02 INFO Last published source: LangChain Blog
+2026-04-22T07:15:03 INFO Fetching OpenAI ...
+2026-04-22T07:15:04 INFO Fetching Anthropic ...
 ...
-2026-04-17T07:15:18 INFO Found 84 items in the last 7 days
-2026-04-17T07:15:22 INFO Candidate rank=1 score=8 url_valid=True title=Anthropic releases Claude 4 with extended thinking
-2026-04-17T07:15:23 INFO Writing post for rank=1 score=8
-2026-04-17T07:15:24 INFO Critic attempt=1 score=9 issues=[]
-2026-04-17T07:15:25 INFO LinkedIn image uploaded: urn:li:image:C5500AQH...
-2026-04-17T07:15:26 INFO LinkedIn post published — ID: urn:li:share:1234567890
-2026-04-17T07:15:26 INFO Telegram notification sent
-2026-04-17T07:15:26 INFO Pipeline completed successfully
+2026-04-22T07:15:19 INFO Found 91 items in the last 7 days
+2026-04-22T07:15:23 INFO Candidate rank=1 score=9 url_valid=True title=Anthropic releases Claude 4 with extended thinking
+2026-04-22T07:15:24 INFO Writing post for rank=1 score=9
+2026-04-22T07:15:25 INFO Critic attempt=1 score=9 issues=[]
+2026-04-22T07:15:26 INFO LinkedIn image uploaded: urn:li:image:C5500AQH...
+2026-04-22T07:15:27 INFO LinkedIn post published — ID: urn:li:share:1234567890
+2026-04-22T07:15:27 INFO history.json saved (13 entries)
+2026-04-22T07:15:28 INFO history.json committed and pushed
+2026-04-22T07:15:28 INFO Telegram notification sent
+2026-04-22T07:15:28 INFO Pipeline completed successfully
+```
+
+### First Run (no history yet)
+
+On the very first run, `history.json` does not exist. The pipeline creates it automatically, skips analytics collection (nothing to fetch), and falls back to the static scoring rubric. Adaptive bonuses begin accumulating from week 2 onward.
+
+```
+2026-04-22T07:15:01 INFO history.json not found — starting fresh
+2026-04-22T07:15:01 INFO No analytics data yet — using static ranking rubric
 ```
 
 ### No Qualifying News
 
 If all candidates score below 6/10:
 ```
-2026-04-17T07:15:22 INFO No qualifying news in 7 days — skipping LinkedIn post.
+2026-04-22T07:15:22 INFO No qualifying news in 7 days — skipping LinkedIn post.
 ```
 
 ---
@@ -335,13 +450,14 @@ If all candidates score below 6/10:
 .
 ├── .github/
 │   └── workflows/
-│       └── post.yml    # GitHub Actions schedule & runner
-├── post.py             # Entire pipeline — single script, ~680 lines
-├── requirements.txt          # anthropic, feedparser, requests
-├── .env                      # Local secrets (gitignored)
+│       └── post.yml    # GitHub Actions schedule & runner (Tue 7 AM UTC, contents: write)
+├── post.py             # Entire pipeline — single script, ~970 lines
+├── history.json        # Post history + LinkedIn analytics (auto-committed by CI)
+├── requirements.txt    # anthropic, feedparser, requests
+├── .env                # Local secrets (gitignored)
 ├── .gitignore
-├── CLAUDE.md                 # Instructions for Claude Code
-└── README.md                 # This file
+├── CLAUDE.md           # Instructions for Claude Code
+└── README.md           # This file
 ```
 
 ---
@@ -356,6 +472,15 @@ Your `LINKEDIN_ACCESS_TOKEN` has expired. LinkedIn OAuth tokens are short-lived.
 
 ### `LinkedIn error 422` or `422 Unprocessable Entity`
 Usually a malformed payload or an API version mismatch. Check `LINKEDIN_VERSION` in `post.py` (currently `202603`) and compare against the [LinkedIn API changelog](https://learn.microsoft.com/en-us/linkedin/marketing/versioning).
+
+### Analytics not being fetched (no data in `history.json`)
+The `r_member_social` OAuth scope is required for the LinkedIn Analytics API. If your token lacks this scope, every analytics request returns 403 and the pipeline silently skips collection. Check the logs for `"403 for REACTION (r_member_social scope not granted)"`. Request the scope through the LinkedIn Developer Portal (Marketing Developer Platform product) and regenerate your access token.
+
+### `history.json committed and pushed` not appearing in logs
+The git commit step only runs inside GitHub Actions (`GITHUB_ACTIONS=true`). It is deliberately skipped on local runs to avoid committing from developer machines. Check that the workflow has `permissions: contents: write` and that the checkout step uses `token: ${{ secrets.GITHUB_TOKEN }}`.
+
+### `history.json` conflict on git push
+If two workflow runs overlap (e.g., a manual dispatch concurrent with the schedule), the second push may be rejected. Re-run the failed workflow — on the next run it will fetch the latest `history.json` via checkout and apply cleanly.
 
 ### `Missing environment variable`
 Check your `.env` file locally or the repository Secrets in GitHub Actions. All 5 variables must be present — the script will list which ones are missing.
@@ -380,6 +505,8 @@ This is a personal automation project, but feel free to fork and adapt it. The m
 - **`MIN_SCORE`** — raise or lower the publication threshold (default: 6)
 - **`RANKED_TOP_N`** — how many candidates the ranker returns (default: 5)
 - **`_write_post` system prompt** — tune voice, format constraints, examples
+- **`ANALYTICS_MIN_AGE_DAYS` / `ANALYTICS_MAX_AGE_DAYS`** — control the window for analytics collection (default: 7–21 days)
+- **`_compute_performance_bonuses`** — adjust engagement weighting formula or bonus thresholds
 
 ---
 
