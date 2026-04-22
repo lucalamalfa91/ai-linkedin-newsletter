@@ -55,6 +55,8 @@ RSS_FEEDS = {
     "Lilian Weng":        "https://lilianweng.github.io/index.xml",
     "Interconnects":      "https://www.interconnects.ai/feed",
     "Hamel Husain":       "https://hamel.dev/feed.xml",
+    "Jay Alammar":        "https://newsletter.languagemodels.co/feed",
+    "Latent Space":       "https://www.latent.space/feed",
 }
 
 # Topics that get a scoring bonus — used in the prompt
@@ -116,6 +118,7 @@ FOCUS_TOPICS = (
 SOURCE_CATEGORIES = {
     "LLM Efficiency & Prompt Engineering": [
         "Chip Huyen", "Eugene Yan", "Lilian Weng", "Interconnects", "Hamel Husain",
+        "Jay Alammar", "Latent Space",
     ],
     "Agentic AI & Frameworks": [
         "LangChain Blog", "LlamaIndex Blog", "CrewAI Blog", "Haystack Blog", "Hugging Face",
@@ -597,7 +600,9 @@ def _rank_stories(
         "\n"
         "TOPIC RELEVANCE\n"
         "  +3  Directly covers a focus topic listed above\n"
-        "  +2  Covers LLM efficiency, prompt engineering, or agent frameworks specifically\n"
+        "  +2  Topic is specifically about LLM efficiency, prompt engineering, token optimisation,\n"
+        "      inference cost, prompt compression, structured output, or prompt design (priority 1)\n"
+        "  +1  Topic covers agentic AI, agent frameworks, or orchestration\n"
         "  +1  Clearly AI-relevant but tangential to focus topics\n"
         "  -3  No meaningful AI angle (pure sysadmin, DevOps, or unrelated tech)\n"
         "\n"
