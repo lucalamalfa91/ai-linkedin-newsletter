@@ -40,6 +40,10 @@ RSS_FEEDS = {
     "CrewAI Blog":        "https://www.crewai.com/blog/rss.xml",
     "Haystack Blog":      "https://haystack.deepset.ai/blog/rss.xml",
     "Hugging Face":       "https://huggingface.co/blog/feed.xml",
+    "Omdena Blog":        "https://www.omdena.com/blog/rss.xml",
+    "n8n Blog":           "https://blog.n8n.io/rss/",
+    "Vellum AI Blog":     "https://www.vellum.ai/blog/rss.xml",
+    "Zapier Blog":        "https://zapier.com/blog/feeds/latest/",
     # Practitioner / engineering deep-dives — open access, concise content
     "Simon Willison":     "https://simonwillison.net/atom/everything/",
     "The Batch (deeplearning.ai)": "https://www.deeplearning.ai/the-batch/feed/",
@@ -57,6 +61,9 @@ RSS_FEEDS = {
     "Hamel Husain":       "https://hamel.dev/feed.xml",
     "Jay Alammar":        "https://newsletter.languagemodels.co/feed",
     "Latent Space":       "https://www.latent.space/feed",
+    "Lakera AI Blog":     "https://www.lakera.ai/blog/rss.xml",
+    "The AI Corner":      "https://www.the-ai-corner.com/feed",
+    "Maxim AI Blog":      "https://www.getmaxim.ai/blog/rss.xml",
 }
 
 # Topics that get a scoring bonus — used in the prompt
@@ -118,10 +125,11 @@ FOCUS_TOPICS = (
 SOURCE_CATEGORIES = {
     "LLM Efficiency & Prompt Engineering": [
         "Chip Huyen", "Eugene Yan", "Lilian Weng", "Interconnects", "Hamel Husain",
-        "Jay Alammar", "Latent Space",
+        "Jay Alammar", "Latent Space", "Lakera AI Blog", "The AI Corner", "Maxim AI Blog",
     ],
     "Agentic AI & Frameworks": [
         "LangChain Blog", "LlamaIndex Blog", "CrewAI Blog", "Haystack Blog", "Hugging Face",
+        "Omdena Blog", "n8n Blog", "Vellum AI Blog", "Zapier Blog",
     ],
     "AI Labs": [
         "OpenAI", "Anthropic", "Google DeepMind", "Google AI Blog",
@@ -588,8 +596,8 @@ def _rank_stories(
         "Scoring rubric — start each story at 0, apply all applicable rules, cap at 10:\n"
         "\n"
         "CONTENT QUALITY\n"
-        "  +1  Concrete announcement: model/product release, open-source launch, measurable benchmark\n"
-        f"  +2  From an LLM Efficiency & Prompt Engineering source (priority 1): {llm_eff_sources}\n"
+        "  +2  Concrete announcement: model/product release, open-source launch, measurable benchmark\n"
+        f"  +3  From an LLM Efficiency & Prompt Engineering source (priority 1): {llm_eff_sources}\n"
         f"  +2  From an Agentic AI & Frameworks source (priority 2): {agentic_sources}\n"
         f"  +1  From an AI Labs source (priority 3): {ai_lab_sources}\n"
         f"  +1  From another quality source: {other_sources}\n"
