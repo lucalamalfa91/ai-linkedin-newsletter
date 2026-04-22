@@ -2,9 +2,9 @@ name: LinkedIn AI Post
 
 on:
   schedule:
-    # Runs at 6 AM UTC (7 AM CET / 8 AM CEST) every monday
-    # With random delay, posts between 7-9 AM Italian time
-    - cron: '0 6 * * 1'
+    # Runs at 7 AM UTC (8 AM CET / 9 AM CEST) every Tuesday
+    # Tuesday 8-10 AM local time = peak LinkedIn engagement window
+    - cron: '0 7 * * 2'
   workflow_dispatch:
     inputs:
       topic:
@@ -16,10 +16,14 @@ jobs:
   post:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5

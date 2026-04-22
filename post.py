@@ -12,6 +12,7 @@ import re
 import sys
 from datetime import datetime, timedelta, timezone
 from html.parser import HTMLParser
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 
 import anthropic
@@ -117,6 +118,10 @@ RANKED_TOP_N = 5
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
 LINKEDIN_IMAGES_API = "https://api.linkedin.com/rest/images?action=initializeUpload"
 LINKEDIN_VERSION = "202603"
+ANALYTICS_ENDPOINT = "https://api.linkedin.com/rest/memberCreatorPostAnalytics"
+HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "history.json")
+ANALYTICS_MIN_AGE_DAYS = 7
+ANALYTICS_MAX_AGE_DAYS = 21
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -307,6 +312,187 @@ def fetch_feeds() -> list[dict]:
     return items
 
 
+def load_history() -> dict:
+    """Load history.json; return {} if missing or corrupt."""
+    if not os.path.exists(HISTORY_FILE):
+        return {}
+    try:
+        with open(HISTORY_FILE, encoding="utf-8") as fh:
+            return json.load(fh)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("history.json unreadable (%s) — starting fresh", exc)
+        return {}
+
+
+def save_history(history: dict) -> None:
+    """Write history dict to history.json atomically."""
+    tmp = HISTORY_FILE + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(history, fh, indent=2, ensure_ascii=False)
+        os.replace(tmp, HISTORY_FILE)
+        log.info("history.json saved (%d entries)", len(history))
+    except Exception as exc:  # noqa: BLE001
+        log.warning("Failed to save history.json: %s", exc)
+
+
+def commit_history_to_git() -> None:
+    """Stage and commit history.json via git. No-op outside GitHub Actions. Best-effort."""
+    import subprocess  # noqa: PLC0415
+    if not os.environ.get("GITHUB_ACTIONS"):
+        log.info("Not in GitHub Actions — skipping git commit of history.json")
+        return
+    try:
+        root = os.path.dirname(os.path.abspath(__file__))
+        subprocess.run(["git", "config", "user.email", "actions@github.com"], cwd=root, check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.name", "GitHub Actions"], cwd=root, check=True, capture_output=True)
+        subprocess.run(["git", "add", "history.json"], cwd=root, check=True, capture_output=True)
+        changed = subprocess.run(
+            ["git", "status", "--porcelain", "history.json"],
+            cwd=root, capture_output=True, text=True,
+        )
+        if not changed.stdout.strip():
+            log.info("history.json unchanged — nothing to commit")
+            return
+        subprocess.run(
+            ["git", "commit", "-m", "chore: update history.json [skip ci]"],
+            cwd=root, check=True, capture_output=True,
+        )
+        subprocess.run(["git", "push"], cwd=root, check=True, capture_output=True)
+        log.info("history.json committed and pushed")
+    except Exception as exc:  # noqa: BLE001
+        log.warning("git commit of history.json failed: %s", exc)
+
+
+def _extract_topics(title: str, comment: str) -> list[str]:
+    """Extract lowercase keywords from title and comment (excluding stop words)."""
+    _stop = {
+        "the", "and", "for", "with", "this", "that", "from", "have", "been",
+        "will", "are", "its", "how", "new", "more", "what", "can", "about",
+        "your", "our", "just", "also", "they", "when", "into", "some",
+    }
+    text = (title + " " + comment).lower()
+    seen: set[str] = set()
+    result: list[str] = []
+    for w in re.findall(r"\b[a-z]{4,15}\b", text):
+        if w not in _stop and w not in seen:
+            seen.add(w)
+            result.append(w)
+    return result[:15]
+
+
+def _extract_hashtags(comment: str) -> list[str]:
+    """Extract hashtag strings from comment text."""
+    return re.findall(r"#\w+", comment)
+
+
+def fetch_post_analytics(post_id: str, token: str) -> dict | None:
+    """Fetch reactions, comments, reposts, impressions from LinkedIn Analytics API.
+
+    Returns dict with counts + engagement_score, or None on any failure.
+    On 403 (missing r_member_social scope), bails immediately and returns None.
+    """
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "LinkedIn-Version": LINKEDIN_VERSION,
+        "X-Restli-Protocol-Version": "2.0.0",
+    }
+    counts = {"reactions": 0, "comments": 0, "reposts": 0, "impressions": 0}
+    key_map = {"REACTION": "reactions", "COMMENT": "comments", "REPOST": "reposts", "IMPRESSION": "impressions"}
+
+    for query_type in ("REACTION", "COMMENT", "REPOST", "IMPRESSION"):
+        try:
+            params = {"q": "memberCreator", "posts[0]": post_id, "queryType": query_type}
+            resp = requests.get(ANALYTICS_ENDPOINT, headers=headers, params=params, timeout=15)
+            if resp.status_code == 403:
+                log.info("Analytics API 403 for %s — r_member_social scope not granted, skipping", post_id)
+                return None
+            if not resp.ok:
+                log.warning("Analytics API %s failed (%s): %s", query_type, resp.status_code, resp.text[:200])
+                continue
+            elements = resp.json().get("elements", [])
+            counts[key_map[query_type]] = sum(el.get("totalCount", 0) for el in elements)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Analytics fetch error for %s/%s: %s", post_id, query_type, exc)
+
+    eng = counts["reactions"] + counts["comments"] * 2 + counts["reposts"] * 3
+    return {"fetched_at": datetime.now(timezone.utc).isoformat(), **counts, "engagement_score": eng}
+
+
+def update_analytics_for_recent_posts(history: dict, token: str) -> dict:
+    """Fetch analytics for posts 7–21 days old that don't yet have data.
+
+    Best-effort — never raises. Returns updated history dict.
+    """
+    now = datetime.now(timezone.utc)
+    updated = 0
+    for post_id, record in history.items():
+        try:
+            pub = datetime.fromisoformat(record.get("published_at", ""))
+            age_days = (now - pub).days
+            if not (ANALYTICS_MIN_AGE_DAYS <= age_days <= ANALYTICS_MAX_AGE_DAYS):
+                continue
+            if record.get("analytics") is not None:
+                continue
+            log.info("Fetching analytics for post %s (age=%dd)", post_id, age_days)
+            analytics = fetch_post_analytics(post_id, token)
+            if analytics is not None:
+                record["analytics"] = analytics
+                updated += 1
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Error updating analytics for %s: %s", post_id, exc)
+    if updated:
+        log.info("Analytics updated for %d posts", updated)
+    return history
+
+
+def _compute_performance_bonuses(history: dict) -> str:
+    """Compute per-source and per-topic engagement bonuses from post history.
+
+    Returns a multi-line string to inject into the ranking prompt, or "" if
+    there is insufficient data (fewer than 2 posts with analytics).
+    """
+    source_scores: dict[str, list[int]] = {}
+    topic_scores: dict[str, list[int]] = {}
+
+    for record in history.values():
+        analytics = record.get("analytics")
+        if not analytics:
+            continue
+        eng = analytics.get("engagement_score", 0)
+        source = record.get("source", "")
+        if source:
+            source_scores.setdefault(source, []).append(eng)
+        for topic in record.get("topics", []):
+            topic_scores.setdefault(topic, []).append(eng)
+
+    if len(source_scores) < 2:
+        return ""
+
+    source_means = {src: sum(v) / len(v) for src, v in source_scores.items()}
+    overall_mean = sum(source_means.values()) / len(source_means)
+    if overall_mean == 0:
+        return ""
+
+    high_sources = sorted(s for s, v in source_means.items() if v >= overall_mean * 1.3)
+    low_sources = sorted(s for s, v in source_means.items() if v <= overall_mean * 0.6)
+
+    topic_means = {t: sum(v) / len(v) for t, v in topic_scores.items() if len(v) >= 2}
+    top_topics = sorted(
+        (t for t, v in topic_means.items() if v > overall_mean),
+        key=lambda t: -topic_means[t],
+    )[:8]
+
+    parts = []
+    if high_sources:
+        parts.append(f"HISTORICAL PERFORMANCE BONUS — apply +1 to stories from: {', '.join(high_sources)}")
+    if low_sources:
+        parts.append(f"HISTORICAL PERFORMANCE PENALTY — apply -1 to stories from: {', '.join(low_sources)}")
+    if top_topics:
+        parts.append(f"HIGH-ENGAGEMENT TOPICS (apply +1 if covered): {', '.join(top_topics)}")
+    return "\n".join(parts)
+
+
 def _truncate_comment(comment: str) -> str:
     """Hard-cap comment to 2 content lines + hashtag line."""
     lines = comment.split("\n")
@@ -344,7 +530,13 @@ def _detect_trending_topics(items: list[dict]) -> str:
     return ", ".join(trending[:12]) if trending else "none detected"
 
 
-def _rank_stories(items: list[dict], client: anthropic.Anthropic, focus_topics: str = FOCUS_TOPICS) -> list[dict]:
+def _rank_stories(
+    items: list[dict],
+    client: anthropic.Anthropic,
+    focus_topics: str = FOCUS_TOPICS,
+    performance_bonus: str = "",
+    last_published_source: str = "",
+) -> list[dict]:
     """Call 1 — pure scoring at temperature=0: return ranked story list, no writing."""
     trending_topics = _detect_trending_topics(items)
     feed_lines = "\n".join(
@@ -394,11 +586,24 @@ def _rank_stories(items: list[dict], client: anthropic.Anthropic, focus_topics: 
         "Copy URLs exactly from the list above — never invent one.\n\n"
         '{"ranked": [{"rank": 1, "score": <1-10>, "title": "<max 12 words>", "url": "<exact URL from list>"}, ...]}'
     )
-    # Dynamic part: changes every run (feed items + today's trending topics)
+    # Dynamic part: changes every run (feed items + trending topics + adaptive bonuses)
     dynamic_context = (
         f"AI news from the last 7 days:\n{feed_lines}\n\n"
         f"Topics trending across multiple sources right now: {trending_topics}"
     )
+    adaptive_section = ""
+    if performance_bonus:
+        adaptive_section += (
+            "\nADAPTIVE RANKING (from past post performance — apply in addition to rubric above):\n"
+            + performance_bonus + "\n"
+        )
+    if last_published_source:
+        adaptive_section += (
+            f"\nSOURCE DIVERSITY: '{last_published_source}' was published last week — "
+            "apply -1 to any story from this source to avoid feed repetition.\n"
+        )
+    if adaptive_section:
+        dynamic_context += f"\n\n{adaptive_section}"
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=500,
@@ -539,7 +744,12 @@ def _critique_post(comment: str, client: anthropic.Anthropic) -> dict:
         return {"score": 10, "issues": []}
 
 
-def select_and_comment(items: list[dict], focus_topics: str = FOCUS_TOPICS) -> tuple[str | None, dict | None]:
+def select_and_comment(
+    items: list[dict],
+    focus_topics: str = FOCUS_TOPICS,
+    performance_bonus: str = "",
+    last_published_source: str = "",
+) -> tuple[str | None, dict | None]:
     """Rank stories then write a LinkedIn post for the best qualifying one.
 
     Returns the comment text and the selected story dict, or (None, None).
@@ -549,7 +759,7 @@ def select_and_comment(items: list[dict], focus_topics: str = FOCUS_TOPICS) -> t
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-    ranked = _rank_stories(items, client, focus_topics)
+    ranked = _rank_stories(items, client, focus_topics, performance_bonus, last_published_source)
     if not ranked:
         return None, None
 
@@ -678,10 +888,34 @@ def main() -> None:
 
     tg_token = os.environ["TELEGRAM_BOT_TOKEN"]
     tg_chat  = os.environ["TELEGRAM_CHAT_ID"]
+    token    = os.environ["LINKEDIN_ACCESS_TOKEN"]
+    person_id = os.environ["LINKEDIN_PERSON_ID"]
+
+    # ── Load history + update analytics (best-effort, before main pipeline) ───
+    history = load_history()
+    history = update_analytics_for_recent_posts(history, token)
+    save_history(history)
+
+    # ── Compute adaptive ranking inputs ───────────────────────────────────────
+    performance_bonus = _compute_performance_bonuses(history)
+    if performance_bonus:
+        log.info("Adaptive ranking bonuses:\n%s", performance_bonus)
+
+    last_published_source = ""
+    if history:
+        latest = max(history.values(), key=lambda r: r.get("published_at", ""), default=None)
+        if latest:
+            last_published_source = latest.get("source", "")
+            log.info("Last published source: %s", last_published_source)
 
     try:
         items = fetch_feeds()
-        comment, story = select_and_comment(items, focus_topics=focus)
+        comment, story = select_and_comment(
+            items,
+            focus_topics=focus,
+            performance_bonus=performance_bonus,
+            last_published_source=last_published_source,
+        )
 
         if not comment:
             msg = f"<b>AI LinkedIn Post</b>: no qualifying news (threshold={MIN_SCORE}/10 across 7 days). Skipping — consider checking feed sources."
@@ -695,10 +929,26 @@ def main() -> None:
             comment,
             story["url"],
             story["title"],
-            os.environ["LINKEDIN_PERSON_ID"],
-            os.environ["LINKEDIN_ACCESS_TOKEN"],
+            person_id,
+            token,
             og=story.get("og"),
         )
+
+        # ── Record published post to history ──────────────────────────────────
+        history[post_id] = {
+            "post_id":       post_id,
+            "published_at":  datetime.now(timezone.utc).isoformat(),
+            "article_url":   story["url"],
+            "article_title": story["title"],
+            "source":        story.get("source", ""),
+            "score":         story.get("score", 0),
+            "comment_text":  comment,
+            "topics":        _extract_topics(story["title"], comment),
+            "hashtags":      _extract_hashtags(comment),
+            "analytics":     None,
+        }
+        save_history(history)
+        commit_history_to_git()
 
         tg_msg = (
             "✅ <b>LinkedIn post published!</b>\n\n"
