@@ -525,13 +525,13 @@ def _compute_performance_bonuses(history: dict) -> str:
 
 
 def _truncate_comment(comment: str) -> str:
-    """Hard-cap comment to 2 content lines + hashtag line."""
+    """Hard-cap comment to 6 non-hashtag lines (HOOK + blank + BODY + blank + TAKEAWAY + QUESTION) + hashtag line."""
     lines = comment.split("\n")
     content_lines = [l for l in lines if not l.strip().startswith("#")]
     hashtag_lines = [l for l in lines if l.strip().startswith("#")]
-    if len(content_lines) > 2:
-        log.warning("LLM comment exceeded 2 content lines (%d) — truncating", len(content_lines))
-        content_lines = content_lines[:2]
+    if len(content_lines) > 6:
+        log.warning("LLM comment exceeded 6 content lines (%d) — truncating", len(content_lines))
+        content_lines = content_lines[:6]
     return "\n".join(content_lines + hashtag_lines)
 
 
@@ -691,30 +691,42 @@ def _write_post(story: dict, original: dict | None, client: anthropic.Anthropic)
         "  * Marty Haak: grounds abstract AI news in a concrete everyday analogy or metaphor.",
         "    The reader should immediately picture what this means in their own life.",
         "",
-        "STRICT FORMAT:",
-        "  * Exactly 2 sentences. No more.",
-        "  * Sentence 1: punchy hook — share the news with a concrete detail or contrast. One emoji placed naturally.",
-        "  * Sentence 2: one plain-language takeaway using a real-world analogy if possible.",
-        "  * Last line: 2-3 relevant hashtags.",
-        "  * NO closing question, NO call to action, NO lists, NO structured breakdowns.",
+        "STRICT FORMAT (LinkedIn shows ~210 chars before 'see more' — the HOOK must earn that click):",
+        "  Line 1: HOOK — max 8 words, must make the reader want to click 'see more'.",
+        "    Hook patterns that work:",
+        "    - Contrast + real data: 'Claude can now book your flight. Most devs don't know how yet.'",
+        "    - Number + specificity: '2 lines of code changed how I think about AI agents.'",
+        "    - Confession/surprise: 'I was wrong about RAG. Here's what I missed.'",
+        "  Line 2: [blank line]",
+        "  Lines 3-5: BODY — 2-3 sentences developing WHY this matters. One emoji placed naturally.",
+        "  Line 6: [blank line]",
+        "  Line 7: TAKEAWAY — 1 punchy sentence (use an analogy if possible).",
+        "  Line 8: QUESTION — 1 genuine, specific question (NOT generic engagement bait).",
+        "    Good: 'Are you testing this in prod?' / 'Did this change how you think about agents?'",
+        "    Bad: 'What do you think?' / 'Let me know your thoughts!' / 'Drop a comment below!'",
+        "  Line 9: [blank line]",
+        "  Line 10: 2-3 relevant hashtags.",
+        "",
+        "  * NO call to action, NO lists, NO structured breakdowns, NO URL in the post text.",
         "  * Max one technical term — explain it in plain words immediately after.",
         "  * Must NOT sound AI-generated.",
         "",
         "Banned words: game-changer, revolutionary, unlock, empower, leverage, synergy,",
-        "groundbreaking, orchestration layer, control loop, paradigm, delve, transformative.",
+        "groundbreaking, orchestration layer, control loop, paradigm, delve, transformative,",
+        "unleash, harness, redefine, cutting-edge, state-of-the-art, next-gen.",
         "",
-        "GOOD examples (copy this tone exactly):",
-        '  "OpenAI cut GPT-4o prices again. \U0001f4b0',
-        "  A few months ago this would've been unthinkable — now it's almost routine.",
-        '  #AI #OpenAI #LLM"',
-        "",
-        '  "LangGraph added persistent memory for agents — like giving your AI assistant a notebook it never loses. \U0001f4d3',
-        "  Next session it remembers where you left off, no re-explaining from scratch.",
-        '  #AI #LangChain #Agents"',
-        "",
-        '  "\U0001f6e1\ufe0f Researchers just showed how a single hidden sentence in a document can hijack an AI agent.',
-        "  Prompt injection — when outside text overrides your instructions — is the new SQL injection, and most apps aren't ready.",
-        '  #AI #Security #LLM"',
+        "GOOD example (copy this tone and structure exactly):",
+        '  "Claude can now book your flight. Most devs don\'t know how it works yet.',
+        "  ",
+        "  Anthropic just shipped computer use in Claude — it doesn't call an API, it literally",
+        "  moves a cursor, clicks buttons, and fills forms like a human would.",
+        "  The difference matters: instead of integrating with every service's API,",
+        "  the agent just uses the interface that already exists. 🖱️",
+        "  ",
+        "  It's the difference between teaching someone to drive every car model individually, or just teaching them to drive.",
+        "  Are you already testing browser-based agents in your stack?",
+        "  ",
+        '  #AI #Claude #Agents"',
         "",
         "BAD example (never write like this):",
         '  "This groundbreaking development will revolutionize how we leverage AI synergies.',
@@ -727,13 +739,13 @@ def _write_post(story: dict, original: dict | None, client: anthropic.Anthropic)
         f"Write a LinkedIn post for this story.\n\n"
         f"Title: {story['title']}\n"
         f"Source: {source}\n"
-        f"URL: {story['url']}\n"
         f"Summary: {summary}\n\n"
-        'Return: {"comment": "<2 sentences + hashtag line; use \\n for line breaks>"}'
+        "IMPORTANT: Do NOT include the URL in the post text — it is attached as a link card automatically.\n\n"
+        'Return: {"comment": "<HOOK\\n\\nBODY\\n\\nTAKEAWAY\\nQUESTION\\n\\nHASHTAGS; use \\n for line breaks>"}'
     )
     msg = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=200,
+        max_tokens=400,
         temperature=0.7,
         system=[{"type": "text", "text": system, "cache_control": {"type": "ephemeral"}}],
         messages=[
@@ -755,6 +767,7 @@ def _write_post(story: dict, original: dict | None, client: anthropic.Anthropic)
 _BANNED_WORDS = [
     "game-changer", "revolutionary", "unlock", "empower", "leverage", "synergy",
     "groundbreaking", "orchestration layer", "control loop", "paradigm", "delve", "transformative",
+    "unleash", "harness", "redefine", "cutting-edge", "state-of-the-art", "next-gen",
 ]
 
 
@@ -765,10 +778,12 @@ def _critique_post(comment: str, client: anthropic.Anthropic) -> dict:
         f"Evaluate this LinkedIn post on a 1-10 scale.\n\n"
         f"POST:\n{comment}\n\n"
         f"Scoring criteria:\n"
-        f"- Format (3 pts): exactly 2 sentences + one hashtag line, one emoji in sentence 1\n"
-        f"- Tone (3 pts): natural, not AI-sounding, no hyperbole, no call-to-action\n"
-        f"- Banned words (2 pts): none of: {', '.join(_BANNED_WORDS)}\n"
-        f"- Value (2 pts): clear takeaway, explains why it matters\n\n"
+        f"- Hook (2 pts): first line is ≤8 words and creates enough curiosity/contrast to earn a 'see more' click\n"
+        f"- Format (2 pts): HOOK + blank + BODY (2-3 sentences) + blank + TAKEAWAY + QUESTION + blank + hashtags\n"
+        f"- Tone (2 pts): natural, not AI-sounding, no hyperbole, no URL in text, no call-to-action phrase\n"
+        f"- Genuine question (2 pts): ends with a specific personal question — NOT generic engagement bait like 'What do you think?'\n"
+        f"- Banned words (1 pt): none of: {', '.join(_BANNED_WORDS)}\n"
+        f"- Value (1 pt): clear takeaway that explains why the news matters\n\n"
         'Return: {"score": <1-10>, "issues": ["<issue1>", ...]}'
     )
     msg = client.messages.create(
