@@ -30,5 +30,37 @@
       "#Infrastructure"
     ],
     "analytics": null
+  },
+  "urn:li:share:7452969504843788288": {
+    "post_id": "urn:li:share:7452969504843788288",
+    "published_at": "2026-04-23T06:39:59.626048+00:00",
+    "article_url": "https://blog.n8n.io/how-to-evaluate-the-performance-of-ai-agents/",
+    "article_title": "How to evaluate the performance of AI agents?",
+    "source": "",
+    "score": 9,
+    "comment_text": "Nobody tells you how to know if your AI agent is actually working.\n\nBuilding an agent is the easy part. Knowing whether it's doing the right thing — that's where most teams are flying blind. 🎯 You can run it in a sandbox with fixed inputs and check the outputs automatically (offline), or watch it live in production and catch drift before it becomes a crisis (online).\n\nTesting an agent is like tasting soup while you cook, not just before you serve it.\nAre you doing any structured evaluation before shipping agents to real users?\n#AI #SoftwareEngineering #AIAgents",
+    "topics": [
+      "evaluate",
+      "performance",
+      "agents",
+      "nobody",
+      "tells",
+      "know",
+      "agent",
+      "actually",
+      "working",
+      "building",
+      "easy",
+      "part",
+      "knowing",
+      "whether",
+      "doing"
+    ],
+    "hashtags": [
+      "#AI",
+      "#SoftwareEngineering",
+      "#AIAgents"
+    ],
+    "analytics": null
   }
 }
