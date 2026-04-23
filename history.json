@@ -62,5 +62,37 @@
       "#AIAgents"
     ],
     "analytics": null
+  },
+  "urn:li:share:7453146318094516224": {
+    "post_id": "urn:li:share:7453146318094516224",
+    "published_at": "2026-04-23T18:22:35.302456+00:00",
+    "article_url": "https://www.latent.space/p/shopify",
+    "article_title": "Shopify's AI Phase Transition: Unlimited Opus-4.6 Token Budget",
+    "source": "",
+    "score": 8,
+    "comment_text": "Shopify gave their AI an unlimited thinking budget. Here's what happened.\n\nShopify's CTO just went on record about running Claude Opus with no token cap — meaning the model can \"think\" for as long as it needs before answering, like a consultant who actually reads the whole brief before speaking. 🧠 They're not treating AI as a feature. They're rebuilding how the company works around it, and they have the internal adoption numbers to back it up.\n\nMost teams limit AI to save cost. Shopify bet that removing that ceiling changes the quality of output entirely — and so far, the data says they're right.\nAre you capping your AI's reasoning budget, and have you actually measured what that costs you in output quality?\n#AI #Shopify #SoftwareEngineering",
+    "topics": [
+      "shopify",
+      "phase",
+      "transition",
+      "unlimited",
+      "opus",
+      "token",
+      "budget",
+      "gave",
+      "their",
+      "thinking",
+      "here",
+      "happened",
+      "went",
+      "record",
+      "running"
+    ],
+    "hashtags": [
+      "#AI",
+      "#Shopify",
+      "#SoftwareEngineering"
+    ],
+    "analytics": null
   }
 }
