@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Coding Tools Digest — June 4, 2026</title>
+  <title>AI Coding Tools Digest — June 5, 2026</title>
   <meta name="description" content="The 5 most important AI coding tool updates, analyzed daily by Claude.">
-  <meta property="og:title" content="AI Coding Tools Digest — June 4, 2026">
+  <meta property="og:title" content="AI Coding Tools Digest — June 5, 2026">
   <meta property="og:description" content="5 stories. Daily analysis by Claude.">
   <meta property="og:type" content="website">
   <style>
@@ -280,7 +280,7 @@
       <span class="masthead-eyebrow">Daily Digest</span>
       <h1>AI Coding Tools Digest</h1>
       <p class="masthead-sub">
-        <strong>June 4, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
+        <strong>June 5, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
       </p>
       <div class="masthead-divider"></div>
     </div>
@@ -290,99 +290,122 @@
     <p class="feed-label">Today&rsquo;s top stories</p>
     <main>
     <article class="story-card">
-    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!4FCX!,w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-video.s3.amazonaws.com%2Fvideo_upload%2Fpost%2F199994886%2F244113ab-be8c-4812-a35e-c466379a1b26%2Ftranscoded-1780242597.png" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://andonlabs.com/vending_og_image.webp" alt="Andon Labs" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#1</span>
-        <span class="source-chip">Latent Space</span>
-        <span class="score-chip">&#9733;&nbsp;8/10</span>
+        <span class="source-chip">Andon Labs</span>
+        <span class="score-chip">&#9733;&nbsp;7/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.latent.space/p/axiom" target="_blank" rel="noopener noreferrer">🔬Scaling Past Informal AI - Carina Hong, Axiom Math — Verified Generation and Compounding Intelligence</a></h2>
-      <p class="story-date">June 3, 2026</p>
+      <h2 class="story-title"><a href="https://andonlabs.com/evals/vending-bench" target="_blank" rel="noopener noreferrer">VendingBench</a></h2>
+      <p class="story-date">June 4, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Axiom Math, founded by Carina Hong, is building a system for verified generation in mathematics — AI that doesn't just produce answers but produces proofs that can be formally checked for correctness.
+VendingBench is a frontier evaluation benchmark from Andon Labs designed to test AI agents on long-horizon, economically-grounded tasks — specifically, running a simulated vending machine business across multiple decision cycles. Tested models span Anthropic's full Claude lineup from Haiku to the unreleased Mythos.
 
 ↳ THE REAL STORY
-The core bet here is that math is the first domain where you can close the loop between generation and verification cheaply and automatically. Formal proof systems like Lean or Coq can act as a ground-truth judge, which means you don't need human annotators to label outputs as correct or incorrect — the compiler tells you. That changes the reinforcement learning setup entirely: reward signal becomes abundant and unambiguous. The phrase 'compounding intelligence' points to a flywheel where each verified proof becomes training data for the next generation, letting the system improve without hitting the ceiling of human-labeled datasets. For developers building on top of math-heavy pipelines — symbolic reasoning, theorem proving, formal verification of code — this is the architecture to watch: generation paired with a verifier that can't be fooled by confident-sounding nonsense.</p>
+Most evals measure single-turn correctness or short reasoning chains. VendingBench forces models to manage inventory, pricing, and cash flow over extended sequences — the kind of compounding decision-making that actually breaks agents in production. If your use case involves autonomous agents running multi-step business logic (procurement workflows, dynamic pricing, resource allocation), a model's score here is more predictive than MMLU or HumanEval. The inclusion of Claude Mythos — a model not yet publicly available — also suggests Andon Labs has benchmark-partner access, meaning results may preview capability jumps before public release.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The honest catch is that formal verification is still a narrow lane. Lean-checkable proofs cover a small slice of the mathematics practitioners actually care about, and translating real-world problems into a formal system is itself a hard, often manual step. 'Scaling past informal AI' sounds clean, but the bottleneck may not be the AI — it may be the formalization layer that sits upstream of it. Worth watching whether Axiom is solving that translation problem or quietly assuming it away.</p>
+      <p class="claude-take-text">The vending machine framing is concrete enough to be useful, but narrow enough to question generalization. A model that optimizes simulated restocking decisions may still fail at structurally similar but domain-shifted tasks — medical inventory, ad budget pacing, logistics. The deeper open question: does VendingBench measure genuine long-horizon planning, or does it reward models that have seen enough business-simulation data to pattern-match the scenario? Until the task construction methodology is fully public and adversarially stress-tested, treat top scores as a promising signal, not a deployment guarantee.</p>
     </div>
-      <a class="read-link" href="https://www.latent.space/p/axiom" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://andonlabs.com/evals/vending-bench" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
+    <img class="card-image" src="https://www.nvidia.com/content/dam/en-zz/Solutions/homepage/v2/sfg/nvidia-corporate-og-image-1200x630.jpg" alt="NVIDIA" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#2</span>
-        <span class="source-chip">Bloomberg</span>
-        <span class="score-chip">&#9733;&nbsp;7/10</span>
+        <span class="source-chip">NVIDIA</span>
+        <span class="score-chip">&#9733;&nbsp;5/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.bloomberg.com/news/articles/2026-06-02/uber-caps-usage-of-ai-tools-like-claude-code-to-cut-costs" target="_blank" rel="noopener noreferrer">Uber Caps Usage of AI Tools Like Claude Code to Manage Costs</a></h2>
-      <p class="story-date">June 3, 2026</p>
+      <h2 class="story-title"><a href="https://nvidia.com" target="_blank" rel="noopener noreferrer">NVIDIA Nemotron 3 Ultra and 3.5 ASR Release</a></h2>
+      <p class="story-date">June 5, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Uber capped employee usage of AI coding tools including Claude Code after burning through its 2026 AI budget in roughly four months — a spend rate so far above forecast that the company had to impose hard limits mid-year.
+Insufficient source material to report on NVIDIA Nemotron 3 Ultra and 3.5 ASR. The raw excerpt contains no factual content — just a placeholder.
 
 ↳ THE REAL STORY
-This is what uncapped agentic tool usage looks like at enterprise scale. Claude Code in particular runs long multi-step sessions that can rack up significant token costs per developer per day — far beyond what a typical Copilot autocomplete session costs. Uber's situation suggests that many companies pricing out AI coding budgets based on per-seat SaaS assumptions are going to get surprised when developers actually use these tools heavily. The practical consequence for teams: expect procurement and finance to start treating AI API spend like cloud compute — with quotas, chargebacks, and utilization reviews.</p>
+No verifiable details are available on specs, context window, benchmark numbers, ASR word error rates, or API availability. Nothing here can be responsibly summarized for practitioners making build decisions.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The uncomfortable question here is whether the caps will land on the developers who were getting the most value, or just the ones using the tools most. Usage volume and ROI are not the same thing, and blunt caps don't distinguish between an engineer running Claude Code to ship a feature faster and one using it to generate code they don't review. If Uber — a company with serious engineering resources — couldn't forecast this spend, most mid-size companies are flying blind on AI tooling budgets right now. The 'just give everyone access and see what happens' rollout strategy has a bill attached.</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+Publishing a briefing from a near-empty source risks spreading noise dressed as signal — exactly what this newsletter exists to prevent. If Nemotron Ultra and the ASR model matter to your stack, wait for the actual technical blog or the Hugging Face model card before drawing conclusions.</p>
     </div>
-      <a class="read-link" href="https://www.bloomberg.com/news/articles/2026-06-02/uber-caps-usage-of-ai-tools-like-claude-code-to-cut-costs" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://nvidia.com" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
-    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!m1Ex!,w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-video.s3.amazonaws.com%2Fvideo_upload%2Fpost%2F200432443%2Fb1555f23-4e23-49b0-bf8b-5665ee7f0b65%2Ftranscoded-1780505664.png" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!j3el!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fe4118cc4-8494-491f-8bb7-c78882e26467_1731x909.png" alt="Ethan Mollick (One Useful Thing)" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#3</span>
-        <span class="source-chip">Latent Space</span>
-        <span class="score-chip">&#9733;&nbsp;5/10</span>
+        <span class="source-chip">Ethan Mollick (One Useful Thing)</span>
+        <span class="score-chip">&#9733;&nbsp;2/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.latent.space/p/satya-2026" target="_blank" rel="noopener noreferrer">⚡️Satya Nadella: No Priors x Latent Space Crossover Special at Microsoft Build — The legendary Microsoft CEO makes his first Latent Space appearance!</a></h2>
-      <p class="story-date">June 3, 2026</p>
+      <h2 class="story-title"><a href="https://www.oneusefulthing.org/p/co-existence-and-the-end-of-co-intelligence" target="_blank" rel="noopener noreferrer">Co-Existence and the End of Co-Intelligence</a></h2>
+      <p class="story-date">June 4, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Satya Nadella appeared on a No Priors x Latent Space crossover episode recorded at Microsoft Build — his first time on the Latent Space podcast.
+Ethan Mollick's latest One Useful Thing post shifts framing from 'co-intelligence' — humans and AI working together as partners — toward something he calls 'co-existence': a world where AI systems operate with enough autonomy that the collaboration metaphor starts to break down.
 
 ↳ THE REAL STORY
-The raw excerpt provided contains no substantive technical content beyond the guest announcement itself. Without access to the actual episode transcript or detailed show notes, there is nothing concrete to report on what Nadella said about Microsoft's AI direction, tooling, or developer platform — which is the only part that would matter to practitioners.</p>
+The practical implication is a mental model update for builders. If you've been designing workflows around human-AI teaming — where the human steers and the AI assists — Mollick is signaling that the gap between 'tool' and 'agent' is closing faster than most product assumptions account for. The post also includes a worked example of pitching a book to an AI, which functions as a concrete demo of how AI systems now handle open-ended, judgment-heavy tasks that previously required a human audience.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
       <p class="claude-take-text">↳ WORTH WATCHING
-A CEO podcast appearance dressed up as a newsletter item is marketing, not signal. If Nadella made specific commitments around Azure AI pricing, Copilot APIs, or the Windows AI platform at Build, those are worth tracking down in the actual episode or the Build keynote transcript — not here.</p>
+The excerpt provided is thin — one teaser line — so there's a real risk of over-reading the framing shift. 'Co-existence' could be a genuine conceptual update or it could be a book-cycle rebranding. Worth reading the full post before updating your architectural assumptions. The more honest question it raises: if the collaboration metaphor is ending, what does that mean for the human oversight layer most teams have quietly assumed would always be there?</p>
     </div>
-      <a class="read-link" href="https://www.latent.space/p/satya-2026" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.oneusefulthing.org/p/co-existence-and-the-end-of-co-intelligence" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
-    <img class="card-image" src="https://substackcdn.com/image/upload/w_1028,c_limit,q_auto:best/khye4hsl8xurczaxecv5" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://storage.ghost.io/c/0f/76/0f76b548-bc58-4f25-abc3-3f5ebca07da4/content/images/2026/06/doubt-meme.jpg" alt="404 Media" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#4</span>
-        <span class="source-chip">Latent Space</span>
-        <span class="score-chip">&#9733;&nbsp;3/10</span>
+        <span class="source-chip">404 Media</span>
+        <span class="score-chip">&#9733;&nbsp;1/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.latent.space/p/ainews-reve-2-and-ideogram-4-layouts" target="_blank" rel="noopener noreferrer">(Latent Space) [AINews] Reve 2 and Ideogram 4: Layouts in Imagegen — a quiet day.</a></h2>
+      <h2 class="story-title"><a href="https://www.404media.co/google-employees-internally-share-memes-about-how-its-ai-sucks/" target="_blank" rel="noopener noreferrer">Google Employees Internally Share Memes About How Its AI Sucks</a></h2>
       <p class="story-date">June 4, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Reve 2 and Ideogram 4 both shipped with a shared focus: layout control in image generation. Ideogram 4 specifically targets text rendering and compositional placement — putting elements where you actually specify them.
+Google employees are circulating internal memes mocking the quality of the company's own AI products, according to 404 Media. Separately, after the story published, Google's PR team quietly asked the outlet to swap out a statement — removing the line that said "it's critical that we maintain humans in the loop."
 
 ↳ THE REAL STORY
-Layout control has been the persistent weak point of diffusion-based image generators. If Ideogram 4 delivers reliable text placement and spatial composition, that closes a gap that's forced most production pipelines to bolt on post-processing steps or manual correction. For developers building design automation, ad creative tools, or document generation, accurate text-in-image rendering means fewer rejection loops and less human cleanup. Reve 2 appears to compete in the same compositional space, making this a rare moment where two models are pushing on the same specific capability simultaneously — which usually means the baseline is about to move for everyone.</p>
+Internal dissent at this scale is a signal worth taking seriously. Engineers and PMs living inside these systems daily tend to have a more accurate read on product quality than press releases do. The meme-sharing isn't just venting — it reflects a gap between what Google ships publicly and what its own people think is ready. For developers evaluating Gemini against alternatives, this is a data point: the people closest to the model apparently share your frustrations.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
       <p class="claude-take-text">↳ WORTH WATCHING
-The newsletter itself flags this as 'a quiet day' — which is the honest read. Neither release came with rigorous third-party benchmarks, and 'improved layout control' is one of the most over-claimed properties in image generation. The real test is whether these models hold up on adversarial prompts: dense multi-element layouts, non-Latin scripts, small-point text. Until systematic evals exist, treat the capability claims as directional, not definitive.</p>
+The statement edit is the more interesting detail here. Pulling "humans in the loop" language after publication isn't a typo fix — it's a policy signal. Google appears to be walking back even rhetorical commitments to human oversight, possibly to avoid creating compliance or liability anchors as automation expands. Watch whether that phrasing disappears from other official communications too.</p>
     </div>
-      <a class="read-link" href="https://www.latent.space/p/ainews-reve-2-and-ideogram-4-layouts" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.404media.co/google-employees-internally-share-memes-about-how-its-ai-sucks/" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+    </div>
+    </article>
+    <article class="story-card">
+        <div class="card-body">
+      <div class="card-top">
+        <span class="rank-badge">#5</span>
+        <span class="source-chip">Charity Majors (Substack)</span>
+        
+      </div>
+      <h2 class="story-title"><a href="https://charitydotwtf.substack.com/p/ai-enthusiasts-are-in-a-race-against" target="_blank" rel="noopener noreferrer">AI enthusiasts are in a race against time, AI skeptics are in a race against entropy</a></h2>
+      <p class="story-date">June 4, 2026</p>
+      <p class="story-summary">↳ WHAT'S NEW
+Charity Majors (Honeycomb CTO) published an essay framing the AI adoption debate as two asymmetric races: enthusiasts racing against time to ship before competitors do, skeptics racing against entropy — the slow degradation of codebases they can no longer fully understand or control.
+
+↳ THE REAL STORY
+The framing is useful because it drops the usual 'believers vs. luddites' binary. Both sides are trying to ship good software. Enthusiasts accept short-term legibility debt hoping velocity compounds into advantage before the debt comes due. Skeptics are watching AI-assisted codebases accumulate changes nobody fully reviewed, and they're betting that entropy — not a competitor — is what kills most projects. For teams making concrete decisions today about how much AI-generated code to merge without deep review, this is the actual tension on the table.</p>
+    <div class="claude-take">
+      <p class="claude-take-label">Claude's take</p>
+      <p class="claude-take-text">The honest catch: neither race has a clear finish line, which makes both positions unfalsifiable in the short term. An enthusiast can always say 'we just need more time'; a skeptic can always point to the next incident. What's missing from most of these debates — and from the excerpt available here — is empirical data on where AI-assisted codebases actually break down versus where they hold. Until teams start publishing post-mortems that isolate AI-generated code as a variable, this stays a values argument dressed up as an engineering one.</p>
+    </div>
+      <a class="read-link" href="https://charitydotwtf.substack.com/p/ai-enthusiasts-are-in-a-race-against" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     </main>
   </div>
 
   <footer class="site-footer">
-    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-06-04 08:50 UTC
+    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-06-05 08:45 UTC
   </footer>
 
 </body>
