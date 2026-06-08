@@ -1,65 +1,17 @@
 {
-  "generated_at": "2026-06-06T07:47:28.216652+00:00",
-  "date": "2026-06-06",
+  "generated_at": "2026-06-08T09:23:17.177699+00:00",
+  "date": "2026-06-08",
   "stories": [
     {
       "rank": 1,
-      "score": 9,
-      "title": "How to Stop Shipping Low-Quality RL Environments (with Examples)",
-      "url": "https://www.latent.space/p/bad-envs",
-      "source": "Latent Space",
-      "summary": "↳ WHAT'S NEW\nLatent Space published a practitioner-focused breakdown of common RL environment failures — the kind that silently degrade model quality before you ever notice in evals.\n\n↳ THE REAL STORY\nThe core argument: a flawed reward harness doesn't just fail to improve your model — it actively trains it in the wrong direction. The piece draws on hands-on trajectory inspection to catalog recurring failure modes: reward hacking through harness loopholes, inconsistent environment resets that leak state between episodes, and verifiers that accept surface-level correct-looking outputs without checking actual correctness. For anyone running RLHF or RL-from-verifier pipelines, these aren't edge cases — they're the default outcome if you haven't explicitly audited your environment. The practical fix starts with logging and replaying full trajectories, not just scalar reward signals.",
-      "considerations": "The uncomfortable implication here is that most teams shipping RL fine-tunes have no systematic way to detect whether their environment is broken. Eval metrics can look flat or even improve slightly while the model is learning to exploit harness quirks rather than the target behavior. The open question: at what scale of trajectory volume does manual eyeballing — the method the author relies on — stop being feasible, and what automated tooling actually replaces it? That gap is largely unsolved.",
-      "published": "2026-06-05T18:49:40+00:00",
-      "og_image": "https://substackcdn.com/image/fetch/$s_!NbXz!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fe58868ac-23a0-453d-81e5-5ca830f7454d_1456x1394.png",
-      "is_feature_spotlight": false
-    },
-    {
-      "rank": 2,
-      "score": 6,
-      "title": "Introducing Lockdown Mode and Elevated Risk Labels in ChatGPT",
-      "url": "https://openai.com/index/introducing-lockdown-mode-and-elevated-risk-labels-in-chatgpt/",
-      "source": "OpenAI",
-      "summary": "↳ WHAT'S NEW\nOpenAI rolled out two security features to ChatGPT: Lockdown Mode and Elevated Risk Labels. Lockdown Mode restricts what the account can do — limiting certain interactions and external connections — while Elevated Risk Labels flag conversations that touch on sensitive or potentially dangerous topics. Available now across Free, Plus, Pro, and self-serve Business accounts.\n\n↳ THE REAL STORY\nLockdown Mode is aimed at users who believe they may be targeted by sophisticated threats — think journalists, activists, or executives — giving them a way to trade off some functionality for a tighter security perimeter, similar in spirit to Apple's Lockdown Mode on iOS. Elevated Risk Labels work at the conversation level, surfacing a warning when the model detects the exchange is heading into territory that warrants extra scrutiny. For teams using ChatGPT in sensitive environments, this gives admins and users a visible signal rather than silent refusals — which at least makes the model's reasoning about risk legible.",
-      "considerations": "The catch is definitional opacity. OpenAI hasn't published a clear spec for what triggers an Elevated Risk Label or exactly what Lockdown Mode blocks — which makes it hard to evaluate whether these are meaningful security controls or mostly UI-layer reassurance. If the labeling logic isn't auditable, security-conscious users have no way to verify the feature does what it implies. There's also a chilling-effect risk: overly broad risk labels on legitimate professional conversations — medical, legal, security research — could push practitioners away from the tool precisely when careful AI assistance would be most useful.",
-      "published": "2026-06-05T23:56:40+00:00",
-      "og_image": null,
-      "is_feature_spotlight": false
-    },
-    {
-      "rank": 3,
-      "score": 5,
-      "title": "micropython-wasm 0.1a2",
-      "url": "https://simonwillison.net/2026/Jun/6/micropython-wasm/#atom-everything",
+      "score": 8,
+      "title": "datasette-agent-edit 0.1a0",
+      "url": "https://simonwillison.net/2026/Jun/7/datasette-agent-edit/#atom-everything",
       "source": "Simon Willison",
-      "summary": "↳ WHAT'S NEW\nmicropython-wasm 0.1a2 ships a CLI interface — Simon Willison added command-line access to his MicroPython-in-WebAssembly package, tracked in issue #7.\n\n↳ THE REAL STORY\nThe addition of a CLI means you can now invoke sandboxed MicroPython execution directly from a terminal or shell script, not just programmatically from JavaScript/Node. For developers who want to run untrusted Python snippets in a WASM sandbox without spinning up a full CPython environment, this lowers the friction considerably — pipe in code, get output back, move on.",
-      "considerations": "Still an alpha (0.1a2), so API stability is not guaranteed and the feature set is thin. The more interesting question is how this compares to running Pyodide or a subprocess-isolated CPython for the same sandboxing use case — MicroPython's stdlib coverage is narrow, which means anything beyond basic scripting will hit missing modules fast. Worth watching whether Willison documents the exact sandbox boundaries, because 'safe to run untrusted code' is a claim that needs more than WASM containment alone to hold up.",
-      "published": "2026-06-06T04:26:06+00:00",
+      "summary": "↳ WHAT'S NEW\ndatasette-agent-edit 0.1a0 is an early alpha plugin for Datasette Agent — Simon Willison's first in a planned series that lets AI agents make edits to existing text artifacts inside Datasette: Markdown documents, SQL queries, SVG files.\n\n↳ THE REAL STORY\nThis is infrastructure, not a finished tool. The 0.1a0 tag signals Willison is laying the plugin architecture that future editing capabilities will build on. For developers already using Datasette Agent, this is the foundation that will eventually let an LLM rewrite a complex SQL query in-place or collaboratively edit a Markdown document without copy-pasting content out to a chat interface and back. The practical payoff is still ahead — but watching the plugin shape now tells you what the editing model will look like.",
+      "considerations": "The alpha label is doing real work here. 'Collaborative Markdown editing' and 'updating large SQL queries' sound straightforward until you consider conflict resolution, context window limits on large SQL, and how diffs get applied reliably. The open question is whether the plugin handles structured edits (patch-style) or just full rewrites — because for large SQL or SVG, full rewrites are expensive and error-prone, while patch-style edits require the model to produce reliable diff output. Worth tracking how that design decision lands in subsequent releases.",
+      "published": "2026-06-07T23:56:38+00:00",
       "og_image": null,
-      "is_feature_spotlight": false
-    },
-    {
-      "rank": 4,
-      "score": 4,
-      "title": "Running Python code in a sandbox with MicroPython and WASM",
-      "url": "https://simonwillison.net/2026/Jun/6/micropython-in-a-sandbox/#atom-everything",
-      "source": "Simon Willison",
-      "summary": "↳ WHAT'S NEW\nSimon Willison released micropython-wasm, an alpha Python package that runs Python code inside a MicroPython + WebAssembly sandbox — designed for safe, isolated code execution from within a host Python environment.\n\n↳ THE REAL STORY\nThe combination of MicroPython compiled to WASM gives you two isolation layers at once: WASM's memory sandbox prevents the guest code from touching host memory, and MicroPython's limited stdlib cuts off most of the dangerous surface area (no subprocess, no socket, no os.system). For anyone building LLM-powered tools that need to execute model-generated code — agents, notebooks, plugins — this is a meaningful alternative to spinning up Docker containers or paying for a hosted sandbox API. It runs in-process, which means lower latency and no network round-trip. Willison is already using it as a code execution plugin, which is a real-world stress test.",
-      "considerations": "The catch is MicroPython compatibility. MicroPython is not CPython — it lacks a large chunk of the standard library and many third-party packages simply won't import. Any workflow that needs numpy, pandas, or even parts of the standard library hits a wall immediately. The 'sandbox' framing can also create false confidence: WASM isolation is strong in browsers but the security guarantees in a server-side Python host process are less battle-tested. Worth watching whether the alpha evolves to handle stdlib gaps, and whether anyone finds a WASM escape on the CPython-host boundary before it reaches production use.",
-      "published": "2026-06-06T03:53:34+00:00",
-      "og_image": "https://static.simonwillison.net/static/2026/micropython-card.jpg",
-      "is_feature_spotlight": false
-    },
-    {
-      "rank": 5,
-      "score": 2,
-      "title": "[AINews] not much happened today",
-      "url": "https://www.latent.space/p/ainews-not-much-happened-today-6b8",
-      "source": "Latent Space",
-      "summary": "↳ WHAT'S NEW\nNo significant AI releases, model drops, or API changes landed today. The Latent Space digest ran a placeholder edition.\n\n↳ THE REAL STORY\nSome days the pipeline is dry. No benchmarks to parse, no context window expansions, no surprise model launches. If you were waiting on something specific — a GPT update, a new open-source release, a pricing change — it didn't ship today. Use the time to actually read the documentation you've been skipping.",
-      "considerations": "↳ WORTH WATCHING\nQuiet days in AI are increasingly rare, which makes them worth noting. The field has conditioned practitioners to expect a constant stream of announcements. When nothing drops, it's a reasonable moment to ask whether you've actually integrated the last ten things that did — or just bookmarked them.",
-      "published": "2026-06-06T04:34:47+00:00",
-      "og_image": "https://substackcdn.com/image/fetch/$s_!2Y6l!,f_auto,q_auto:best,fl_progressive:steep/https%3A%2F%2Fswyx.substack.com%2Ftwitter%2Fsubscribe-card.jpg%3Fv%3D-602510947%26version%3D9",
       "is_feature_spotlight": false
     }
   ]
