@@ -1,17 +1,29 @@
 {
-  "generated_at": "2026-06-08T09:23:17.177699+00:00",
-  "date": "2026-06-08",
+  "generated_at": "2026-06-09T08:31:20.145313+00:00",
+  "date": "2026-06-09",
   "stories": [
     {
       "rank": 1,
-      "score": 8,
-      "title": "datasette-agent-edit 0.1a0",
-      "url": "https://simonwillison.net/2026/Jun/7/datasette-agent-edit/#atom-everything",
-      "source": "Simon Willison",
-      "summary": "↳ WHAT'S NEW\ndatasette-agent-edit 0.1a0 is an early alpha plugin for Datasette Agent — Simon Willison's first in a planned series that lets AI agents make edits to existing text artifacts inside Datasette: Markdown documents, SQL queries, SVG files.\n\n↳ THE REAL STORY\nThis is infrastructure, not a finished tool. The 0.1a0 tag signals Willison is laying the plugin architecture that future editing capabilities will build on. For developers already using Datasette Agent, this is the foundation that will eventually let an LLM rewrite a complex SQL query in-place or collaboratively edit a Markdown document without copy-pasting content out to a chat interface and back. The practical payoff is still ahead — but watching the plugin shape now tells you what the editing model will look like.",
-      "considerations": "The alpha label is doing real work here. 'Collaborative Markdown editing' and 'updating large SQL queries' sound straightforward until you consider conflict resolution, context window limits on large SQL, and how diffs get applied reliably. The open question is whether the plugin handles structured edits (patch-style) or just full rewrites — because for large SQL or SVG, full rewrites are expensive and error-prone, while patch-style edits require the model to produce reliable diff output. Worth tracking how that design decision lands in subsequent releases.",
-      "published": "2026-06-07T23:56:38+00:00",
+      "score": 9,
+      "title": "Introducing FrontierCode: a coding eval that raises the bar for difficulty & quality",
+      "url": "https://twitter.com/cognition/status/1799234567890",
+      "source": "Cognition",
+      "summary": "↳ WHAT'S NEW\nCognition released FrontierCode, a new coding benchmark designed to be harder and higher-quality than existing evals.\n\n↳ THE REAL STORY\nThe source excerpt provides almost no usable detail — 'We made a thing!' is the entirety of the technical disclosure. Without knowing the task distribution, language coverage, difficulty calibration method, or how it compares to HumanEval, SWE-bench, or LiveCodeBench, there is nothing concrete to evaluate here. The benchmark may well be interesting, but the available content does not support any specific claims about what it measures or how it was constructed.",
+      "considerations": "The gap between the headline ('raises the bar for difficulty & quality') and the actual disclosed information ('We made a thing!') is worth noting. Cognition builds Devin, which means they have a direct commercial interest in how coding benchmarks are framed and which models score well on them. A benchmark released by a lab that also ships a coding agent warrants scrutiny around evaluation design, dataset contamination controls, and whether the tasks favor their own system's architecture. Wait for the technical report before drawing conclusions.",
+      "published": "2026-06-09T06:12:33+00:00",
       "og_image": null,
+      "is_feature_spotlight": false
+    },
+    {
+      "rank": 2,
+      "score": 3,
+      "title": "Apple Unveils Next Generation of Apple Intelligence, Siri AI and More",
+      "url": "https://www.apple.com/newsroom/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/",
+      "source": "Apple",
+      "summary": "↳ WHAT'S NEW\nApple announced a next-generation Apple Intelligence and Siri AI suite at WWDC 2026, with details published on the Apple Newsroom.\n\n↳ THE REAL STORY\nThe source excerpt cuts off mid-sentence, so the specific features, model names, and API changes aren't available here. What is available: the announcement exists, it's positioned as a generational step up from the 2024 Apple Intelligence rollout, and the person who flagged it is explicitly not taking the claims at face value. For developers building on-device or integrating Siri, the practical question isn't what Apple demoed on stage — it's what ships in the developer betas and whether the capability gap between announcement and release is smaller this time.",
+      "considerations": "↳ WORTH WATCHING\nThe 2024 Apple Intelligence cycle was a case study in announcement-to-reality drift — features shown at WWDC either shipped late, shipped degraded, or didn't ship at all. The source author's 'I'll believe it when I see it' framing is the honest prior here. If you're making product or integration decisions based on this announcement, the beta developer build is the only document worth reading. Marketing copy from the Newsroom is not a spec.",
+      "published": "2026-06-08T23:58:04+00:00",
+      "og_image": "https://www.apple.com/newsroom/images/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/tile/Apple-OS-27-updates-260608-lp.jpg.og.jpg?202606090054",
       "is_feature_spotlight": false
     }
   ]

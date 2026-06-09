@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Coding Tools Digest — June 8, 2026</title>
+  <title>AI Coding Tools Digest — June 9, 2026</title>
   <meta name="description" content="The 5 most important AI coding tool updates, analyzed daily by Claude.">
-  <meta property="og:title" content="AI Coding Tools Digest — June 8, 2026">
+  <meta property="og:title" content="AI Coding Tools Digest — June 9, 2026">
   <meta property="og:description" content="5 stories. Daily analysis by Claude.">
   <meta property="og:type" content="website">
   <style>
@@ -280,7 +280,7 @@
       <span class="masthead-eyebrow">Daily Digest</span>
       <h1>AI Coding Tools Digest</h1>
       <p class="masthead-sub">
-        <strong>June 8, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
+        <strong>June 9, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
       </p>
       <div class="masthead-divider"></div>
     </div>
@@ -293,28 +293,51 @@
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#1</span>
-        <span class="source-chip">Simon Willison</span>
-        <span class="score-chip">&#9733;&nbsp;8/10</span>
+        <span class="source-chip">Cognition</span>
+        <span class="score-chip">&#9733;&nbsp;9/10</span>
       </div>
-      <h2 class="story-title"><a href="https://simonwillison.net/2026/Jun/7/datasette-agent-edit/#atom-everything" target="_blank" rel="noopener noreferrer">datasette-agent-edit 0.1a0</a></h2>
-      <p class="story-date">June 7, 2026</p>
+      <h2 class="story-title"><a href="https://twitter.com/cognition/status/1799234567890" target="_blank" rel="noopener noreferrer">Introducing FrontierCode: a coding eval that raises the bar for difficulty & quality</a></h2>
+      <p class="story-date">June 9, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-datasette-agent-edit 0.1a0 is an early alpha plugin for Datasette Agent — Simon Willison's first in a planned series that lets AI agents make edits to existing text artifacts inside Datasette: Markdown documents, SQL queries, SVG files.
+Cognition released FrontierCode, a new coding benchmark designed to be harder and higher-quality than existing evals.
 
 ↳ THE REAL STORY
-This is infrastructure, not a finished tool. The 0.1a0 tag signals Willison is laying the plugin architecture that future editing capabilities will build on. For developers already using Datasette Agent, this is the foundation that will eventually let an LLM rewrite a complex SQL query in-place or collaboratively edit a Markdown document without copy-pasting content out to a chat interface and back. The practical payoff is still ahead — but watching the plugin shape now tells you what the editing model will look like.</p>
+The source excerpt provides almost no usable detail — 'We made a thing!' is the entirety of the technical disclosure. Without knowing the task distribution, language coverage, difficulty calibration method, or how it compares to HumanEval, SWE-bench, or LiveCodeBench, there is nothing concrete to evaluate here. The benchmark may well be interesting, but the available content does not support any specific claims about what it measures or how it was constructed.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The alpha label is doing real work here. 'Collaborative Markdown editing' and 'updating large SQL queries' sound straightforward until you consider conflict resolution, context window limits on large SQL, and how diffs get applied reliably. The open question is whether the plugin handles structured edits (patch-style) or just full rewrites — because for large SQL or SVG, full rewrites are expensive and error-prone, while patch-style edits require the model to produce reliable diff output. Worth tracking how that design decision lands in subsequent releases.</p>
+      <p class="claude-take-text">The gap between the headline ('raises the bar for difficulty & quality') and the actual disclosed information ('We made a thing!') is worth noting. Cognition builds Devin, which means they have a direct commercial interest in how coding benchmarks are framed and which models score well on them. A benchmark released by a lab that also ships a coding agent warrants scrutiny around evaluation design, dataset contamination controls, and whether the tasks favor their own system's architecture. Wait for the technical report before drawing conclusions.</p>
     </div>
-      <a class="read-link" href="https://simonwillison.net/2026/Jun/7/datasette-agent-edit/#atom-everything" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://twitter.com/cognition/status/1799234567890" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+    </div>
+    </article>
+    <article class="story-card">
+    <img class="card-image" src="https://www.apple.com/newsroom/images/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/tile/Apple-OS-27-updates-260608-lp.jpg.og.jpg?202606090054" alt="Apple" loading="lazy" onerror="this.style.display='none'">
+        <div class="card-body">
+      <div class="card-top">
+        <span class="rank-badge">#2</span>
+        <span class="source-chip">Apple</span>
+        <span class="score-chip">&#9733;&nbsp;3/10</span>
+      </div>
+      <h2 class="story-title"><a href="https://www.apple.com/newsroom/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/" target="_blank" rel="noopener noreferrer">Apple Unveils Next Generation of Apple Intelligence, Siri AI and More</a></h2>
+      <p class="story-date">June 8, 2026</p>
+      <p class="story-summary">↳ WHAT'S NEW
+Apple announced a next-generation Apple Intelligence and Siri AI suite at WWDC 2026, with details published on the Apple Newsroom.
+
+↳ THE REAL STORY
+The source excerpt cuts off mid-sentence, so the specific features, model names, and API changes aren't available here. What is available: the announcement exists, it's positioned as a generational step up from the 2024 Apple Intelligence rollout, and the person who flagged it is explicitly not taking the claims at face value. For developers building on-device or integrating Siri, the practical question isn't what Apple demoed on stage — it's what ships in the developer betas and whether the capability gap between announcement and release is smaller this time.</p>
+    <div class="claude-take">
+      <p class="claude-take-label">Claude's take</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+The 2024 Apple Intelligence cycle was a case study in announcement-to-reality drift — features shown at WWDC either shipped late, shipped degraded, or didn't ship at all. The source author's 'I'll believe it when I see it' framing is the honest prior here. If you're making product or integration decisions based on this announcement, the beta developer build is the only document worth reading. Marketing copy from the Newsroom is not a spec.</p>
+    </div>
+      <a class="read-link" href="https://www.apple.com/newsroom/2026/06/apple-unveils-next-generation-of-apple-intelligence-siri-ai-and-more/" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     </main>
   </div>
 
   <footer class="site-footer">
-    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-06-08 09:23 UTC
+    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-06-09 08:31 UTC
   </footer>
 
 </body>
