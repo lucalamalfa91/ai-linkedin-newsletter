@@ -149,6 +149,7 @@ def _publish_by_type(
     post_type: str,
     comment: str,
     story: dict,
+    article_url: str,
     client: anthropic.Anthropic,
     person_id: str,
     token: str,
@@ -166,7 +167,7 @@ def _publish_by_type(
         return publish_carousel(carousel_comment, document_urn, story["title"], person_id, token)
 
     # Default: "article"
-    return publish(comment, NEWSLETTER_URL, story["title"], person_id, token, og=story.get("og"))
+    return publish(comment, article_url, story["title"], person_id, token, og=story.get("og"))
 
 
 def _run_url_pipeline(
@@ -222,7 +223,7 @@ def _run_url_pipeline(
             log.info("Post not approved — skipping LinkedIn publication")
             return
 
-    post_id = _publish_by_type(post_type, comment, story, client, person_id, token)
+    post_id = _publish_by_type(post_type, comment, story, story["url"], client, person_id, token)
     if not post_id:
         notify("❌ Pubblicazione fallita nel pipeline diretto.", tg_token, tg_chat)
         sys.exit(1)
@@ -356,7 +357,7 @@ def main() -> None:
                 log.info("Post not approved — skipping LinkedIn publication")
                 return
 
-        post_id = _publish_by_type(post_type, comment, story, client, person_id, token)
+        post_id = _publish_by_type(post_type, comment, story, NEWSLETTER_URL, client, person_id, token)
         if not post_id:
             notify("❌ Pubblicazione fallita.", tg_token, tg_chat)
             return
