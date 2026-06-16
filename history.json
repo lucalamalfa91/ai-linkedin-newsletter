@@ -341,6 +341,46 @@
       "#AIArchitecture",
       "#AIStrategy"
     ],
+    "analytics": {
+      "fetched_at": "2026-06-16T14:00:30.130542+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
+  },
+  "urn:li:share:7472649368299372544": {
+    "post_id": "urn:li:share:7472649368299372544",
+    "published_at": "2026-06-16T14:00:44.845210+00:00",
+    "article_url": "https://www.latent.space/p/ainews-satya-on-loopcraft-building",
+    "article_title": "[AINews] Satya on Loopcraft: Building Frontier Ecosystems",
+    "source": "Latent Space",
+    "score": 6,
+    "post_type": "article",
+    "comment_text": "Satya's essay isn't about products. It's about control.\n\nNadella just published a framing — 'Loopcraft' — that positions Microsoft's stack as the default architecture for how frontier AI ecosystems get built. 🏗️ For enterprises, this matters less as a tech choice and more as a procurement and dependency decision that will be very hard to reverse once agents start talking to agents inside your infrastructure. In every architecture review I run right now, the question of which ecosystem owns your AI runtime is the one executives are least prepared to answer.\n\nThe vendor who defines the loop owns the leverage — and most enterprises are signing up without realizing it.\nWhen your AI stack starts generating its own workflows, who in your org has the authority to say no to the next layer of automation Microsoft — or any hyperscaler — wants to add?\n#AIStrategy #EnterpriseAI #AIArchitecture",
+    "topics": [
+      "ainews",
+      "satya",
+      "loopcraft",
+      "building",
+      "frontier",
+      "ecosystems",
+      "essay",
+      "products",
+      "control",
+      "nadella",
+      "published",
+      "framing",
+      "positions",
+      "microsoft",
+      "stack"
+    ],
+    "hashtags": [
+      "#AIStrategy",
+      "#EnterpriseAI",
+      "#AIArchitecture"
+    ],
     "analytics": null
   }
 }
