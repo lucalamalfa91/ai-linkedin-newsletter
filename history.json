@@ -415,5 +415,38 @@
       "#AIStrategy"
     ],
     "analytics": null
+  },
+  "urn:li:share:7474814240915386368": {
+    "post_id": "urn:li:share:7474814240915386368",
+    "published_at": "2026-06-22T13:23:10.749639+00:00",
+    "article_url": "https://github.com/headroomlabs-ai/headroom",
+    "article_title": "Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, same answers. Library, proxy, MCP server. - headroomlabs-ai/headroom",
+    "source": "github.com",
+    "score": null,
+    "post_type": "article",
+    "comment_text": "Your context window cost is hiding in plain sight.\n\nEnterprises running agentic workflows are quietly bleeding money on tokens they never needed to send — logs, RAG chunks, tool outputs bloated with noise that the model ignores anyway. 🔍 A 60-95% reduction in context size before the LLM ever sees it isn't a compression trick, it's a cost structure decision with real P&L implications for any team running AI at scale. In every architecture review I run, token efficiency is the line item nobody budgeted for — and the one that kills the business case first.\n\nThe real AI infrastructure question isn't which model to use — it's what you're feeding it and what that costs at a million calls a day.\nHow much visibility does your team actually have into token consumption across your AI workflows — and who owns that number?\n#EnterpriseAI #AIArchitecture #AIStrategy",
+    "topics": [
+      "compress",
+      "tool",
+      "outputs",
+      "logs",
+      "files",
+      "chunks",
+      "before",
+      "reach",
+      "fewer",
+      "tokens",
+      "same",
+      "answers",
+      "library",
+      "proxy",
+      "server"
+    ],
+    "hashtags": [
+      "#EnterpriseAI",
+      "#AIArchitecture",
+      "#AIStrategy"
+    ],
+    "analytics": null
   }
 }
