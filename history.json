@@ -381,7 +381,14 @@
       "#EnterpriseAI",
       "#AIArchitecture"
     ],
-    "analytics": null
+    "analytics": {
+      "fetched_at": "2026-07-07T10:25:11.254396+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
   },
   "urn:li:share:7474813534628007937": {
     "post_id": "urn:li:share:7474813534628007937",
@@ -414,7 +421,14 @@
       "#AIArchitecture",
       "#AIStrategy"
     ],
-    "analytics": null
+    "analytics": {
+      "fetched_at": "2026-07-07T10:25:11.831400+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
   },
   "urn:li:share:7474814240915386368": {
     "post_id": "urn:li:share:7474814240915386368",
@@ -445,6 +459,46 @@
     "hashtags": [
       "#EnterpriseAI",
       "#AIArchitecture",
+      "#AIStrategy"
+    ],
+    "analytics": {
+      "fetched_at": "2026-07-07T10:25:12.709298+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
+  },
+  "urn:li:share:7480212212800962561": {
+    "post_id": "urn:li:share:7480212212800962561",
+    "published_at": "2026-07-07T10:52:47.425882+00:00",
+    "article_url": "https://www.latent.space/p/ainews-the-field-guide-to-fable",
+    "article_title": "The Field Guide to Fable",
+    "source": "Latent Space",
+    "score": 9,
+    "post_type": "",
+    "comment_text": "The model release cycle is outpacing your roadmap.\n\nEvery few weeks, a new frontier model lands and quietly obsoletes the architectural assumptions your team made last quarter 🔄 The enterprise implication is real: if your AI stack is built around a specific model's capabilities rather than a capability tier, you're accruing technical debt faster than you're shipping value. In every architecture review I run, the orgs that are scaling aren't betting on a model — they're building around workflows that can absorb model upgrades without breaking.\n\nThe teams winning aren't the ones with the best model. They're the ones who've stopped treating model selection as a strategy.\nHow many of your current AI initiatives would survive a drop-in model replacement — and if they wouldn't, what does that tell you about where the real fragility is?\n#AIArchitecture #EnterpriseAI #AIStrategy",
+    "topics": [
+      "field",
+      "guide",
+      "fable",
+      "model",
+      "release",
+      "cycle",
+      "outpacing",
+      "roadmap",
+      "every",
+      "weeks",
+      "frontier",
+      "lands",
+      "quietly",
+      "obsoletes",
+      "architectural"
+    ],
+    "hashtags": [
+      "#AIArchitecture",
+      "#EnterpriseAI",
       "#AIStrategy"
     ],
     "analytics": null
