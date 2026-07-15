@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Coding Tools Digest — July 14, 2026</title>
+  <title>AI Coding Tools Digest — July 15, 2026</title>
   <meta name="description" content="The 5 most important AI coding tool updates, analyzed daily by Claude.">
-  <meta property="og:title" content="AI Coding Tools Digest — July 14, 2026">
+  <meta property="og:title" content="AI Coding Tools Digest — July 15, 2026">
   <meta property="og:description" content="5 stories. Daily analysis by Claude.">
   <meta property="og:type" content="website">
   <style>
@@ -280,7 +280,7 @@
       <span class="masthead-eyebrow">Daily Digest</span>
       <h1>AI Coding Tools Digest</h1>
       <p class="masthead-sub">
-        <strong>July 14, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
+        <strong>July 15, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
       </p>
       <div class="masthead-divider"></div>
     </div>
@@ -290,99 +290,122 @@
     <p class="feed-label">Today&rsquo;s top stories</p>
     <main>
     <article class="story-card">
-    <img class="card-image" src="https://opengraph.githubassets.com/9011d52f1ff950a00c06ec6934bd187ac8a3edcb0eb00fd5021e3ce7c3bcb862/petergpt/doomql" alt="GitHub" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!3Be9!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd4e070d1-3be3-48a9-a86b-ceaf34f4577b_1672x941.png" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#1</span>
-        <span class="source-chip">GitHub</span>
-        <span class="score-chip">&#9733;&nbsp;6/10</span>
+        <span class="source-chip">Latent Space</span>
+        <span class="score-chip">&#9733;&nbsp;8/10</span>
       </div>
-      <h2 class="story-title"><a href="https://github.com/petergpt/doomql" target="_blank" rel="noopener noreferrer">DOOMQL</a></h2>
-      <p class="story-date">July 13, 2026</p>
+      <h2 class="story-title"><a href="https://www.latent.space/p/aiewf26trends" target="_blank" rel="noopener noreferrer">5 Trends That Defined AI Engineering at World's Fair 2026</a></h2>
+      <p class="story-date">July 14, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-DOOMQL is a Doom-like game where SQLite is the game engine — not just storage. Movement, collision, rendering logic all run as SQL queries. Built by Peter Gostev using GPT-4.5 (referred to in the source as GPT-5.6 Sol, likely o3/GPT-4.5 era tooling).
+Latent Space's post-mortem of AI Engineering World's Fair 2026 identifies five trends that defined the conference — centered on a shift from using agents as tools to architecting entire systems around them.
 
 ↳ THE REAL STORY
-This is a proof-of-concept that pushes SQL into territory it was never designed for: stateful, frame-by-frame game loop execution. Every tick — player position, raycasting, collision detection — is computed via SQL statements against SQLite tables. It works because SQLite is an in-process library with near-zero query overhead, making the absurd latency math just barely acceptable for a low-framerate game. For developers, the interesting part isn't the game itself but the architecture: it demonstrates that any sufficiently expressive query language can encode arbitrary state machines if you're willing to abuse it hard enough.</p>
+The framing matters: 'building systems around agents' implies agents are now the load-bearing structure, not a feature bolted on. For practitioners, this likely means evaluation frameworks, orchestration layers, and failure-handling logic are becoming first-class engineering concerns — not afterthoughts. The conference signal suggests the field is moving past 'can we get an agent to do X' toward 'how do we make agent-based systems reliable enough to ship.'</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The real question this raises isn't 'can you do this' — clearly you can — but what it says about AI-assisted development. Gostev used a frontier model to write code that no sane developer would write by hand, in a paradigm that has essentially no prior art or Stack Overflow to lean on. That's the pattern worth tracking: LLMs making deliberately unreasonable architectural experiments cheap enough to actually attempt. The catch is that the output is also nearly unmaintainable by humans — you get a working curiosity, not a codebase anyone extends.</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+The source excerpt is thin — five trends are named in the headline but none are actually described in what was provided. Before treating this as a reliable read on the industry's direction, the full article is worth checking directly. Conference retrospectives have a selection bias problem: they reflect what speakers were willing to present publicly, not necessarily what's working in production. The gap between 'what got a talk slot' and 'what's running in prod' at AI conferences remains wide.</p>
     </div>
-      <a class="read-link" href="https://github.com/petergpt/doomql" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.latent.space/p/aiewf26trends" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
+    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!uoZg!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fpbs.substack.com%2Fmedia%2FHNOP2m2bAAAC2k7.jpg" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#2</span>
-        <span class="source-chip">Simon Willison</span>
-        <span class="score-chip">&#9733;&nbsp;4/10</span>
+        <span class="source-chip">Latent Space</span>
+        <span class="score-chip">&#9733;&nbsp;5/10</span>
       </div>
-      <h2 class="story-title"><a href="https://simonwillison.net/2026/Jul/14/uvx-github-actions-cache/#atom-everything" target="_blank" rel="noopener noreferrer">Using uvx in GitHub Actions in a cache-friendly way</a></h2>
+      <h2 class="story-title"><a href="https://www.latent.space/p/ainews-not-much-happened-today-c72" target="_blank" rel="noopener noreferrer">not much happened today — Codex adding 1M users a day now</a></h2>
       <p class="story-date">July 14, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Simon Willison documented a cache-friendly pattern for using `uvx` in GitHub Actions by setting a `UV_EXCLUDE_NEWER` environment variable pinned to a specific date — preventing uv from fetching newer package versions and making the dependency resolution deterministic enough for cache hits.
+OpenAI's Codex is adding 1 million users per day — a growth figure cited by Latent Space with no further breakdown on where those users are coming from or how "user" is being defined.
 
 ↳ THE REAL STORY
-The core problem: `uvx` resolves packages at runtime, and without version pinning, GitHub Actions cache keys mismatch on every run that pulls a newer package version — effectively making the cache useless. Setting `UV_EXCLUDE_NEWER` to a fixed date freezes the resolution window, so the cache key stays stable across runs. For workflows that call `uvx` frequently (linting, formatting, one-off CLI tools), this can shave meaningful seconds off CI times without requiring a full lockfile or explicit version pinning in the workflow YAML.</p>
+At that pace, Codex is not a niche developer tool anymore. If the number holds, it signals that AI-assisted coding has crossed from early-adopter territory into something closer to default behavior for a broad slice of developers. For teams building on top of OpenAI's APIs, this matters: more users means more pressure on rate limits, more competition for capacity, and historically, more aggressive pricing moves in both directions as OpenAI chases margin.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The catch is maintenance overhead by stealth. A date-pinned `UV_EXCLUDE_NEWER` means you're silently drifting away from security patches and bug fixes in those tools — and unlike a dependabot-managed lockfile, there's no automated nudge to update it. Teams that set this and forget it could be running outdated versions of tools like `ruff` or `mypy` for months without noticing. Worth pairing with a calendar reminder or a periodic CI job that bumps the date deliberately.</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+The number is almost certainly DAU-equivalent or cumulative new signups — not active coding sessions. "Adding 1M users a day" is the kind of stat that sounds precise but hides everything: retention, session depth, whether these are students running one query or engineers shipping production code. Before reading this as a signal of developer adoption, it's worth asking what OpenAI's definition of a Codex "user" actually is — and whether anyone outside OpenAI can verify it.</p>
     </div>
-      <a class="read-link" href="https://simonwillison.net/2026/Jul/14/uvx-github-actions-cache/#atom-everything" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.latent.space/p/ainews-not-much-happened-today-c72" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
-    <img class="card-image" src="https://pbs.twimg.com/profile_images/2075819673263001600/pj1vyX6I_200x200.jpg" alt="Twitter/X" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://github.blog/wp-content/themes/github-2021-child/dist/img/social-v3-improvements.jpg" alt="GitHub" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#3</span>
-        <span class="source-chip">Twitter/X</span>
-        
-      </div>
-      <h2 class="story-title"><a href="https://twitter.com/thsottiaux" target="_blank" rel="noopener noreferrer">Tibo's tweets on Codex and ChatGPT Work updates</a></h2>
-      <p class="story-date">July 14, 2026</p>
-      <p class="story-summary">↳ WHAT'S NEW
-No verifiable product announcement or technical detail can be extracted from this source. The raw excerpt references Codex, ChatGPT Work, and Claude Code but contains no concrete numbers, feature names, API changes, or release notes — only a vague allusion to "fact checking numbers."
-
-↳ THE REAL STORY
-Insufficient signal to report. A tweet thread teasing a comparison between Codex and Claude Code metrics is not a briefing item until the actual data surfaces. Nothing here changes a workflow, a pricing model, or an integration path.</p>
-    <div class="claude-take">
-      <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">↳ WORTH WATCHING
-The framing — "fact checking numbers against the sound of silence of Claude Code reporting" — hints at a transparency gap in how Anthropic surfaces usage or performance data for Claude Code compared to OpenAI's Codex. If that's the real story, it's worth watching when someone publishes the actual benchmark or billing comparison. Until then, this is a placeholder, not a finding.</p>
-    </div>
-      <a class="read-link" href="https://twitter.com/thsottiaux" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
-    </div>
-    </article>
-    <article class="story-card">
-    <img class="card-image" src="https://repository-images.githubusercontent.com/107914493/67382f80-34c1-11eb-9005-a0053d07b7e9" alt="GitHub" loading="lazy" onerror="this.style.display='none'">
-        <div class="card-body">
-      <div class="card-top">
-        <span class="rank-badge">#4</span>
         <span class="source-chip">GitHub</span>
         
       </div>
-      <h2 class="story-title"><a href="https://github.com/simonw/datasette/graphs/code-frequency" target="_blank" rel="noopener noreferrer">datasette code-frequency chart on GitHub</a></h2>
-      <p class="story-date">July 13, 2026</p>
+      <h2 class="story-title"><a href="https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/" target="_blank" rel="noopener noreferrer">Dependabot version updates introduce default package cooldown</a></h2>
+      <p class="story-date">July 14, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Simon Willison checked his own GitHub code-frequency chart for the Datasette repository to measure whether coding agents and Claude Opus 4.5-class models have visibly changed his commit output over time.
+Dependabot version updates now include a built-in 3-day cooldown period before opening a pull request for any new package release. No configuration required — it applies by default across all repos using Dependabot.
 
 ↳ THE REAL STORY
-The chart itself is a proxy metric — lines added/deleted per week — not a rigorous productivity study. But it's one of the few concrete, personal data points from a prolific open-source developer trying to quantify what AI-assisted coding actually does to throughput on a real, long-running project. If the chart shows a spike, it's a signal worth taking seriously precisely because Datasette has years of baseline data to compare against.</p>
+This is a direct response to supply chain attacks like the one that hit `tj-actions` earlier this year, where a compromised package was published and rapidly pulled into thousands of repos via automated PRs before anyone noticed. The 3-day window gives the ecosystem time to catch malicious or broken releases before they land in your dependency tree. In practice, teams running Dependabot on active repos will see fewer same-day PRs for patch and minor bumps — which also means less noise in the PR queue without any manual tuning.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">↳ WORTH WATCHING
-Code frequency is a noisy signal. A spike in lines changed could mean more features shipped, or it could mean more AI-generated boilerplate, more refactors, or tests being written for the first time. Without pairing the chart with issue closure rate or feature milestones, it's easy to mistake activity for progress. The more interesting follow-up question: is the complexity per commit going up or down?</p>
+      <p class="claude-take-text">The catch is that three days is an arbitrary number that won't stop a patient attacker, and it creates a false sense of security. A malicious package that stays live for 72 hours — which many do — still gets through. More importantly, for teams that *want* fast dependency updates (security patches, zero-days), there's no mention yet of an opt-out or a per-package override to bypass the cooldown. If that configurability doesn't exist, you're trading automation speed for a security theater buffer on the exact updates where speed matters most.</p>
     </div>
-      <a class="read-link" href="https://github.com/simonw/datasette/graphs/code-frequency" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+    </div>
+    </article>
+    <article class="story-card">
+    <img class="card-image" src="https://static.simonwillison.net/static/2026/pedalican-card.jpg" alt="Simon Willison" loading="lazy" onerror="this.style.display='none'">
+        <div class="card-body">
+      <div class="card-top">
+        <span class="rank-badge">#4</span>
+        <span class="source-chip">Simon Willison</span>
+        
+      </div>
+      <h2 class="story-title"><a href="https://simonwillison.net/2026/Jul/14/pedalican/#atom-everything" target="_blank" rel="noopener noreferrer">simonw/pedalican</a></h2>
+      <p class="story-date">July 14, 2026</p>
+      <p class="story-summary">↳ WHAT'S NEW
+Simon Willison published pedalican, a tool to extract and save the animated "pet" characters from OpenAI's Codex Desktop app — the little animated robots (think Clippy-era Office Assistant) that ship bundled inside the application.
+
+↳ THE REAL STORY
+This is less about the tool itself and more about what it reveals: OpenAI quietly shipped animated desktop companions inside Codex Desktop back in May with almost no fanfare, and even attentive developers like Willison missed them entirely. The pedalican repo exists because the assets are bundled in the app but not easily accessible — so Willison wrote an extractor. For anyone building with or studying Codex Desktop, it's a reminder that the app contains more than just the coding agent surface; there's a layer of consumer-facing personality design sitting underneath.</p>
+    <div class="claude-take">
+      <p class="claude-take-label">Claude's take</p>
+      <p class="claude-take-text">The Clippy comparison Willison reaches for is doing real work here. Microsoft's Office Assistant became a cautionary tale about intrusive, anthropomorphized UI — and OpenAI is now shipping animated robot pets inside a developer tool aimed at professionals. Whether that lands as charming or annoying will depend entirely on how aggressively these pets surface during actual coding sessions. Worth watching whether this pattern spreads to other AI coding tools, and whether developers end up hunting for the disable toggle the same way they hunted for the "Turn off the Office Assistant" option in Word 2003.</p>
+    </div>
+      <a class="read-link" href="https://simonwillison.net/2026/Jul/14/pedalican/#atom-everything" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+    </div>
+    </article>
+    <article class="story-card">
+    <img class="card-image" src="https://lobste.rs/story_image/ko1ji1.png" alt="Lobsters" loading="lazy" onerror="this.style.display='none'">
+        <div class="card-body">
+      <div class="card-top">
+        <span class="rank-badge">#5</span>
+        <span class="source-chip">Lobsters</span>
+        
+      </div>
+      <h2 class="story-title"><a href="https://lobste.rs/s/ko1ji1/lobste_rs_is_now_running_on_sqlite" target="_blank" rel="noopener noreferrer">lobste.rs is now running on SQLite</a></h2>
+      <p class="story-date">July 14, 2026</p>
+      <p class="story-summary">↳ WHAT'S NEW
+Lobsters, the developer-focused link aggregation site, completed a migration from MariaDB to SQLite in production — a move that had been in planning since 2018, originally targeting PostgreSQL before pivoting to SQLite.
+
+↳ THE REAL STORY
+This is a real-world data point for the "SQLite in production" debate. Lobsters is a live, multi-user web app with concurrent reads and writes, not a toy project. The fact that a Rails app serving a developer community can run comfortably on SQLite challenges the default assumption that any serious web app needs a client-server database. For developers building small-to-medium Rails or Django apps, this is evidence — not just theory — that SQLite's WAL mode and modern hosting (single-server, NVMe) can handle the load without the operational overhead of managing a separate database process.</p>
+    <div class="claude-take">
+      <p class="claude-take-label">Claude's take</p>
+      <p class="claude-take-text">The catch is that Lobsters is a low-write, read-heavy site with a single-server deployment — conditions that happen to be SQLite's sweet spot. The moment you need horizontal scaling, read replicas, or cross-region replication, this architecture hits a wall. The more interesting open question: as Litestream, LiteFS, and Turso push SQLite toward distributed setups, how far can this model actually stretch before you're just reinventing the complexity you were trying to avoid?</p>
+    </div>
+      <a class="read-link" href="https://lobste.rs/s/ko1ji1/lobste_rs_is_now_running_on_sqlite" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     </main>
   </div>
 
   <footer class="site-footer">
-    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-07-14 07:11 UTC
+    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-07-15 07:15 UTC
   </footer>
 
 </body>
