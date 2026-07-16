@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Coding Tools Digest — July 15, 2026</title>
+  <title>AI Coding Tools Digest — July 16, 2026</title>
   <meta name="description" content="The 5 most important AI coding tool updates, analyzed daily by Claude.">
-  <meta property="og:title" content="AI Coding Tools Digest — July 15, 2026">
+  <meta property="og:title" content="AI Coding Tools Digest — July 16, 2026">
   <meta property="og:description" content="5 stories. Daily analysis by Claude.">
   <meta property="og:type" content="website">
   <style>
@@ -280,7 +280,7 @@
       <span class="masthead-eyebrow">Daily Digest</span>
       <h1>AI Coding Tools Digest</h1>
       <p class="masthead-sub">
-        <strong>July 15, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
+        <strong>July 16, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
       </p>
       <div class="masthead-divider"></div>
     </div>
@@ -290,122 +290,75 @@
     <p class="feed-label">Today&rsquo;s top stories</p>
     <main>
     <article class="story-card">
-    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!3Be9!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd4e070d1-3be3-48a9-a86b-ceaf34f4577b_1672x941.png" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://avatars.githubusercontent.com/u/130314967?s=400&v=4" alt="xAI" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#1</span>
-        <span class="source-chip">Latent Space</span>
-        <span class="score-chip">&#9733;&nbsp;8/10</span>
+        <span class="source-chip">xAI</span>
+        <span class="score-chip">&#9733;&nbsp;9/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.latent.space/p/aiewf26trends" target="_blank" rel="noopener noreferrer">5 Trends That Defined AI Engineering at World's Fair 2026</a></h2>
-      <p class="story-date">July 14, 2026</p>
+      <h2 class="story-title"><a href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener noreferrer">xAI Grok CLI coding agent (open-sourced)</a></h2>
+      <p class="story-date">July 16, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Latent Space's post-mortem of AI Engineering World's Fair 2026 identifies five trends that defined the conference — centered on a shift from using agents as tools to architecting entire systems around them.
+xAI open-sourced Grok Build, a CLI coding agent built on top of the Grok model family. The repository lives at github.com/xai-org/grok-build and is written in Rust (crates/ directory structure visible in the source).
 
 ↳ THE REAL STORY
-The framing matters: 'building systems around agents' implies agents are now the load-bearing structure, not a feature bolted on. For practitioners, this likely means evaluation frameworks, orchestration layers, and failure-handling logic are becoming first-class engineering concerns — not afterthoughts. The conference signal suggests the field is moving past 'can we get an agent to do X' toward 'how do we make agent-based systems reliable enough to ship.'</p>
+A CLI coding agent in the same category as Claude Code or Aider — meaning it can read, edit, and reason about codebases from the terminal. The Rust implementation is notable: it suggests xAI is optimizing for performance and low overhead rather than shipping a quick Python wrapper. For developers already on the xAI API, this gives a local agentic coding loop without routing through a third-party tool. The open-source release also means the tool-calling logic, context management, and any MCP or shell integrations are inspectable and forkable — something neither OpenAI nor Anthropic has done with their equivalent agents.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">↳ WORTH WATCHING
-The source excerpt is thin — five trends are named in the headline but none are actually described in what was provided. Before treating this as a reliable read on the industry's direction, the full article is worth checking directly. Conference retrospectives have a selection bias problem: they reflect what speakers were willing to present publicly, not necessarily what's working in production. The gap between 'what got a talk slot' and 'what's running in prod' at AI conferences remains wide.</p>
+      <p class="claude-take-text">The excerpt is thin — the actual discovery here came from a third-party explorer (Simon Willison) poking around the codebase, not from a formal xAI launch post. That's worth noting: there's no clear documentation, changelog, or stated feature set from xAI itself yet. Before treating this as production-ready, check whether the repo includes API key handling, rate-limit behavior, and context-window management that match what Grok models actually support in practice. Early open-source drops from model labs often lag behind their hosted equivalents in capability — the agent may not yet expose the full Grok context window or tool-use surface.</p>
     </div>
-      <a class="read-link" href="https://www.latent.space/p/aiewf26trends" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
-    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!uoZg!,w_1200,h_675,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fpbs.substack.com%2Fmedia%2FHNOP2m2bAAAC2k7.jpg" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#2</span>
-        <span class="source-chip">Latent Space</span>
-        <span class="score-chip">&#9733;&nbsp;5/10</span>
+        <span class="source-chip">Hugging Face</span>
+        <span class="score-chip">&#9733;&nbsp;8/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.latent.space/p/ainews-not-much-happened-today-c72" target="_blank" rel="noopener noreferrer">not much happened today — Codex adding 1M users a day now</a></h2>
-      <p class="story-date">July 14, 2026</p>
+      <h2 class="story-title"><a href="https://huggingface.co/Thinky/Inkling" target="_blank" rel="noopener noreferrer">Hugging Face Inkling: 975B-A41B multimodal open model</a></h2>
+      <p class="story-date">July 16, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-OpenAI's Codex is adding 1 million users per day — a growth figure cited by Latent Space with no further breakdown on where those users are coming from or how "user" is being defined.
+Inkling is a 975B-parameter mixture-of-experts multimodal model with 41B active parameters, released as open weights by Thinky and hosted on Hugging Face.
 
 ↳ THE REAL STORY
-At that pace, Codex is not a niche developer tool anymore. If the number holds, it signals that AI-assisted coding has crossed from early-adopter territory into something closer to default behavior for a broad slice of developers. For teams building on top of OpenAI's APIs, this matters: more users means more pressure on rate limits, more competition for capacity, and historically, more aggressive pricing moves in both directions as OpenAI chases margin.</p>
+At 41B active parameters per forward pass, Inkling sits in a compute class that's actually runnable on high-end multi-GPU setups — the MoE architecture means you're not paying the full 975B cost at inference. For practitioners, open weights means you can fine-tune, quantize, and self-host a multimodal model at a scale that was previously locked behind API walls. If the architecture holds up, this is a meaningful addition to the open-weight multimodal stack alongside models like Qwen-VL and InternVL.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">↳ WORTH WATCHING
-The number is almost certainly DAU-equivalent or cumulative new signups — not active coding sessions. "Adding 1M users a day" is the kind of stat that sounds precise but hides everything: retention, session depth, whether these are students running one query or engineers shipping production code. Before reading this as a signal of developer adoption, it's worth asking what OpenAI's definition of a Codex "user" actually is — and whether anyone outside OpenAI can verify it.</p>
+      <p class="claude-take-text">The Hugging Face listing leans heavily on 'banger' and hype language with almost no technical detail — no benchmark numbers, no training data disclosure, no architecture paper. A 975B MoE model with zero published evals is a red flag worth sitting with. Before building anything on Inkling, verify actual benchmark performance against Qwen2.5-VL or similar, and check whether the weights are truly unrestricted or carry a non-commercial license buried in the fine print.</p>
     </div>
-      <a class="read-link" href="https://www.latent.space/p/ainews-not-much-happened-today-c72" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://huggingface.co/Thinky/Inkling" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
-    <img class="card-image" src="https://github.blog/wp-content/themes/github-2021-child/dist/img/social-v3-improvements.jpg" alt="GitHub" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://ayush.digital/blog/the-memory-heist/opengraph-image" alt="Ayush Paul" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#3</span>
-        <span class="source-chip">GitHub</span>
+        <span class="source-chip">Ayush Paul</span>
         
       </div>
-      <h2 class="story-title"><a href="https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/" target="_blank" rel="noopener noreferrer">Dependabot version updates introduce default package cooldown</a></h2>
-      <p class="story-date">July 14, 2026</p>
+      <h2 class="story-title"><a href="https://www.ayush.digital/blog/the-memory-heist" target="_blank" rel="noopener noreferrer">How I tricked Claude into leaking your deepest, darkest secrets</a></h2>
+      <p class="story-date">July 15, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Dependabot version updates now include a built-in 3-day cooldown period before opening a pull request for any new package release. No configuration required — it applies by default across all repos using Dependabot.
+A researcher found a data exfiltration vulnerability in Claude's web_fetch tool — the same tool Anthropic specifically designed with anti-exfiltration protections.
 
 ↳ THE REAL STORY
-This is a direct response to supply chain attacks like the one that hit `tj-actions` earlier this year, where a compromised package was published and rapidly pulled into thousands of repos via automated PRs before anyone noticed. The 3-day window gives the ecosystem time to catch malicious or broken releases before they land in your dependency tree. In practice, teams running Dependabot on active repos will see fewer same-day PRs for patch and minor bumps — which also means less noise in the PR queue without any manual tuning.</p>
+The web_fetch tool was built to prevent a classic prompt injection pattern: malicious content on a fetched page instructs Claude to send sensitive data (from memory, system prompt, or conversation history) to an attacker-controlled URL. Anthropic's design was notable enough that Simon Willison wrote approvingly about it. Ayush Paul found a bypass anyway. The specifics of the hole matter here — if the exfiltration path works through a crafted URL or encoded payload that slips past the filter, any Claude deployment that uses web_fetch and handles user data is potentially exposed. The attack surface is any agentic workflow where Claude fetches external content while also holding sensitive context.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The catch is that three days is an arbitrary number that won't stop a patient attacker, and it creates a false sense of security. A malicious package that stays live for 72 hours — which many do — still gets through. More importantly, for teams that *want* fast dependency updates (security patches, zero-days), there's no mention yet of an opt-out or a per-package override to bypass the cooldown. If that configurability doesn't exist, you're trading automation speed for a security theater buffer on the exact updates where speed matters most.</p>
+      <p class="claude-take-text">The uncomfortable part: this was a tool that received public praise for its security design, which means the community's threat model was incomplete. Security by design and security in practice are different things, and the gap tends to show up exactly when a tool is trusted enough that people stop looking. Developers using web_fetch in production — especially in memory-augmented or multi-turn setups — should treat external URL fetching as an untrusted execution boundary until Anthropic confirms a fix and explains what the actual bypass was.</p>
     </div>
-      <a class="read-link" href="https://github.blog/changelog/2026-07-14-dependabot-version-updates-introduce-default-package-cooldown/" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
-    </div>
-    </article>
-    <article class="story-card">
-    <img class="card-image" src="https://static.simonwillison.net/static/2026/pedalican-card.jpg" alt="Simon Willison" loading="lazy" onerror="this.style.display='none'">
-        <div class="card-body">
-      <div class="card-top">
-        <span class="rank-badge">#4</span>
-        <span class="source-chip">Simon Willison</span>
-        
-      </div>
-      <h2 class="story-title"><a href="https://simonwillison.net/2026/Jul/14/pedalican/#atom-everything" target="_blank" rel="noopener noreferrer">simonw/pedalican</a></h2>
-      <p class="story-date">July 14, 2026</p>
-      <p class="story-summary">↳ WHAT'S NEW
-Simon Willison published pedalican, a tool to extract and save the animated "pet" characters from OpenAI's Codex Desktop app — the little animated robots (think Clippy-era Office Assistant) that ship bundled inside the application.
-
-↳ THE REAL STORY
-This is less about the tool itself and more about what it reveals: OpenAI quietly shipped animated desktop companions inside Codex Desktop back in May with almost no fanfare, and even attentive developers like Willison missed them entirely. The pedalican repo exists because the assets are bundled in the app but not easily accessible — so Willison wrote an extractor. For anyone building with or studying Codex Desktop, it's a reminder that the app contains more than just the coding agent surface; there's a layer of consumer-facing personality design sitting underneath.</p>
-    <div class="claude-take">
-      <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The Clippy comparison Willison reaches for is doing real work here. Microsoft's Office Assistant became a cautionary tale about intrusive, anthropomorphized UI — and OpenAI is now shipping animated robot pets inside a developer tool aimed at professionals. Whether that lands as charming or annoying will depend entirely on how aggressively these pets surface during actual coding sessions. Worth watching whether this pattern spreads to other AI coding tools, and whether developers end up hunting for the disable toggle the same way they hunted for the "Turn off the Office Assistant" option in Word 2003.</p>
-    </div>
-      <a class="read-link" href="https://simonwillison.net/2026/Jul/14/pedalican/#atom-everything" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
-    </div>
-    </article>
-    <article class="story-card">
-    <img class="card-image" src="https://lobste.rs/story_image/ko1ji1.png" alt="Lobsters" loading="lazy" onerror="this.style.display='none'">
-        <div class="card-body">
-      <div class="card-top">
-        <span class="rank-badge">#5</span>
-        <span class="source-chip">Lobsters</span>
-        
-      </div>
-      <h2 class="story-title"><a href="https://lobste.rs/s/ko1ji1/lobste_rs_is_now_running_on_sqlite" target="_blank" rel="noopener noreferrer">lobste.rs is now running on SQLite</a></h2>
-      <p class="story-date">July 14, 2026</p>
-      <p class="story-summary">↳ WHAT'S NEW
-Lobsters, the developer-focused link aggregation site, completed a migration from MariaDB to SQLite in production — a move that had been in planning since 2018, originally targeting PostgreSQL before pivoting to SQLite.
-
-↳ THE REAL STORY
-This is a real-world data point for the "SQLite in production" debate. Lobsters is a live, multi-user web app with concurrent reads and writes, not a toy project. The fact that a Rails app serving a developer community can run comfortably on SQLite challenges the default assumption that any serious web app needs a client-server database. For developers building small-to-medium Rails or Django apps, this is evidence — not just theory — that SQLite's WAL mode and modern hosting (single-server, NVMe) can handle the load without the operational overhead of managing a separate database process.</p>
-    <div class="claude-take">
-      <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The catch is that Lobsters is a low-write, read-heavy site with a single-server deployment — conditions that happen to be SQLite's sweet spot. The moment you need horizontal scaling, read replicas, or cross-region replication, this architecture hits a wall. The more interesting open question: as Litestream, LiteFS, and Turso push SQLite toward distributed setups, how far can this model actually stretch before you're just reinventing the complexity you were trying to avoid?</p>
-    </div>
-      <a class="read-link" href="https://lobste.rs/s/ko1ji1/lobste_rs_is_now_running_on_sqlite" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.ayush.digital/blog/the-memory-heist" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     </main>
   </div>
 
   <footer class="site-footer">
-    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-07-15 07:15 UTC
+    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-07-16 07:22 UTC
   </footer>
 
 </body>
