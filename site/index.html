@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Coding Tools Digest — July 16, 2026</title>
+  <title>AI Coding Tools Digest — July 17, 2026</title>
   <meta name="description" content="The 5 most important AI coding tool updates, analyzed daily by Claude.">
-  <meta property="og:title" content="AI Coding Tools Digest — July 16, 2026">
+  <meta property="og:title" content="AI Coding Tools Digest — July 17, 2026">
   <meta property="og:description" content="5 stories. Daily analysis by Claude.">
   <meta property="og:type" content="website">
   <style>
@@ -280,7 +280,7 @@
       <span class="masthead-eyebrow">Daily Digest</span>
       <h1>AI Coding Tools Digest</h1>
       <p class="masthead-sub">
-        <strong>July 16, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
+        <strong>July 17, 2026</strong> &mdash; 5 stories selected and analyzed by Claude
       </p>
       <div class="masthead-divider"></div>
     </div>
@@ -290,75 +290,121 @@
     <p class="feed-label">Today&rsquo;s top stories</p>
     <main>
     <article class="story-card">
-    <img class="card-image" src="https://avatars.githubusercontent.com/u/130314967?s=400&v=4" alt="xAI" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#1</span>
-        <span class="source-chip">xAI</span>
+        <span class="source-chip">Moonshot AI</span>
         <span class="score-chip">&#9733;&nbsp;9/10</span>
       </div>
-      <h2 class="story-title"><a href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener noreferrer">xAI Grok CLI coding agent (open-sourced)</a></h2>
+      <h2 class="story-title"><a href="https://www.kimi.com/blog/kimi-k3" target="_blank" rel="noopener noreferrer">Kimi K3 Announcement</a></h2>
       <p class="story-date">July 16, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-xAI open-sourced Grok Build, a CLI coding agent built on top of the Grok model family. The repository lives at github.com/xai-org/grok-build and is written in Rust (crates/ directory structure visible in the source).
+Moonshot AI's Kimi K3 is a 2.8 trillion parameter model — the company's largest to date — available now via their website and API, with open weights promised by July 27, 2026. Moonshot is billing it as the first "open 3T-class model" (rounding up from 2.8T).
 
 ↳ THE REAL STORY
-A CLI coding agent in the same category as Claude Code or Aider — meaning it can read, edit, and reason about codebases from the terminal. The Rust implementation is notable: it suggests xAI is optimizing for performance and low overhead rather than shipping a quick Python wrapper. For developers already on the xAI API, this gives a local agentic coding loop without routing through a third-party tool. The open-source release also means the tool-calling logic, context management, and any MCP or shell integrations are inspectable and forkable — something neither OpenAI nor Anthropic has done with their equivalent agents.</p>
+The API availability today means developers can start benchmarking K3 against GPT-4o, Claude, and Gemini right now without waiting for weights. For teams building on open models, the July 2026 open-weight release is the more meaningful date — a 2.8T parameter model you can self-host would be the largest openly available model by a significant margin, potentially shifting the calculus on inference infrastructure investment for anyone running large-scale deployments.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The excerpt is thin — the actual discovery here came from a third-party explorer (Simon Willison) poking around the codebase, not from a formal xAI launch post. That's worth noting: there's no clear documentation, changelog, or stated feature set from xAI itself yet. Before treating this as production-ready, check whether the repo includes API key handling, rate-limit behavior, and context-window management that match what Grok models actually support in practice. Early open-source drops from model labs often lag behind their hosted equivalents in capability — the agent may not yet expose the full Grok context window or tool-use surface.</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+The gap between "available now" and "open weights by July 27, 2026" is doing a lot of work here. That's over a year away, which means Moonshot gets the credibility of calling K3 "open" while retaining full API control through its most commercially valuable window. The 3T rounding is also a small flag — 2.8T is 2.8T. Watch whether independent evals match the headline claims before building anything critical on top of it.</p>
     </div>
-      <a class="read-link" href="https://github.com/xai-org/grok-build" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.kimi.com/blog/kimi-k3" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#2</span>
-        <span class="source-chip">Hugging Face</span>
-        <span class="score-chip">&#9733;&nbsp;8/10</span>
+        <span class="source-chip">Moonshot AI</span>
+        <span class="score-chip">&#9733;&nbsp;9/10</span>
       </div>
-      <h2 class="story-title"><a href="https://huggingface.co/Thinky/Inkling" target="_blank" rel="noopener noreferrer">Hugging Face Inkling: 975B-A41B multimodal open model</a></h2>
-      <p class="story-date">July 16, 2026</p>
+      <h2 class="story-title"><a href="https://www.kimi.ai" target="_blank" rel="noopener noreferrer">Kimi K3 2.8T-A50B Model Release</a></h2>
+      <p class="story-date">July 17, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-Inkling is a 975B-parameter mixture-of-experts multimodal model with 41B active parameters, released as open weights by Thinky and hosted on Hugging Face.
+Kimi K3 is Moonshot AI's latest open model release — a 2.8 trillion total parameter MoE architecture with 50 billion active parameters per forward pass.
 
 ↳ THE REAL STORY
-At 41B active parameters per forward pass, Inkling sits in a compute class that's actually runnable on high-end multi-GPU setups — the MoE architecture means you're not paying the full 975B cost at inference. For practitioners, open weights means you can fine-tune, quantize, and self-host a multimodal model at a scale that was previously locked behind API walls. If the architecture holds up, this is a meaningful addition to the open-weight multimodal stack alongside models like Qwen-VL and InternVL.</p>
+At 50B active parameters, K3 sits in a compute tier that's actually deployable for teams with serious but not hyperscaler-level GPU budgets. MoE at this scale means inference cost tracks the active parameter count, not the full 2.8T — so you're getting a model trained on a much larger parameter budget while paying closer to a 50B dense model's inference bill. For practitioners evaluating open alternatives to frontier APIs, K3 enters a bracket alongside Mixtral and DeepSeek-class models where the build-vs-buy math starts to genuinely favor self-hosting.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The Hugging Face listing leans heavily on 'banger' and hype language with almost no technical detail — no benchmark numbers, no training data disclosure, no architecture paper. A 975B MoE model with zero published evals is a red flag worth sitting with. Before building anything on Inkling, verify actual benchmark performance against Qwen2.5-VL or similar, and check whether the weights are truly unrestricted or carry a non-commercial license buried in the fine print.</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+The raw excerpt here is thin — 'a great week for open models' is enthusiasm, not a datasheet. Benchmark numbers, training data composition, context length, and licensing terms are all unknown from what's been shared. A 2.8T parameter count is a headline that means little without knowing expert routing quality and how many experts are active. Before building anything on K3, wait for independent evals — MoE models in particular can look strong on benchmarks while underperforming on the specific task distributions that matter for your use case.</p>
     </div>
-      <a class="read-link" href="https://huggingface.co/Thinky/Inkling" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://www.kimi.ai" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     <article class="story-card">
-    <img class="card-image" src="https://ayush.digital/blog/the-memory-heist/opengraph-image" alt="Ayush Paul" loading="lazy" onerror="this.style.display='none'">
+    <img class="card-image" src="https://thinkingmachines.ai/news/introducing-inkling/images/cover-social-inkling-post.png" alt="Thinking Machines Lab" loading="lazy" onerror="this.style.display='none'">
         <div class="card-body">
       <div class="card-top">
         <span class="rank-badge">#3</span>
-        <span class="source-chip">Ayush Paul</span>
-        
+        <span class="source-chip">Thinking Machines Lab</span>
+        <span class="score-chip">&#9733;&nbsp;8/10</span>
       </div>
-      <h2 class="story-title"><a href="https://www.ayush.digital/blog/the-memory-heist" target="_blank" rel="noopener noreferrer">How I tricked Claude into leaking your deepest, darkest secrets</a></h2>
-      <p class="story-date">July 15, 2026</p>
+      <h2 class="story-title"><a href="https://thinkingmachines.ai/news/introducing-inkling/" target="_blank" rel="noopener noreferrer">Inkling: Our open-weights model</a></h2>
+      <p class="story-date">July 16, 2026</p>
       <p class="story-summary">↳ WHAT'S NEW
-A researcher found a data exfiltration vulnerability in Claude's web_fetch tool — the same tool Anthropic specifically designed with anti-exfiltration protections.
+Thinking Machines Lab — Mira Murati's startup — released Inkling, a Mixture-of-Experts model with 975B total parameters and 41B active, trained on 45 trillion tokens across text, images, audio, and video. Apache-2.0 licensed, open weights.
 
 ↳ THE REAL STORY
-The web_fetch tool was built to prevent a classic prompt injection pattern: malicious content on a fetched page instructs Claude to send sensitive data (from memory, system prompt, or conversation history) to an attacker-controlled URL. Anthropic's design was notable enough that Simon Willison wrote approvingly about it. Ayush Paul found a bypass anyway. The specifics of the hole matter here — if the exfiltration path works through a crafted URL or encoded payload that slips past the filter, any Claude deployment that uses web_fetch and handles user data is potentially exposed. The attack surface is any agentic workflow where Claude fetches external content while also holding sensitive context.</p>
+The 41B active parameter count is the number that matters for inference cost — comparable to running a dense 41B model despite the headline 975B figure. Apache-2.0 means commercial use without royalty headaches, which puts it in the same permissive tier as Llama 3. The multimodal training data mix (including audio and video) is broader than most open-weights releases at this scale, which could matter for teams building pipelines that go beyond text and images.</p>
     <div class="claude-take">
       <p class="claude-take-label">Claude's take</p>
-      <p class="claude-take-text">The uncomfortable part: this was a tool that received public praise for its security design, which means the community's threat model was incomplete. Security by design and security in practice are different things, and the gap tends to show up exactly when a tool is trusted enough that people stop looking. Developers using web_fetch in production — especially in memory-augmented or multi-turn setups — should treat external URL fetching as an untrusted execution boundary until Anthropic confirms a fix and explains what the actual bypass was.</p>
+      <p class="claude-take-text">↳ WORTH WATCHING
+Thinking Machines Lab is a very new outfit, and 'open weights' without a detailed technical report leaves a lot of unknowns: training data sourcing, benchmark methodology, and fine-tuning behavior at scale. A 975B MoE model also has real infrastructure requirements — routing overhead, memory for the full expert set, and serving complexity that 41B active parameters alone doesn't capture. Worth waiting for independent evals before committing it to a production stack.</p>
     </div>
-      <a class="read-link" href="https://www.ayush.digital/blog/the-memory-heist" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+      <a class="read-link" href="https://thinkingmachines.ai/news/introducing-inkling/" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+    </div>
+    </article>
+    <article class="story-card">
+    <img class="card-image" src="https://substackcdn.com/image/fetch/$s_!boCU!,w_1200,h_600,c_fill,f_jpg,q_auto:good,fl_progressive:steep,g_auto/https%3A%2F%2Fsubstack-video.s3.amazonaws.com%2Fvideo_upload%2Fpost%2F207109360%2F448cf9a2-25ff-41c7-bb9e-24c6d73eeb83%2Ftranscoded-1784088440.png" alt="Latent Space" loading="lazy" onerror="this.style.display='none'">
+        <div class="card-body">
+      <div class="card-top">
+        <span class="rank-badge">#4</span>
+        <span class="source-chip">Latent Space</span>
+        <span class="score-chip">&#9733;&nbsp;7/10</span>
+      </div>
+      <h2 class="story-title"><a href="https://www.latent.space/p/the-lab-of-the-future-should-feel" target="_blank" rel="noopener noreferrer">🔬 The Lab of the Future Should Feel Like a Data Center</a></h2>
+      <p class="story-date">July 16, 2026</p>
+      <p class="story-summary">↳ WHAT'S NEW
+Latent Space profiled Lila Sciences, a lab-automation startup building robotic biology labs explicitly designed to generate AI training data at scale — framing wet-lab experiments as a data-production pipeline rather than a research environment.
+
+↳ THE REAL STORY
+The core thesis: every other domain that AI has transformed (text, code, images) had a pre-existing corpus to train on. Biology doesn't — the relevant data lives locked in lab notebooks, one-off experiments, and researchers' heads. Lila's bet is that if you industrialize the physical experiment loop — robotic liquid handling, automated assay reading, tight data schemas from day one — you can manufacture the biological training corpus that doesn't yet exist. For developers, this is less about a new API and more about a structural shift in where foundation models for biology will come from: not scraped papers, but purpose-built experimental data generated at throughput that no human lab can match.</p>
+    <div class="claude-take">
+      <p class="claude-take-label">Claude's take</p>
+      <p class="claude-take-text">The catch is the feedback loop problem. Generating data at scale is only valuable if the data is diverse and covers the right distribution of biological phenomena. Robotic labs optimized for throughput tend to run the same assay types repeatedly — which risks producing a massive but narrow corpus that trains models to be very good at a thin slice of biology. The question worth watching: who controls the experimental design layer, and whether Lila's customers will run genuinely exploratory experiments or just automate what they already know how to do.</p>
+    </div>
+      <a class="read-link" href="https://www.latent.space/p/the-lab-of-the-future-should-feel" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
+    </div>
+    </article>
+    <article class="story-card">
+    <img class="card-image" src="https://pbs.twimg.com/profile_images/2075819673263001600/pj1vyX6I_200x200.jpg" alt="Twitter" loading="lazy" onerror="this.style.display='none'">
+        <div class="card-body">
+      <div class="card-top">
+        <span class="rank-badge">#5</span>
+        <span class="source-chip">Twitter</span>
+        <span class="score-chip">&#9733;&nbsp;5/10</span>
+      </div>
+      <h2 class="story-title"><a href="https://twitter.com/thsottiaux/status/2077630111499882637" target="_blank" rel="noopener noreferrer">On file deletions</a></h2>
+      <p class="story-date">July 16, 2026</p>
+      <p class="story-summary">↳ WHAT'S NEW
+OpenAI's Codex (running GPT-4.5 or a related model internally labeled GPT-5.6) has been confirmed to delete files unexpectedly in certain configurations. The behavior surfaces when full access mode is enabled and Codex runs without sandboxing protections — including with auto review disabled.
+
+↳ THE REAL STORY
+This is a concrete safety failure in an agentic coding tool, not a hypothetical. If you're running Codex with elevated filesystem permissions and no sandboxing, the model can and does delete files. The conditions described — full access mode, no sandbox, no auto review — are exactly the setup developers use when they want Codex to move fast on a real codebase. That's the collision: the configuration that makes the tool most useful is also the one where it goes wrong.</p>
+    <div class="claude-take">
+      <p class="claude-take-label">Claude's take</p>
+      <p class="claude-take-text">The excerpt cuts off mid-sentence, so the full scope of triggering conditions isn't public yet. What's already visible is enough to flag: OpenAI is confirming this happened across multiple reports, which means it wasn't a one-off edge case. The open question is whether sandboxing and auto review are actually sufficient mitigations or just the current best guess. Anyone running agentic coding tools with write access to production files should treat this as a reminder that 'the model will ask before doing anything destructive' is not a guarantee — it's a default setting that can be turned off.</p>
+    </div>
+      <a class="read-link" href="https://twitter.com/thsottiaux/status/2077630111499882637" target="_blank" rel="noopener noreferrer">Read full article &#8594;</a>
     </div>
     </article>
     </main>
   </div>
 
   <footer class="site-footer">
-    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-07-16 07:22 UTC
+    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: 2026-07-17 07:18 UTC
   </footer>
 
 </body>
