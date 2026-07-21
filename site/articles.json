@@ -29,5 +29,40 @@
     ],
     "inspired_by": null,
     "og_image": null
+  },
+  {
+    "slug": "rag-is-a-data-architecture-decision-not-just-a-prompt-trick",
+    "title": "RAG Is a Data Architecture Decision, Not Just a Prompt Trick",
+    "dek": "How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.",
+    "date": "2026-07-21",
+    "published_at": "2026-07-21T22:35:49.309229+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "tags": [
+      "rag",
+      "retrieval",
+      "enterprise-ai",
+      "vector-search",
+      "knowledge-management"
+    ],
+    "body_html": "<p>Retrieval-Augmented Generation is straightforward in principle: instead of relying solely on what a language model learned during training, you fetch relevant documents at inference time and include them in the context window. The model then answers against that retrieved material. That description makes it sound like a plumbing problem — connect a vector database, embed some documents, done. In practice, the retrieval step is where most enterprise RAG systems quietly fall apart, and it happens long before the LLM ever sees a token.</p><p>For an AI Architect, the real design surface is the retrieval pipeline, not the generation step. You are making decisions about chunking strategy, embedding model choice, index freshness, re-ranking, and how to handle retrieval misses — and each of those decisions has downstream consequences on answer quality that are almost impossible to debug after the fact if you haven't instrumented them. The generation model gets blamed for hallucinations that were actually caused by a retrieval layer that returned the wrong document, or a stale one, or nothing at all and silently passed an empty context.</p><p>The failure mode I see most often in enterprise deployments is over-indexing on embedding similarity as a proxy for relevance. Cosine similarity between a query vector and a document chunk vector tells you something about semantic overlap, but it doesn't tell you whether the chunk contains the answer. A document that talks extensively about a topic will score well even if it contains no actionable information for the specific question asked. This is why hybrid retrieval — combining dense vector search with sparse keyword search like BM25 — consistently outperforms pure vector search on enterprise corpora, especially for queries involving product codes, names, or domain-specific terminology that embeddings handle poorly.</p><p>The other catch that rarely gets discussed upfront is index maintenance. RAG systems are implicitly stateful: your retrieval index is a snapshot of your knowledge base at a point in time. In enterprise settings, documents change, policies get updated, and old chunks can contradict new ones. Without a clear strategy for incremental updates, deletions, and versioning, a RAG system that worked well at launch will degrade silently over months. You need to treat the index with the same operational discipline you'd apply to any production database.</p>",
+    "how_i_use_it": "<p>Before I touch any embedding model or vector store, I run what I call a retrieval audit on a sample of 30–50 real user queries from the target domain. I manually check what chunks would be returned for each query using the proposed chunking and indexing strategy, and I flag any query where the correct answer doesn't appear in the top-5 results. If more than 20% of queries fail that check, I don't proceed — I go back and fix chunking, try a different embedding model, or add a keyword search layer before building anything else. This single habit has saved me from shipping systems that looked fine in demos but would have failed in production. I also keep a retrieval miss log in every live deployment: whenever the system returns an answer that triggered a low-confidence retrieval score, I capture it. That log becomes the backlog for index and chunking improvements in the next iteration.</p>",
+    "example_projects": [
+      {
+        "name": "run-llama/llama_index",
+        "url": "https://github.com/run-llama/llama_index",
+        "note": "Data framework for building RAG pipelines over private data."
+      },
+      {
+        "name": "chroma-core/chroma",
+        "url": "https://github.com/chroma-core/chroma",
+        "note": "Open-source embedding database used as a RAG retrieval store."
+      }
+    ],
+    "inspired_by": {
+      "title": "🔬Causal Models Need Causal Data - Xaira’s X-Cell model for Drug Discovery (Bo Wang & Ci Chu, Chief Discovery Officer & Chief AI Scientist)",
+      "url": "https://www.latent.space/p/xaira",
+      "source": "Latent Space"
+    },
+    "og_image": null
   }
 ]
