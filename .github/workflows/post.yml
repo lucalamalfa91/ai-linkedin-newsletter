@@ -18,12 +18,12 @@ on:
       post_type:
         description: 'LinkedIn post format'
         required: false
-        default: 'carousel'
+        default: 'article'
         type: choice
         options:
-          - carousel
           - article
           - text
+          - carousel
 
 jobs:
   post:
