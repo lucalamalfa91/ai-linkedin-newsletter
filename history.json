@@ -501,6 +501,46 @@
       "#EnterpriseAI",
       "#AIStrategy"
     ],
+    "analytics": {
+      "fetched_at": "2026-07-21T22:18:48.197780+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
+  },
+  "urn:li:ugcPost:7485458561951678464": {
+    "post_id": "urn:li:ugcPost:7485458561951678464",
+    "published_at": "2026-07-21T22:19:54.572107+00:00",
+    "article_url": "https://stratechery.com/2026/whos-afraid-of-chinese-models/",
+    "article_title": "Who's Afraid of Chinese Models?",
+    "source": "Stratechery",
+    "score": 0,
+    "post_type": "carousel",
+    "comment_text": "US labs banning distillation from models trained on unlicensed data is a special kind of audacity.\n\nI get the business logic. But when Chinese open models are already in production at European enterprises I advise, the IP argument starts to feel like a moat built on sand. CTOs aren't waiting for the policy debate to settle. They're shipping.\n\nThe real question nobody wants to answer: if DeepSeek runs on-premise, passes the security review, and costs a fraction, what exactly is the counter-offer? 🤔\n\n#AIStrategy #EnterpriseAI #DigitalTransformation",
+    "topics": [
+      "afraid",
+      "chinese",
+      "models",
+      "labs",
+      "banning",
+      "distillation",
+      "trained",
+      "unlicensed",
+      "data",
+      "special",
+      "kind",
+      "audacity",
+      "business",
+      "logic",
+      "open"
+    ],
+    "hashtags": [
+      "#AIStrategy",
+      "#EnterpriseAI",
+      "#DigitalTransformation"
+    ],
     "analytics": null
   }
 }
