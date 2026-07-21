@@ -575,5 +575,38 @@
       "#AIStrategy"
     ],
     "analytics": null
+  },
+  "urn:li:share:7485464952820928512": {
+    "post_id": "urn:li:share:7485464952820928512",
+    "published_at": "2026-07-21T22:45:18.348157+00:00",
+    "article_url": "https://ai-linkedin-newsletter.vercel.app/posts/how-multi-agent-orchestration-actually-works-in-production.html",
+    "article_title": "How Multi-Agent Orchestration Actually Works in Production",
+    "source": "The AI Architect (my blog)",
+    "score": null,
+    "post_type": "article",
+    "comment_text": "Most multi-agent systems I review in production are just expensive ways to hide a prompting problem.\n\nThe architectural instinct is real: decompose the work, specialize the agents, keep context windows tight. Clean on a whiteboard. But every agent boundary is also a latency cost, a place where information degrades, and one more thing that fails silently at 2am. Teams add agents because decomposition *looks* right, not because the task actually needs it. A single well-prompted model with two tool calls would have done the job in half the time.\n\nI call it agent sprawl. And I've never once seen it diagnosed before go-live. 🔍\n\n#AIArchitecture #EnterpriseAI #AIStrategy",
+    "topics": [
+      "multi",
+      "agent",
+      "orchestration",
+      "actually",
+      "works",
+      "production",
+      "most",
+      "systems",
+      "review",
+      "expensive",
+      "ways",
+      "hide",
+      "prompting",
+      "problem",
+      "architectural"
+    ],
+    "hashtags": [
+      "#AIArchitecture",
+      "#EnterpriseAI",
+      "#AIStrategy"
+    ],
+    "analytics": null
   }
 }
