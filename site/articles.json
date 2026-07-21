@@ -1,0 +1,33 @@
+[
+  {
+    "slug": "how-multi-agent-orchestration-actually-works-in-production",
+    "title": "How Multi-Agent Orchestration Actually Works in Production",
+    "dek": "Breaking down agentic workflows beyond the demos so you can design systems that hold together under real enterprise load.",
+    "date": "2026-07-21",
+    "published_at": "2026-07-21T22:29:39.883504+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "reliability",
+      "enterprise-ai"
+    ],
+    "body_html": "<p>An agentic workflow is a system where an LLM doesn't just respond to a single prompt — it decides what to do next, calls tools, evaluates results, and loops until a goal is met. Multi-agent orchestration extends this: instead of one model doing everything, you decompose the work across specialized agents, each with a narrower scope and its own context window, tools, and failure surface. The orchestrator — itself often an LLM — routes tasks, aggregates outputs, and handles retries. On paper this is elegant. In practice it is a distributed system, and it inherits every problem distributed systems have ever had.</p><p>For an AI Architect designing enterprise pipelines, the reason to care isn't the capability uplift — it's the operational surface area. Each agent hop is a latency cost, a potential hallucination injection point, and a place where context degrades. When an orchestrator passes a summarized result to a downstream agent, information loss is not hypothetical — it is guaranteed. You are trading full fidelity for parallelism and specialization, and that trade needs to be explicit in your design, not discovered in production.</p><p>The failure mode I see most often is what I call 'agent sprawl': teams add agents because decomposition feels clean architecturally, not because the task actually requires it. A three-agent pipeline where a single well-prompted model with two tool calls would do the job is harder to debug, slower, and more expensive. The orchestration overhead — prompt construction, inter-agent serialization, retry logic — accumulates fast. Before adding an agent boundary, the question to answer is: does this boundary exist because the subtask needs different tools, a different model, or a different context window — or does it exist because it looks tidy on a diagram?</p><p>The other catch is determinism. Single-model pipelines are already non-deterministic; multi-agent systems compound that. An orchestrator that re-plans based on a subtask result can take wildly different execution paths on semantically identical inputs. For enterprise use cases — compliance workflows, financial document processing, anything that needs an audit trail — you need to log not just inputs and outputs but the full execution graph: which agents ran, in what order, with what intermediate state. Most off-the-shelf orchestration frameworks make this harder than it should be, so plan to instrument it yourself.</p>",
+    "how_i_use_it": "<p>Before I approve any multi-agent design in a client architecture review, I run what I call the 'single-agent challenge': I sketch out what the same workflow would look like with one model, all tools available, and a well-structured prompt. If the single-agent version fails only because the context window is genuinely too small, or because two subtasks need models with different capability profiles, I'll approve the split. If it fails for any other reason — usually 'it felt cleaner' — I push back and we simplify. For systems that do go multi-agent, I require a structured execution log as a first-class output of the system, not an afterthought, and I set explicit retry caps per agent before the orchestrator escalates to a human handoff. I've stopped trusting any agentic system that doesn't have a defined ceiling on autonomous retries.</p>",
+    "example_projects": [
+      {
+        "name": "crewAIInc/crewAI",
+        "url": "https://github.com/crewAIInc/crewAI",
+        "note": "Framework for orchestrating role-playing, autonomous agent crews."
+      },
+      {
+        "name": "langchain-ai/langgraph",
+        "url": "https://github.com/langchain-ai/langgraph",
+        "note": "Low-level orchestration framework for building stateful, resilient agents."
+      }
+    ],
+    "inspired_by": null,
+    "og_image": null
+  }
+]
