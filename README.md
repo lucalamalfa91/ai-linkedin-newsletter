@@ -60,11 +60,13 @@ _pick_next_technique()         — rotate AI_ARCHITECT_TECHNIQUES, least-recentl
 fetch_feeds() (optional)        — search ~20 RSS feeds for a relevant recent item, for context only
        │
        ▼
-write_technique_article()      — Claude Sonnet: original article + "how I use this every day"
-       │                          returns {title, dek, body_html, how_i_use_it, tags}
+write_technique_article()      — Claude Sonnet: body copy, boxes-and-arrows diagrams, and,
+       │                          per curated example project, a usage note + code example +
+       │                          example output. Returns {title, dek, body_html, diagrams,
+       │                          how_i_use_it, tags, project_examples}
        ▼
-TECHNIQUE_EXAMPLE_PROJECTS      — curated example repos attached for this technique
-       │
+TECHNIQUE_EXAMPLE_PROJECTS      — curated repo name/url/note (never LLM-generated) zipped
+       │                          index-aligned with the model's per-project code examples
        ▼
 articles.append(new_article)   — APPEND, never overwrite; save_articles() writes the full array
        │
@@ -110,7 +112,7 @@ save_history() + commit_history_to_git()
 The static site is a self-contained HTML/CSS build (no JavaScript framework, dark mode aware):
 
 - `site/index.html` — home/archive page listing every article ever published, most recent first
-- `site/posts/<slug>.html` — one permanent page per article: title, dek, full body, "How I use this every day" callout, linked example projects, optional "Inspired by" attribution
+- `site/posts/<slug>.html` — one permanent page per article: title, dek, full body, one or two boxes-and-arrows diagrams illustrating the technique, "How I use this every day" callout, and per example project a usage note, a real code snippet, and an example output block (styled like a terminal), plus optional "Inspired by" attribution
 
 Deployed automatically via Vercel on every push to `main`.
 
@@ -120,7 +122,7 @@ Deployed automatically via Vercel on every push to `main`.
 
 | Step | Model | Temp | Max tokens | Purpose |
 |------|-------|------|------------|---------|
-| `write_technique_article` | `claude-sonnet-4-6` | 0.7 | 1500 | Write the blog article + "how I use it" section |
+| `write_technique_article` | `claude-sonnet-4-6` | 0.7 | 3000 | Write the article, diagrams, "how I use it" section, and per-project code examples |
 | `write_post` | `claude-sonnet-4-6` | 0.7 | 400 | Write LinkedIn post |
 | `critique_post` | `claude-haiku-4-5-20251001` | 0 | 150 | Quality evaluation |
 | `check_human_voice` | `claude-haiku-4-5-20251001` | 0 | 200 | Flags AI-sounding tells, scores humanness |
@@ -172,9 +174,19 @@ Prompt caching is enabled on the static portions of the blog writer, LinkedIn wr
     "technique": "Structured Outputs & Tool Use",
     "tags": ["agents", "reliability", "orchestration"],
     "body_html": "<p>...</p>",
+    "diagrams": [
+      {"heading": "How it flows", "nodes": ["Client request", "Tool call", "Validation", "Structured response"]}
+    ],
     "how_i_use_it": "<p>...</p>",
     "example_projects": [
-      {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks", "note": "..."}
+      {
+        "name": "anthropics/claude-cookbooks",
+        "url": "https://github.com/anthropics/claude-cookbooks",
+        "note": "...",
+        "usage_note": "One sentence on why Luca reaches for this specific project.",
+        "code_example": {"language": "python", "code": "..."},
+        "example_output": "..."
+      }
     ],
     "inspired_by": {"title": "...", "url": "...", "source": "..."},
     "og_image": null

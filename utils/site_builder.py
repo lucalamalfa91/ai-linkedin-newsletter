@@ -1,8 +1,13 @@
+import html
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
 log = logging.getLogger(__name__)
+
+
+def _escape(text: str) -> str:
+    return html.escape(text or "", quote=False)
 
 
 def _format_date(iso: str) -> str:
@@ -62,15 +67,80 @@ def build_home_page(articles: list[dict], template_path: str | Path, output_path
     log.info("Built home page: %s (%d articles)", output_path, len(ordered))
 
 
+def _render_diagram(diagram: dict) -> str:
+    heading = diagram.get("heading", "")
+    nodes = diagram.get("nodes", [])
+    if not nodes:
+        return ""
+
+    node_blocks = []
+    for i, node in enumerate(nodes):
+        node_blocks.append(f'        <div class="diagram-node">{node}</div>')
+        if i < len(nodes) - 1:
+            node_blocks.append('        <div class="diagram-arrow">&#8595;</div>')
+
+    return (
+        f'    <div class="diagram-block">\n'
+        f'      <p class="diagram-heading">{heading}</p>\n'
+        f'      <div class="diagram-flow">\n'
+        + "\n".join(node_blocks) + "\n"
+        f'      </div>\n'
+        f'    </div>'
+    )
+
+
+def _render_diagrams(diagrams: list[dict]) -> str:
+    return "\n".join(_render_diagram(d) for d in diagrams)
+
+
+def _render_project_block(project: dict) -> str:
+    name = project.get("name", "")
+    url = project.get("url", "#")
+    note = project.get("note", "")
+    usage_note = project.get("usage_note", "")
+    code = ((project.get("code_example") or {}).get("code") or "").strip()
+    language = (project.get("code_example") or {}).get("language", "") or "python"
+    output = project.get("example_output", "").strip()
+
+    usage_html = f'      <p class="project-usage-note">{usage_note}</p>\n' if usage_note else ""
+
+    code_html = ""
+    if code:
+        code_html = (
+            f'      <p class="code-label">{_escape(language)}</p>\n'
+            f'      <pre class="code-block"><code>{_escape(code)}</code></pre>\n'
+        )
+
+    output_html = ""
+    if output:
+        output_html = (
+            f'      <p class="output-label">Example output</p>\n'
+            f'      <div class="terminal-output">\n'
+            f'        <div class="terminal-dots"><span></span><span></span><span></span></div>\n'
+            f'        <pre>{_escape(output)}</pre>\n'
+            f'      </div>\n'
+        )
+
+    return (
+        f'    <div class="project-block">\n'
+        f'      <p class="project-name">'
+        f'<a href="{url}" target="_blank" rel="noopener noreferrer">{name}</a>'
+        f' &mdash; {note}</p>\n'
+        f'{usage_html}'
+        f'{code_html}'
+        f'{output_html}'
+        f'    </div>'
+    )
+
+
 def build_post_page(article: dict, post_template_path: str | Path, posts_dir: str | Path) -> None:
     """Render the permanent permalink page for a single article. Existing pages are untouched
     unless this function is called again for that exact slug."""
     template = Path(post_template_path).read_text(encoding="utf-8")
 
+    diagrams_html = _render_diagrams(article.get("diagrams", []))
     example_projects_html = "\n".join(
-        f'      <li><a href="{p["url"]}" target="_blank" rel="noopener noreferrer">{p["name"]}</a>'
-        f' &mdash; {p.get("note", "")}</li>'
-        for p in article.get("example_projects", [])
+        _render_project_block(p) for p in article.get("example_projects", [])
     )
 
     inspired_by = article.get("inspired_by")
@@ -92,6 +162,7 @@ def build_post_page(article: dict, post_template_path: str | Path, posts_dir: st
         .replace("{{ DATE }}", _format_date(article.get("date", "")))
         .replace("{{ TAGS_HTML }}", _render_tag_chips(article.get("tags", [])))
         .replace("{{ BODY_HTML }}", article.get("body_html", ""))
+        .replace("{{ DIAGRAMS_HTML }}", diagrams_html)
         .replace("{{ HOW_I_USE_IT }}", article.get("how_i_use_it", ""))
         .replace("{{ EXAMPLE_PROJECTS_HTML }}", example_projects_html)
         .replace("{{ INSPIRED_BY_HTML }}", inspired_html)

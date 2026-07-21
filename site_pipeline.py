@@ -7,8 +7,9 @@ Flow:
      covered first).
   3. Optionally find a recent RSS item related to that technique, used only as inspiration —
      the article itself is always original, written by Luca via Claude.
-  4. Write the article (agents/site_writer_agent.py) and attach curated example projects
-     (config.TECHNIQUE_EXAMPLE_PROJECTS — never LLM-generated, to avoid inventing repo URLs).
+  4. Write the article (agents/site_writer_agent.py): body copy, boxes-and-arrows diagrams,
+     and, for each curated example project (config.TECHNIQUE_EXAMPLE_PROJECTS — name/url never
+     LLM-generated, to avoid inventing repo links), a real usage code snippet + example output.
   5. Append the new article to site/articles.json, build its permalink page
      (site/posts/<slug>.html), and rebuild the home/archive page (site/index.html) from the
      full archive.
@@ -135,13 +136,23 @@ def main() -> None:
     else:
         log.info("No inspiration found — writing from general knowledge")
 
-    written = write_technique_article(technique, inspiration, client)
+    curated_projects = TECHNIQUE_EXAMPLE_PROJECTS.get(technique, [])
+    written = write_technique_article(technique, inspiration, curated_projects, client)
     if not written or not written.get("title"):
         log.error("Failed to write article for technique '%s' — aborting", technique)
         sys.exit(1)
 
     slug = unique_slug(slugify(written["title"]), existing_slugs)
     now = datetime.now(timezone.utc)
+
+    # Zip curated (never LLM-invented) name/url/note with the LLM's per-project usage
+    # example — index-aligned, so a short/missing model response just leaves that project
+    # without a code example rather than misattributing one to the wrong repo.
+    project_examples = written.get("project_examples", [])
+    example_projects = [
+        {**project, **(project_examples[i] if i < len(project_examples) else {})}
+        for i, project in enumerate(curated_projects)
+    ]
 
     article = {
         "slug": slug,
@@ -152,8 +163,9 @@ def main() -> None:
         "technique": technique,
         "tags": written["tags"],
         "body_html": written["body_html"],
+        "diagrams": written.get("diagrams", []),
         "how_i_use_it": written["how_i_use_it"],
-        "example_projects": TECHNIQUE_EXAMPLE_PROJECTS.get(technique, []),
+        "example_projects": example_projects,
         "inspired_by": (
             {
                 "title": inspiration["title"],
