@@ -542,5 +542,38 @@
       "#DigitalTransformation"
     ],
     "analytics": null
+  },
+  "urn:li:ugcPost:7485463644932255744": {
+    "post_id": "urn:li:ugcPost:7485463644932255744",
+    "published_at": "2026-07-21T22:40:06.457609+00:00",
+    "article_url": "https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html",
+    "article_title": "RAG Is a Data Architecture Decision, Not Just a Prompt Trick",
+    "source": "The AI Architect (my blog)",
+    "score": null,
+    "post_type": "carousel",
+    "comment_text": "Everyone blames the LLM when RAG hallucinates. Almost always, the retrieval layer did it.\n\nI've seen enterprise deployments where cosine similarity was treated as a relevance signal. It isn't. A document can score 0.91 against a query and contain zero useful information for the actual question asked. The model then confidently answers against garbage context, and someone files a ticket against GPT-4.\n\nThe real design decisions in RAG are chunking strategy, hybrid retrieval (BM25 plus dense search, not just vectors), re-ranking, and what happens on a retrieval miss. Those choices determine answer quality. The generation step is almost downstream noise by comparison.\n\n#EnterpriseAI #AIArchitecture #AIStrategy",
+    "topics": [
+      "data",
+      "architecture",
+      "decision",
+      "prompt",
+      "trick",
+      "everyone",
+      "blames",
+      "hallucinates",
+      "almost",
+      "always",
+      "retrieval",
+      "layer",
+      "seen",
+      "enterprise",
+      "deployments"
+    ],
+    "hashtags": [
+      "#EnterpriseAI",
+      "#AIArchitecture",
+      "#AIStrategy"
+    ],
+    "analytics": null
   }
 }
