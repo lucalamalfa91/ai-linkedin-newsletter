@@ -8,69 +8,74 @@ from utils.json_utils import strip_json_fences
 log = logging.getLogger(__name__)
 
 _SYSTEM = """\
-You write Luca La Malfa's AI Newsletter — a daily briefing for developers and AI practitioners \
-who value signal over noise. English only.
+You write "The AI Architect" — Luca La Malfa's personal blog. English only.
 
-EDITORIAL VOICE: Direct. Concrete. Occasionally skeptical. Like a smart colleague who read the \
-announcement so you don't have to — and tells you the parts they actually found interesting \
-(or disappointing). Never use: exciting, revolutionary, powerful, seamless, robust, cutting-edge, \
-game-changer, unlock, empower, leverage, transformative, groundbreaking, unleash.
+VOICE: Luca is a practitioner, not a commentator — an AI Architect who advises enterprises \
+in Switzerland and Europe and applies these techniques in his own work every day. Direct, \
+concrete, occasionally opinionated. Never use: exciting, revolutionary, powerful, seamless, \
+robust, cutting-edge, game-changer, unlock, empower, leverage, transformative, groundbreaking, \
+unleash.
 
-FORMAT — always use this exact structure with the ↳ arrows as section markers:
+Each article is ORIGINAL — written by Luca, in his own words. If inspiration material is \
+provided, use it only as a jumping-off point or a real-world example — never summarize or \
+paraphrase it as the article's content. The article is about the TECHNIQUE, not about the \
+inspiration source.
 
-↳ WHAT'S NEW
-The fact, stripped of marketing. Name the feature, model, number, or API. Start with the subject — \
-skip "today", "announced", "proud to". Example: "Anthropic raised Claude Sonnet's output cap to 64K \
-tokens — eight times the previous limit."
+STRUCTURE — return these exact JSON fields:
 
-↳ THE REAL STORY
-What this changes in practice. The mechanism or the second-order effect. Not the company's version — \
-what it means for someone building with it today. Be specific: workflow, file size, latency, cost.
+"title": a specific, concrete headline for the technique (max 12 words). No clickbait, \
+no question mark.
 
-↳ WORTH WATCHING
-One non-obvious implication, honest trade-off, or open question. This is the La Malfa take — \
-a candid read, even if skeptical. Every announcement has a catch; find it.
+"dek": one sentence (max 25 words) that teases what the reader will get out of the article.
 
-Return ONLY valid JSON:
-{"summary": "<↳ WHAT'S NEW content + ↳ THE REAL STORY content>", \
-"considerations": "<↳ WORTH WATCHING content>"}
-No markdown fences. No extra text."""
+"body_html": 3-5 short paragraphs as HTML (<p> tags only, no headings). Cover: what the \
+technique actually is (skip the marketing version), why an AI Architect designing enterprise \
+systems needs to care about it, and at least one concrete trade-off or failure mode — every \
+technique has a catch, name it.
+
+"how_i_use_it": ONE HTML paragraph (<p> tag) written in first person, describing concretely \
+how Luca applies this technique day-to-day in his own architecture work — a workflow, a \
+decision rule, a check he runs, a default he now uses. Not generic advice — a specific habit.
+
+"tags": 3-5 short lowercase kebab-case tags (e.g. "prompt-caching", "agents", "reliability").
+
+Return ONLY valid JSON, no markdown fences, no extra text."""
 
 
-def write_site_entry(
-    candidate: dict,
-    original: dict | None,
+def write_technique_article(
+    technique: str,
+    inspiration: dict | None,
     client: anthropic.Anthropic,
-) -> dict:
-    """Generate summary and considerations for a story. Returns {"summary": ..., "considerations": ...}."""
-    title = candidate.get("title", "")
-    url = candidate.get("url", "")
-    source = original.get("source", "") if original else candidate.get("source", "")
-    raw_summary = original.get("summary", "") if original else ""
-
-    user_content = (
-        f"Title: {title}\n"
-        f"Source: {source}\n"
-        f"URL: {url}\n"
-        f"Raw excerpt from source: {raw_summary[:800]}"
-    )
+) -> dict | None:
+    """Generate a technique article. Returns dict with title/dek/body_html/how_i_use_it/tags, or None."""
+    user_parts = [f"Technique: {technique}"]
+    if inspiration:
+        user_parts.append(
+            "Optional inspiration (a recent piece Luca came across — use only as context, "
+            "do not summarize it):\n"
+            f"Title: {inspiration.get('title', '')}\n"
+            f"Source: {inspiration.get('source', '')}\n"
+            f"Excerpt: {(inspiration.get('summary') or '')[:500]}"
+        )
+    user_content = "\n\n".join(user_parts)
 
     try:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=800,
-            temperature=0.3,
+            max_tokens=1500,
+            temperature=0.7,
             system=[{"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}],
-            messages=[
-                {"role": "user", "content": user_content},
-            ],
+            messages=[{"role": "user", "content": user_content}],
         )
         raw = strip_json_fences(msg.content[0].text)
         data = json.loads(raw)
         return {
-            "summary": data.get("summary", "").strip(),
-            "considerations": data.get("considerations", "").strip(),
+            "title": data.get("title", "").strip(),
+            "dek": data.get("dek", "").strip(),
+            "body_html": data.get("body_html", "").strip(),
+            "how_i_use_it": data.get("how_i_use_it", "").strip(),
+            "tags": [t.strip() for t in data.get("tags", []) if t.strip()],
         }
     except Exception as exc:
-        log.warning("site_writer_agent failed for '%s': %s", title, exc)
-        return {"summary": raw_summary[:300], "considerations": ""}
+        log.warning("site_writer_agent failed for technique '%s': %s", technique, exc)
+        return None

@@ -13,84 +13,92 @@ def _format_date(iso: str) -> str:
         return iso[:10] if iso else ""
 
 
-def _render_story_card(story: dict) -> str:
-    rank        = story.get("rank", "")
-    title       = story.get("title", "")
-    url         = story.get("url", "#")
-    source      = story.get("source", "")
-    published   = _format_date(story.get("published", ""))
-    summary     = story.get("summary", "")
-    considerations = story.get("considerations", "")
-    score       = story.get("score", "")
+def _render_tag_chips(tags: list[str]) -> str:
+    return "\n".join(f'      <span class="tag-chip">{t}</span>' for t in tags)
 
-    image_html = ""
-    if story.get("og_image"):
-        # onerror hides the element if the URL is broken at display time
-        image_html = (
-            f'<img class="card-image" src="{story["og_image"]}" alt="{source}"'
-            f' loading="lazy" onerror="this.style.display=\'none\'">\n    '
-        )
 
-    take_html = ""
-    if considerations:
-        take_html = (
-            f'    <div class="claude-take">\n'
-            f'      <p class="claude-take-label">Claude\'s take</p>\n'
-            f'      <p class="claude-take-text">{considerations}</p>\n'
-            f'    </div>\n'
-        )
-
-    score_chip = (
-        f'<span class="score-chip">&#9733;&nbsp;{score}/10</span>' if score else ""
-    )
+def _render_archive_entry(article: dict) -> str:
+    title = article.get("title", "")
+    dek = article.get("dek", "")
+    slug = article.get("slug", "")
+    technique = article.get("technique", "")
+    published = _format_date(article.get("date", ""))
 
     return (
         f'    <article class="story-card">\n'
-        f'    {image_html}'
         f'    <div class="card-body">\n'
         f'      <div class="card-top">\n'
-        f'        <span class="rank-badge">#{rank}</span>\n'
-        f'        <span class="source-chip">{source}</span>\n'
-        f'        {score_chip}\n'
+        f'        <span class="source-chip">{technique}</span>\n'
         f'      </div>\n'
         f'      <h2 class="story-title">'
-        f'<a href="{url}" target="_blank" rel="noopener noreferrer">{title}</a></h2>\n'
+        f'<a href="posts/{slug}.html">{title}</a></h2>\n'
         f'      <p class="story-date">{published}</p>\n'
-        f'      <p class="story-summary">{summary}</p>\n'
-        f'{take_html}'
-        f'      <a class="read-link" href="{url}" target="_blank" rel="noopener noreferrer">'
-        f'Read full article &#8594;</a>\n'
+        f'      <p class="story-summary">{dek}</p>\n'
+        f'      <a class="read-link" href="posts/{slug}.html">Read full article &#8594;</a>\n'
         f'    </div>\n'
         f'    </article>'
     )
 
 
-def build_site(news_data: dict, template_path: str | Path, output_path: str | Path) -> None:
+def build_home_page(articles: list[dict], template_path: str | Path, output_path: str | Path) -> None:
+    """Render the home/archive page listing ALL articles, most recent first. Never drops entries."""
     template = Path(template_path).read_text(encoding="utf-8")
 
-    stories_html = "\n".join(_render_story_card(s) for s in news_data.get("stories", []))
+    ordered = sorted(articles, key=lambda a: a.get("published_at", ""), reverse=True)
+    stories_html = "\n".join(_render_archive_entry(a) for a in ordered)
 
-    raw_date = news_data.get("date", "")
-    try:
-        display_date = datetime.strptime(raw_date, "%Y-%m-%d").strftime("%B %-d, %Y")
-    except Exception:
-        display_date = raw_date
-
-    generated_at = news_data.get("generated_at", "")
-    try:
-        dt = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
-        generated_at_display = dt.strftime("%Y-%m-%d %H:%M UTC")
-    except Exception:
-        generated_at_display = generated_at
+    generated_at_display = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
     html = (
         template
-        .replace("{{ DATE }}", display_date)
         .replace("{{ STORIES_HTML }}", stories_html)
+        .replace("{{ ARTICLE_COUNT }}", str(len(ordered)))
         .replace("{{ GENERATED_AT }}", generated_at_display)
     )
 
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(html, encoding="utf-8")
-    log.info("Built site: %s", output_path)
+    log.info("Built home page: %s (%d articles)", output_path, len(ordered))
+
+
+def build_post_page(article: dict, post_template_path: str | Path, posts_dir: str | Path) -> None:
+    """Render the permanent permalink page for a single article. Existing pages are untouched
+    unless this function is called again for that exact slug."""
+    template = Path(post_template_path).read_text(encoding="utf-8")
+
+    example_projects_html = "\n".join(
+        f'      <li><a href="{p["url"]}" target="_blank" rel="noopener noreferrer">{p["name"]}</a>'
+        f' &mdash; {p.get("note", "")}</li>'
+        for p in article.get("example_projects", [])
+    )
+
+    inspired_by = article.get("inspired_by")
+    if inspired_by:
+        inspired_html = (
+            f'    <p class="inspired-by">Inspired by '
+            f'<a href="{inspired_by["url"]}" target="_blank" rel="noopener noreferrer">'
+            f'{inspired_by.get("title", inspired_by["url"])}</a>'
+            f' ({inspired_by.get("source", "")})</p>'
+        )
+    else:
+        inspired_html = ""
+
+    html = (
+        template
+        .replace("{{ TITLE }}", article.get("title", ""))
+        .replace("{{ DEK }}", article.get("dek", ""))
+        .replace("{{ TECHNIQUE }}", article.get("technique", ""))
+        .replace("{{ DATE }}", _format_date(article.get("date", "")))
+        .replace("{{ TAGS_HTML }}", _render_tag_chips(article.get("tags", [])))
+        .replace("{{ BODY_HTML }}", article.get("body_html", ""))
+        .replace("{{ HOW_I_USE_IT }}", article.get("how_i_use_it", ""))
+        .replace("{{ EXAMPLE_PROJECTS_HTML }}", example_projects_html)
+        .replace("{{ INSPIRED_BY_HTML }}", inspired_html)
+    )
+
+    posts_dir = Path(posts_dir)
+    posts_dir.mkdir(parents=True, exist_ok=True)
+    out = posts_dir / f"{article['slug']}.html"
+    out.write_text(html, encoding="utf-8")
+    log.info("Built post page: %s", out)

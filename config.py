@@ -32,68 +32,93 @@ RSS_FEEDS = {
     "Benedict Evans":                    "https://www.ben-evans.com/benedictevans/rss.xml",
 }
 
-FOCUS_TOPICS = (
-    "AI agents, agent orchestration, multi-agent systems, "
-    "agent harness, agent test harness, agent scaffolding, agent evaluation frameworks, "
-    "agent reliability, agent robustness, agent observability, agent tracing, "
-    "goal-driven agents, goal-conditioned agents, task planning agents, "
-    "autonomous agents, self-improving agents, recursive self-improvement, "
-    "Claude Code, OpenAI Codex / Operator, "
-    "LangChain, LangGraph, LlamaIndex, AutoGen, CrewAI, DSPy, LangSmith, Haystack, "
-    "AI security, LLM security, model security, "
-    "prompt injection, indirect prompt injection, jailbreaking, adversarial prompts, "
-    "red-teaming, red team, LLM red team, adversarial evaluation, "
-    "AI safety, model safety, AI alignment, AI risk, "
-    "data poisoning, training data attacks, backdoor attacks, "
-    "AI governance, AI regulation, EU AI Act, responsible AI, "
-    "model robustness, out-of-distribution, hallucination detection, "
-    "guardrails, content moderation, output filtering, "
-    "mechanistic interpretability, model interpretability, neural network interpretability, "
-    "circuits, superposition, features, sparse autoencoders, SAE, "
-    "model internals, attention heads, MLP layers, residual stream, "
-    "Chris Olah, Anthropic interpretability, transformer circuits, "
-    "DSPy, prompt optimization, few-shot optimization, compiled prompts, "
-    "LangSmith, LLM observability, LLM tracing, LLM evaluation, prompt monitoring, "
-    "Haystack, deepset, document QA pipeline, retrieval pipeline, "
-    "native multimodality, natively multimodal, vision-language model, VLM, "
-    "multimodal agents, multimodal reasoning, image + text, audio + text, "
-    "GPT-4o, Gemini multimodal, Claude multimodal, multimodal LLM, "
-    "LLM capabilities, emergent capabilities, reasoning models, chain-of-thought, "
-    "tree-of-thought, reflection, self-critique, model self-evaluation, "
-    "instruction following, alignment, RLHF, RLAIF, constitutional AI, "
-    "long-context models, extended context, needle-in-a-haystack, "
-    "RAG (retrieval-augmented generation), vector databases, reranking, hybrid search, "
-    "context window optimisation, prompt compression, KV-cache, "
-    "token optimisation, token budget, token saving, prompt compression, "
-    "prompt engineering, prompt design, system prompt optimisation, prompt templates, "
-    "few-shot prompting, zero-shot prompting, chain-of-thought prompting, "
-    "structured output, JSON mode, constrained generation, output formatting, "
-    "LLM inference cost, API cost reduction, cost-per-token, batching strategies, "
-    "prompt caching, KV-cache reuse, speculative decoding, "
-    "LLMLingua, Selective Context, AutoCompressor, prompt distillation, "
-    "token cost reduction, inference cost, quantisation, "
-    "tool use / function calling, MCP (model context protocol), "
-    "agent memory, agent skills / capabilities"
-)
+# Techniques covered by the "AI Architect" blog, one per site_pipeline.py run.
+# Rotation picks the least-recently-covered technique (see utils/articles.covered_techniques).
+AI_ARCHITECT_TECHNIQUES = [
+    "Agentic Workflows & Multi-Agent Orchestration",
+    "Retrieval-Augmented Generation (RAG)",
+    "Prompt Caching & Cost Optimization",
+    "Structured Outputs & Tool Use",
+    "Model Context Protocol (MCP)",
+    "LLM Evaluation & Testing",
+    "Guardrails & Output Validation",
+    "LLM Observability & Tracing",
+    "Red-Teaming & Adversarial Testing",
+    "Context Engineering & Long-Context Management",
+    "Vector Search & Embeddings",
+    "Agent Memory & State Management",
+    "Prompt Engineering & Optimization",
+    "Fine-Tuning vs. Prompting",
+]
 
-SOURCE_CATEGORIES = {
-    "LLM Efficiency & Prompt Engineering": [
-        "Chip Huyen", "Eugene Yan", "Lilian Weng", "Interconnects", "Hamel Husain",
-        "Jay Alammar", "Latent Space", "Lakera AI Blog", "The AI Corner", "Maxim AI Blog",
+# Curated, hand-verified example projects per technique — never LLM-generated,
+# to avoid linking to hallucinated repos. Add more here as techniques are added.
+TECHNIQUE_EXAMPLE_PROJECTS = {
+    "Agentic Workflows & Multi-Agent Orchestration": [
+        {"name": "crewAIInc/crewAI", "url": "https://github.com/crewAIInc/crewAI",
+         "note": "Framework for orchestrating role-playing, autonomous agent crews."},
+        {"name": "langchain-ai/langgraph", "url": "https://github.com/langchain-ai/langgraph",
+         "note": "Low-level orchestration framework for building stateful, resilient agents."},
     ],
-    "Agentic AI & Frameworks": [
-        "LangChain Blog", "LlamaIndex Blog", "CrewAI Blog", "Haystack Blog", "Hugging Face",
-        "Omdena Blog", "n8n Blog", "Vellum AI Blog", "Zapier Blog",
+    "Retrieval-Augmented Generation (RAG)": [
+        {"name": "run-llama/llama_index", "url": "https://github.com/run-llama/llama_index",
+         "note": "Data framework for building RAG pipelines over private data."},
+        {"name": "chroma-core/chroma", "url": "https://github.com/chroma-core/chroma",
+         "note": "Open-source embedding database used as a RAG retrieval store."},
     ],
-    "AI Labs": [
-        "OpenAI", "Anthropic", "Google DeepMind", "Google AI Blog",
+    "Prompt Caching & Cost Optimization": [
+        {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks",
+         "note": "Includes worked examples of prompt caching to cut latency and cost."},
     ],
-    "Practitioners & Researchers": [
-        "Simon Willison", "The Batch (deeplearning.ai)", "Sebastian Raschka",
-        "The Gradient", "Microsoft Research",
+    "Structured Outputs & Tool Use": [
+        {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks",
+         "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."},
+        {"name": "modelcontextprotocol/servers", "url": "https://github.com/modelcontextprotocol/servers",
+         "note": "Reference MCP server implementations that expose tools to LLMs."},
     ],
-    "Industry News": [
-        "TechCrunch AI", "VentureBeat AI",
+    "Model Context Protocol (MCP)": [
+        {"name": "modelcontextprotocol/servers", "url": "https://github.com/modelcontextprotocol/servers",
+         "note": "Reference implementations and community MCP servers."},
+    ],
+    "LLM Evaluation & Testing": [
+        {"name": "openai/evals", "url": "https://github.com/openai/evals",
+         "note": "Framework and open registry of benchmarks for evaluating LLM systems."},
+        {"name": "vibrantlabsai/ragas", "url": "https://github.com/vibrantlabsai/ragas",
+         "note": "Objective metrics and test-data generation for evaluating RAG/LLM apps."},
+    ],
+    "Guardrails & Output Validation": [
+        {"name": "guardrails-ai/guardrails", "url": "https://github.com/guardrails-ai/guardrails",
+         "note": "Input/output guards to detect and mitigate LLM risks, and enforce structure."},
+    ],
+    "LLM Observability & Tracing": [
+        {"name": "langfuse/langfuse", "url": "https://github.com/langfuse/langfuse",
+         "note": "Open-source LLM observability platform: tracing, evals, prompt management."},
+    ],
+    "Red-Teaming & Adversarial Testing": [
+        {"name": "promptfoo/promptfoo", "url": "https://github.com/promptfoo/promptfoo",
+         "note": "Red-teaming and vulnerability scanning for prompts, agents, and RAG."},
+    ],
+    "Context Engineering & Long-Context Management": [
+        {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks",
+         "note": "Long-context and context-management patterns (PDF uploads, sub-agents)."},
+    ],
+    "Vector Search & Embeddings": [
+        {"name": "chroma-core/chroma", "url": "https://github.com/chroma-core/chroma",
+         "note": "Embedding database and search infrastructure for AI applications."},
+        {"name": "run-llama/llama_index", "url": "https://github.com/run-llama/llama_index",
+         "note": "Indexing and retrieval framework built on top of embeddings."},
+    ],
+    "Agent Memory & State Management": [
+        {"name": "langchain-ai/langgraph", "url": "https://github.com/langchain-ai/langgraph",
+         "note": "Stateful agent graphs with built-in persistence and memory."},
+    ],
+    "Prompt Engineering & Optimization": [
+        {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks",
+         "note": "Worked prompt-design examples across classification, RAG, and summarization."},
+    ],
+    "Fine-Tuning vs. Prompting": [
+        {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks",
+         "note": "Examples showing when prompting/tool use suffice vs. when they don't."},
     ],
 }
 
@@ -104,8 +129,6 @@ BANNED_WORDS = [
 ]
 
 MIN_SCORE = 6
-RANKED_TOP_N = 5
-RANKED_SITE_TOP_N = 5
 
 NEWSLETTER_URL = "https://ai-linkedin-newsletter.vercel.app"
 
@@ -118,13 +141,14 @@ HISTORY_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "history
 ANALYTICS_MIN_AGE_DAYS = 7
 ANALYTICS_MAX_AGE_DAYS = 21
 
-# --- AI Coding Tools site pipeline ---
+# --- AI Architect blog pipeline ---
 
 _ROOT = Path(__file__).parent
-NEWS_JSON_PATH = _ROOT / "site" / "news.json"
-NEWSLETTER_JSON_PATH = _ROOT / "site" / "newsletter.json"
+ARTICLES_JSON_PATH = _ROOT / "site" / "articles.json"
 TEMPLATE_PATH = _ROOT / "site" / "template.html"
+POST_TEMPLATE_PATH = _ROOT / "site" / "post_template.html"
 SITE_OUTPUT_PATH = _ROOT / "site" / "index.html"
+POSTS_DIR = _ROOT / "site" / "posts"
 
 # Fallback og:image per source — used when the article/changelog URL returns no image.
 CHANGELOG_SOURCE_HOMEPAGES = {

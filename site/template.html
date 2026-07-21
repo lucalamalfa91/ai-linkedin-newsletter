@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Coding Tools Digest — {{ DATE }}</title>
-  <meta name="description" content="The 5 most important AI coding tool updates, analyzed daily by Claude.">
-  <meta property="og:title" content="AI Coding Tools Digest — {{ DATE }}">
-  <meta property="og:description" content="5 stories. Daily analysis by Claude.">
+  <title>The AI Architect — Luca La Malfa</title>
+  <meta name="description" content="Practical AI architecture, one technique at a time — by Luca La Malfa.">
+  <meta property="og:title" content="The AI Architect — Luca La Malfa">
+  <meta property="og:description" content="Practical AI architecture, one technique at a time.">
   <meta property="og:type" content="website">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,13 +22,8 @@
       --header-bg:     #0D1117;
       --header-sub:    rgba(255,255,255,0.45);
       --header-strong: rgba(255,255,255,0.85);
-      --take-bg:       #FFFBEB;
-      --take-border:   #F59E0B;
-      --take-label:    #92400E;
       --source-bg:     #EFEFEB;
       --source-text:   #333333;
-      --score-bg:      #ECFDF5;
-      --score-text:    #065F46;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -43,13 +38,8 @@
         --header-bg:     #000000;
         --header-sub:    rgba(255,255,255,0.35);
         --header-strong: rgba(255,255,255,0.85);
-        --take-bg:       #1A1200;
-        --take-border:   #D97706;
-        --take-label:    #FCD34D;
         --source-bg:     #222222;
         --source-text:   #CCCCCC;
-        --score-bg:      #042F2E;
-        --score-text:    #6EE7B7;
       }
     }
 
@@ -140,34 +130,14 @@
       border-color: #C8C7C3;
     }
 
-    .card-image {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      display: block;
-      border-bottom: 1px solid var(--border);
-    }
-
     .card-body { padding: 1.4rem 1.5rem 1.3rem; }
 
-    /* Top row: rank · source · score */
     .card-top {
       display: flex;
       align-items: center;
       gap: 0.45rem;
       margin-bottom: 0.8rem;
       flex-wrap: wrap;
-    }
-
-    .rank-badge {
-      font-size: 0.68rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      background: var(--bg);
-      border: 1px solid var(--border);
-      padding: 0.18rem 0.5rem;
-      border-radius: 5px;
-      letter-spacing: 0.03em;
     }
 
     .source-chip {
@@ -177,16 +147,6 @@
       color: var(--source-text);
       padding: 0.18rem 0.65rem;
       border-radius: 20px;
-    }
-
-    .score-chip {
-      font-size: 0.7rem;
-      font-weight: 600;
-      background: var(--score-bg);
-      color: var(--score-text);
-      padding: 0.18rem 0.65rem;
-      border-radius: 20px;
-      margin-left: auto;
     }
 
     /* Title */
@@ -214,30 +174,6 @@
       color: var(--text-sub);
       line-height: 1.7;
       margin-bottom: 1rem;
-    }
-
-    /* Claude's take */
-    .claude-take {
-      background: var(--take-bg);
-      border-left: 3px solid var(--take-border);
-      border-radius: 0 8px 8px 0;
-      padding: 0.8rem 1rem;
-      margin-bottom: 1.1rem;
-    }
-
-    .claude-take-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--take-label);
-      margin-bottom: 0.4rem;
-    }
-
-    .claude-take-text {
-      font-size: 0.875rem;
-      color: var(--text);
-      line-height: 1.62;
     }
 
     /* Read link */
@@ -269,7 +205,6 @@
     @media (max-width: 480px) {
       .masthead h1     { font-size: 1.55rem; }
       .card-body       { padding: 1.1rem; }
-      .card-image      { height: 160px; }
     }
   </style>
 </head>
@@ -277,24 +212,24 @@
 
   <header class="masthead">
     <div class="masthead-inner">
-      <span class="masthead-eyebrow">Daily Digest</span>
-      <h1>AI Coding Tools Digest</h1>
+      <span class="masthead-eyebrow">The AI Architect</span>
+      <h1>Luca La Malfa</h1>
       <p class="masthead-sub">
-        <strong>{{ DATE }}</strong> &mdash; 5 stories selected and analyzed by Claude
+        Practical AI architecture, one technique at a time — <strong>{{ ARTICLE_COUNT }}</strong> articles and counting
       </p>
       <div class="masthead-divider"></div>
     </div>
   </header>
 
   <div class="container">
-    <p class="feed-label">Today&rsquo;s top stories</p>
+    <p class="feed-label">Archive</p>
     <main>
 {{ STORIES_HTML }}
     </main>
   </div>
 
   <footer class="site-footer">
-    Updated daily at 5&nbsp;AM UTC &middot; Curated and analyzed by Claude &middot; Last updated: {{ GENERATED_AT }}
+    Every article stays online, permanently &middot; Written by Luca, with Claude &middot; Last updated: {{ GENERATED_AT }}
   </footer>
 
 </body>
