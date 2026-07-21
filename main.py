@@ -169,6 +169,25 @@ def _build_post(story: dict, client: anthropic.Anthropic) -> str | None:
     return truncate_comment(comment)
 
 
+def _append_reference_link(comment: str, url: str) -> str:
+    """Insert a reference link before the hashtag line(s).
+
+    "text" and "carousel" posts don't get LinkedIn's automatic article link card (only the
+    default "article" post type does), so without this the post never points back to the
+    blog article at all — just a PDF or plain text floating with no source.
+    """
+    if not url:
+        return comment
+    label = "Full breakdown on my blog" if url.startswith(NEWSLETTER_URL) else "Source"
+    lines = comment.split("\n")
+    hashtag_idx = next((i for i, l in enumerate(lines) if l.strip().startswith("#")), len(lines))
+    before = lines[:hashtag_idx]
+    while before and not before[-1].strip():
+        before.pop()
+    after = lines[hashtag_idx:]
+    return "\n".join(before + ["", f"{label}: {url}", ""] + after)
+
+
 def _publish_by_type(
     post_type: str,
     comment: str,
@@ -178,8 +197,10 @@ def _publish_by_type(
     token: str,
 ) -> str | None:
     """Route to the correct LinkedIn publish function. Returns post_id or None on failure."""
+    url = story.get("url", "")
+
     if post_type == "text":
-        return publish_text(comment, person_id, token)
+        return publish_text(_append_reference_link(comment, url), person_id, token)
 
     if post_type == "carousel":
         carousel_result = create_carousel(story, client, person_id, token)
@@ -187,10 +208,11 @@ def _publish_by_type(
             log.error("Carousel creation failed — aborting publish")
             return None
         document_urn, carousel_comment = carousel_result
+        carousel_comment = _append_reference_link(carousel_comment, url)
         return publish_carousel(carousel_comment, document_urn, story["title"], person_id, token)
 
     # Default: "article" — links to the specific blog permalink, not just the site root
-    return publish(comment, story.get("url", NEWSLETTER_URL), story["title"], person_id, token, og=story.get("og"))
+    return publish(comment, url or NEWSLETTER_URL, story["title"], person_id, token, og=story.get("og"))
 
 
 def _run_url_pipeline(

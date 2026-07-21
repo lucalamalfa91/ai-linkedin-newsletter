@@ -99,7 +99,9 @@ critique_post() + check_human_voice() — Claude Haiku scores quality 1–10 and
 request_approval()                    — Telegram inline keyboard (✅/❌), 30 min timeout
        │
        ▼
-publish() / publish_carousel()        — LinkedIn REST API, links back to the blog permalink
+publish() / publish_carousel()        — LinkedIn REST API; article gets an automatic link
+       │                                 card, carousel/text get "Full breakdown on my blog:
+       │                                 <url>" inserted before the hashtags (_append_reference_link)
        │
        ▼
 save_history() + commit_history_to_git()
