@@ -12,38 +12,35 @@ _WRITER_SYSTEM = """\
 Write a LinkedIn post for Luca La Malfa, an AI Architect advising enterprises in Switzerland and Europe.
 Primary audience: CTOs, Heads of Innovation, CEOs — decision-makers evaluating or scaling AI.
 
-GOAL: make an executive think "this person understands my problem" or "I need to follow this person."
-Luca speaks as a practitioner, not a commentator. He works with this technology and has a point of view.
+GOAL: make an executive think "this person understands my problem" or "I need to follow this person" —
+and, just as important, make it unmistakably human. Not a well-behaved AI summary of a topic.
 
-Format (strict):
-HOOK: ≤8 words, no question mark — must speak to a business pain, competitive fear, or executive blind spot
-[blank line]
-BODY: 3 sentences max. One emoji placed naturally, no URL in text.
-  — Sentence 1: what is shifting in the market (the business context, not the feature)
-  — Sentence 2: the concrete enterprise implication — name a workflow, a cost, a risk, a speed delta
-  — Sentence 3: first-person field observation ("We're seeing this in client projects." / "In every architecture review I run...")
-[blank line]
-TAKEAWAY: one sentence that repositions the reader's mental model — the "La Malfa take"
-QUESTION: one question a CTO or Head of Innovation would genuinely wrestle with about their own org
-[blank line]
-HASHTAGS: 2-3 — always include at least one of: #AIStrategy #EnterpriseAI #AIArchitecture #DigitalTransformation
+HOW HUMANS ACTUALLY WRITE (do this, don't just describe it):
+  - Uneven rhythm. A short punch. Then a longer, winding thought that runs on a bit before it lands.
+  - Both fast and slow thinking, in the same post: a gut reaction sitting right next to a considered second thought.
+  - Real contrast — "but", "except", "and yet" — let one sentence push back on the one before it.
+  - A specific, almost private detail beats a generic claim: a real project, a real client conversation, an oddly
+    specific number. Vague enthusiasm is the tell of a machine.
+  - Take a side. If something is overhyped, say so. If a popular opinion is wrong, say that too. Don't hedge every
+    claim into mush.
+  - Emotion is allowed and wanted: frustration, mild sarcasm, real excitement, doubt. Flat and neutral is the
+    failure mode, not the safe choice.
+  - Do NOT visibly follow a template (hook / three parallel points / neat takeaway), as if filling in a form.
+    Vary the shape post to post — sometimes lead with the opinion, sometimes with the scene, sometimes with
+    the question. Break a "rule of three" on purpose now and then.
 
-Hook examples that stop executives mid-scroll:
-  "Most AI projects fail before they start."
-  "Your competitors are already automating this."
-  "The real AI bottleneck isn't the model."
-  "Three months ago a CTO asked me this question."
-  "Your AI PoC will never reach production. Here's why."
+STILL REQUIRED (non-negotiable constraints — obey them, but in the human voice described above):
+  ≤6 short lines of content before the hashtags (LinkedIn post — must stay scannable on mobile).
+  At most one emoji, placed where a person would actually drop it — never decorative.
+  No URL in the text — it's attached as a link card automatically.
+  No numbered lists, no "Here's why:" breakdowns, no generic call-to-action line.
+  End on something that invites a real reply — an opinion worth pushing back on, or a question the reader
+    actually has to sit with — not a generic "What do you think?"
+  2-3 hashtags, at least one of: #AIStrategy #EnterpriseAI #AIArchitecture #DigitalTransformation
+  Banned words (these read as AI tells — never use them): """ + ", ".join(BANNED_WORDS) + """
 
-Executive question examples that generate conversations:
-  "What's the real blocker between your AI PoC and production?"
-  "Who owns the AI roadmap in your org — IT or the business?"
-  "Is your governance model ready for agents that manage other agents?"
-  "What happens to your team structure when AI handles the first draft of everything?"
-
-Voice: authoritative but not arrogant. Direct. Occasionally provocative. Natural English — must NOT sound AI-generated.
-No lists, no call-to-action, no structured breakdowns.
-Banned: """ + ", ".join(BANNED_WORDS) + """.
+Voice: a practitioner with opinions who isn't afraid of them. Direct, occasionally over the line, willing to be
+contrarian. Should read like it was typed mid-thought by a person, not assembled from a template.
 
 Return ONLY valid JSON: {"comment": "<post text with \\n for line breaks>"}
 """
@@ -61,6 +58,19 @@ Criteria:
   Question (2pts): an executive would genuinely wrestle with it about their own org — NOT "What do you think?" or similar
   Banned words (1pt): none of: """ + ", ".join(BANNED_WORDS) + """
   Tone (1pt): natural, not AI-sounding, no URL in text, no call-to-action phrase\
+"""
+
+_HUMANNESS_SYSTEM = """\
+You are a skeptical reader trying to catch whether a LinkedIn post was written by a human or generated by an AI.
+You have seen thousands of AI-generated LinkedIn posts and know the tells: uniform sentence rhythm, every claim
+hedged into mush, a visible hook/body/takeaway template, forced rule-of-three lists, generic upbeat conclusions,
+no real opinion, no friction, no specific detail — just smooth, safe, well-behaved prose.
+
+Return valid JSON only — no markdown fences: {"verdict": "human" | "ai", "human_score": N, "tells": ["..."]}
+
+human_score (0-10): 0 = obviously AI-written, 10 = indistinguishable from a real person's unpolished post.
+Be strict — generic, evenly-paced, hedge-everything writing should score below 6 even if it is well-written.
+"tells" lists the specific things that gave it away (empty list if genuinely human-sounding).\
 """
 
 
@@ -117,6 +127,24 @@ def critique_post(comment: str, client: anthropic.Anthropic) -> dict:
     except json.JSONDecodeError:
         log.warning("Critic returned invalid JSON: %s — assuming OK", raw)
         return {"score": 10, "issues": []}
+
+
+def check_human_voice(comment: str, client: anthropic.Anthropic) -> dict:
+    """Score whether the post reads as human- or AI-written. Returns
+    {"verdict": "human"|"ai", "human_score": int, "tells": list[str]}."""
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=200,
+        temperature=0,
+        system=_HUMANNESS_SYSTEM,
+        messages=[{"role": "user", "content": f"POST:\n{comment}"}],
+    )
+    raw = _strip_json_fences(msg.content[0].text)
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError:
+        log.warning("Humanness checker returned invalid JSON: %s — assuming human", raw)
+        return {"verdict": "human", "human_score": 10, "tells": []}
 
 
 def truncate_comment(comment: str) -> str:

@@ -23,7 +23,7 @@ from agents.analytics_agent import update_analytics
 from agents.carousel_agent import create_carousel
 from agents.notifier_agent import request_approval, send as notify
 from agents.publisher_agent import publish, publish_carousel, publish_text
-from agents.writer_agent import critique_post, truncate_comment, write_post
+from agents.writer_agent import check_human_voice, critique_post, truncate_comment, write_post
 from config import CHANGELOG_SOURCE_HOMEPAGES, NEWSLETTER_URL, NEWS_JSON_PATH
 from utils.history import commit_history_to_git, extract_hashtags, extract_topics, load_history, save_history
 from utils.og_meta import fetch_og_meta
@@ -133,11 +133,19 @@ def _build_post(story: dict, client: anthropic.Anthropic) -> str | None:
     for attempt in range(2):
         critique = critique_post(comment, client)
         c_score = critique.get("score", 10)
-        log.info("Critic attempt=%d score=%d issues=%s", attempt + 1, c_score, critique.get("issues", []))
-        if c_score >= 7:
+        humanness = check_human_voice(comment, client)
+        h_score = humanness.get("human_score", 10)
+        log.info(
+            "Critic attempt=%d score=%d issues=%s | human_score=%d verdict=%s tells=%s",
+            attempt + 1, c_score, critique.get("issues", []),
+            h_score, humanness.get("verdict"), humanness.get("tells", []),
+        )
+        if c_score >= 7 and h_score >= 6:
             break
         if attempt == 0:
-            log.warning("Critic score=%d — retrying post generation", c_score)
+            log.warning(
+                "Critic score=%d human_score=%d — retrying post generation", c_score, h_score
+            )
             retry = write_post(story, original, client)
             if retry:
                 comment = retry
