@@ -64,5 +64,64 @@
       "source": "Latent Space"
     },
     "og_image": null
+  },
+  {
+    "slug": "prompt-caching-cut-llm-costs-by-anchoring-repeated-context",
+    "title": "Prompt Caching: Cut LLM Costs by Anchoring Repeated Context",
+    "dek": "Learn how to structure prompts so repeated context is cached and billed once, not on every call.",
+    "date": "2026-07-21",
+    "published_at": "2026-07-21T22:49:28.921919+00:00",
+    "technique": "Prompt Caching & Cost Optimization",
+    "tags": [
+      "prompt-caching",
+      "cost-optimization",
+      "llm-infrastructure",
+      "anthropic",
+      "rag"
+    ],
+    "body_html": "<p>Prompt caching is a billing and latency optimization offered by providers like Anthropic where a prefix of your prompt — the system prompt, a large document, a few-shot example block — is stored server-side after the first request. Subsequent calls that share that exact prefix are charged at a fraction of the normal input token rate (roughly 10% with Anthropic's current pricing) and return faster because the KV cache is already warm. The key constraint: the cached prefix must be byte-for-byte identical across calls, which means your architecture has to be intentional about what goes where in the prompt.</p><p>For an AI Architect designing enterprise systems, this matters most when you have a large, stable context that gets reused across many user turns or parallel requests — a 50-page policy document used for Q&A, a dense system prompt encoding a persona and rules, or a fixed few-shot library. In those patterns, input tokens dominate your cost curve. A RAG pipeline that stuffs 8,000 tokens of retrieved context into every call, for instance, can see 80–90% of its token spend evaporate once caching is properly structured, simply by front-loading the stable material and keeping the dynamic user query at the tail end of the prompt.</p><p>The main failure mode is cache invalidation by accident. Any change to the bytes before the cache breakpoint — a timestamp injected into the system prompt, a user ID interpolated early in the template, even a whitespace difference from a template engine — resets the cache and you pay full price. I've seen teams instrument caching, celebrate the savings in staging, then watch costs spike in production because a logging middleware was prepending a request trace ID to every system prompt. The discipline required is treating your prompt prefix like an immutable artifact, not a template. A secondary trade-off: cache entries have a TTL (currently five minutes of inactivity on Anthropic), so low-traffic endpoints may never actually hit cached state — you need to model your request rate before assuming savings will materialize.</p>",
+    "diagrams": [
+      {
+        "heading": "Prompt Structure for Cache Hit",
+        "nodes": [
+          "Static system prompt",
+          "Large fixed context",
+          "Cache breakpoint marker",
+          "Dynamic user message",
+          "API call → cache hit"
+        ]
+      },
+      {
+        "heading": "Cache Miss vs Hit Request Lifecycle",
+        "nodes": [
+          "First request arrives",
+          "Full prefix tokenized",
+          "KV cache stored",
+          "Second request arrives",
+          "Prefix served from cache",
+          "Only tail tokens billed"
+        ]
+      }
+    ],
+    "how_i_use_it": "<p>My default rule when scoping any feature that calls an LLM more than once per user session: I draw a line through the prompt and ask 'what above this line never changes between calls?' — everything above that line becomes a candidate for a cache block. I then add Anthropic's <code>cache_control</code> marker at that boundary and check the response metadata for <code>cache_read_input_tokens</code> in the first few test runs. If I see zeros there after the second call, something is invalidating the prefix and I start diffing the raw serialized prompt bytes across requests before touching anything else. For clients with infrequent traffic I skip caching entirely and invest the same effort in reducing prompt length instead, because a cache that never warms is just added complexity with no return.</p>",
+    "example_projects": [
+      {
+        "name": "anthropics/claude-cookbooks",
+        "url": "https://github.com/anthropics/claude-cookbooks",
+        "note": "Includes worked examples of prompt caching to cut latency and cost.",
+        "usage_note": "I reach for the claude-cookbooks caching examples when I need a reference implementation to show a client's engineering team exactly where to place the cache_control breakpoint in a multi-turn document Q&A setup.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\n# Simulate a large, stable policy document loaded once\npolicy_text = open('company_policy.txt').read()  # e.g. 6000 tokens\n\ndef ask_policy_question(user_question: str) -> str:\n    response = client.messages.create(\n        model='claude-opus-4-5',\n        max_tokens=512,\n        system=[\n            {\n                'type': 'text',\n                'text': 'You are a compliance assistant. Answer only from the provided policy.',\n            },\n            {\n                'type': 'text',\n                'text': policy_text,\n                'cache_control': {'type': 'ephemeral'},  # cache breakpoint\n            },\n        ],\n        messages=[{'role': 'user', 'content': user_question}],\n    )\n    usage = response.usage\n    print(f\"Input: {usage.input_tokens} | Cache write: {usage.cache_creation_input_tokens} | Cache read: {usage.cache_read_input_tokens}\")\n    return response.content[0].text\n\nprint(ask_policy_question('What is the remote work reimbursement limit?'))\nprint(ask_policy_question('How many sick days are employees entitled to?'))"
+        },
+        "example_output": "Input: 6108 | Cache write: 6042 | Cache read: 0\nThe remote work reimbursement limit is CHF 80 per month for internet costs.\n\nInput: 74 | Cache write: 0 | Cache read: 6042\nEmployees are entitled to 10 sick days per calendar year with full pay."
+      }
+    ],
+    "inspired_by": {
+      "title": "Reverse-engineering is cheap now",
+      "url": "https://simonwillison.net/2026/Jul/20/cheap-reverse-engineering/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": null
   }
 ]
