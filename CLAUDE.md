@@ -77,7 +77,7 @@ The scripts require these environment variables (defined in `.env` locally, or a
 - Approve → publish to LinkedIn (linking to the blog article's permalink) + save to `history.json`
 - Reject or timeout → skip publishing, send Telegram notification
 
-**Post format**: Default is a plain LinkedIn article post (link card to the blog permalink); `carousel`/`text` post types are also available via `--post-type` (carousel is currently unreliable). All formats speak as "Luca La Malfa, an AI Architect advising enterprises" — direct, practitioner voice, no fake hype, no forced emojis, no em dashes, no banned buzzwords (`BANNED_WORDS` in `config.py`).
+**Post format**: Default is a plain LinkedIn article post (link card to the blog permalink); `carousel`/`text` post types are also available via `--post-type` (carousel is currently unreliable). Those two don't get an automatic link card, so `main.py._append_reference_link()` inserts a "Full breakdown on my blog: <url>" line before the hashtags so the post always references the article. All formats speak as "Luca La Malfa, an AI Architect advising enterprises" — direct, practitioner voice, no fake hype, no forced emojis, no em dashes, no banned buzzwords (`BANNED_WORDS` in `config.py`).
 
 ## LinkedIn API Details
 
