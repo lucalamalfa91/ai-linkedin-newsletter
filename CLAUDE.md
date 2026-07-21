@@ -58,8 +58,8 @@ The scripts require these environment variables (defined in `.env` locally, or a
 1. `utils/articles.py` — `load_articles()`/`save_articles()` (atomic, append-only), `covered_techniques()` for rotation, slug helpers
 2. Picks the least-recently-covered technique from `AI_ARCHITECT_TECHNIQUES`
 3. **`agents/feed_agent.py`** — optionally fetches RSS feeds looking for a recent item related to the chosen technique, used only as inspiration context (never summarized as the article itself)
-4. **`agents/site_writer_agent.py`** — Claude Sonnet writes the article (`title`, `dek`, `body_html`, `how_i_use_it`, `tags`)
-5. Curated example projects are attached from `TECHNIQUE_EXAMPLE_PROJECTS` in `config.py` — never LLM-generated, to avoid inventing repo URLs
+4. **`agents/site_writer_agent.py`** — Claude Sonnet writes the article (`title`, `dek`, `body_html`, 1-2 boxes-and-arrows `diagrams`, `how_i_use_it`, `tags`), plus, for each curated example project, a `usage_note` + `code_example` + `example_output` (`project_examples`)
+5. Curated example projects (name/url/note) come from `TECHNIQUE_EXAMPLE_PROJECTS` in `config.py` — never LLM-generated, to avoid inventing repo URLs; only the usage code/output/note around them is written by Claude
 6. **`utils/site_builder.py`** — `build_post_page()` renders the new permalink page; `build_home_page()` rebuilds the archive index from the full article list
 
 ### LinkedIn pipeline (`main.py` orchestrates `agents/` and `utils/`)
@@ -104,7 +104,7 @@ Defined in `config.py`:
 
 ## LLM Integration
 
-- **Blog writing** (`site_writer_agent.py`): `claude-sonnet-4-6`, max_tokens=1500, temperature=0.7 — original technique article + "how I use it" section
+- **Blog writing** (`site_writer_agent.py`): `claude-sonnet-4-6`, max_tokens=3000, temperature=0.7 — original technique article, diagrams, "how I use it" section, and per-project code examples
 - **LinkedIn writing** (`writer_agent.py`): `claude-sonnet-4-6`, max_tokens=400, temperature=0.7 — creative post generation
 - **LinkedIn critique** (`writer_agent.py`): `claude-haiku-4-5-20251001`, max_tokens=150, temperature=0 — post quality check
 - **Humanness check** (`writer_agent.py`, `check_human_voice`): `claude-haiku-4-5-20251001`, max_tokens=200, temperature=0 — flags AI-sounding tells (uniform rhythm, hedge-everything tone, visible template, generic conclusions) and scores the post 0-10 on how human it reads; `main.py` retries the write if `human_score < 6`

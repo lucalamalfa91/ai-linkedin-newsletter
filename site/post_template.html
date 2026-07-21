@@ -109,6 +109,57 @@
     .article-body { font-size: 1rem; color: var(--text); }
     .article-body p { margin-bottom: 1.1rem; }
 
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .diagram-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .diagram-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .diagram-node {
+      width: 100%;
+      max-width: 420px;
+      background: var(--source-bg);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .diagram-node:last-child {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .diagram-arrow {
+      color: var(--accent);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
     .how-i-use-it {
       background: var(--take-bg);
       border-left: 3px solid var(--take-border);
@@ -142,10 +193,80 @@
       margin-bottom: 0.75rem;
     }
 
-    .example-projects ul { list-style: none; padding: 0; }
-    .example-projects li { margin-bottom: 0.5rem; font-size: 0.92rem; }
-    .example-projects a { color: var(--accent); text-decoration: none; font-weight: 600; }
-    .example-projects a:hover { text-decoration: underline; }
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-block:last-child { margin-bottom: 0; }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
 
     .inspired-by {
       font-size: 0.8rem;
@@ -195,6 +316,8 @@
 {{ BODY_HTML }}
     </div>
 
+{{ DIAGRAMS_HTML }}
+
     <div class="how-i-use-it">
       <p class="how-i-use-it-label">How I use this every day</p>
 {{ HOW_I_USE_IT }}
@@ -202,9 +325,7 @@
 
     <div class="example-projects">
       <h2>Example projects</h2>
-      <ul>
 {{ EXAMPLE_PROJECTS_HTML }}
-      </ul>
     </div>
 
 {{ INSPIRED_BY_HTML }}
