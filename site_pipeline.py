@@ -1,41 +1,41 @@
 #!/usr/bin/env python3
-"""Daily AI newsletter digest pipeline.
+"""The AI Architect — personal blog pipeline.
 
 Flow:
-  1. Fetch RSS feeds (opinionated AI bloggers/writers)
-  2. For each post: extract the PRIMARY source they're discussing (not the blogger's URL)
-  3. Deduplicate — multiple bloggers covering the same story → one entry
-  4. Rank with Claude Haiku (AI-only filter applied)
-  5. Enrich top 5 with summary + considerations (La Malfa format)
-  6. Write news.json + index.html
-  7. Commit + push → Vercel auto-deploys
+  1. Load the existing archive (site/articles.json) — never truncated, only appended to.
+  2. Pick the next technique to cover (rotates through AI_ARCHITECT_TECHNIQUES, least-recently
+     covered first).
+  3. Optionally find a recent RSS item related to that technique, used only as inspiration —
+     the article itself is always original, written by Luca via Claude.
+  4. Write the article (agents/site_writer_agent.py) and attach curated example projects
+     (config.TECHNIQUE_EXAMPLE_PROJECTS — never LLM-generated, to avoid inventing repo URLs).
+  5. Append the new article to site/articles.json, build its permalink page
+     (site/posts/<slug>.html), and rebuild the home/archive page (site/index.html) from the
+     full archive.
+  6. Commit + push → Vercel auto-deploys.
 """
 
-import json
 import logging
 import os
 import subprocess
 import sys
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
 import anthropic
 
 from agents.feed_agent import fetch_feeds
-from agents.ranking_agent import rank_stories
-from agents.site_writer_agent import write_site_entry
-from agents.source_extractor_agent import extract_original_source
+from agents.site_writer_agent import write_technique_article
 from config import (
-    FOCUS_TOPICS,
-    NEWS_JSON_PATH,
-    RANKED_SITE_TOP_N,
+    AI_ARCHITECT_TECHNIQUES,
+    POST_TEMPLATE_PATH,
+    POSTS_DIR,
     SITE_OUTPUT_PATH,
+    TECHNIQUE_EXAMPLE_PROJECTS,
     TEMPLATE_PATH,
 )
-from utils.og_meta import fetch_og_meta
-from utils.site_builder import build_site
-from utils.url_utils import is_valid_url, normalize_url
+from utils.articles import covered_techniques, load_articles, save_articles, slugify, unique_slug
+from utils.site_builder import build_home_page, build_post_page
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,16 +67,31 @@ def _require_env(*keys: str) -> None:
         sys.exit(1)
 
 
-def _write_news_json(data: dict) -> None:
-    path = Path(NEWS_JSON_PATH)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(
-        "w", dir=path.parent, suffix=".tmp", delete=False, encoding="utf-8"
-    ) as tf:
-        json.dump(data, tf, ensure_ascii=False, indent=2)
-        tmp_path = tf.name
-    Path(tmp_path).replace(path)
-    log.info("Wrote %s", path)
+def _pick_next_technique(articles: list[dict]) -> str:
+    """Least-recently-covered technique first; never-covered techniques come first of all."""
+    covered = covered_techniques(articles)
+    uncovered = [t for t in AI_ARCHITECT_TECHNIQUES if t not in covered]
+    if uncovered:
+        return uncovered[0]
+    # All covered at least once — rotate to the one covered longest ago.
+    covered_in_order = [t for t in covered if t in AI_ARCHITECT_TECHNIQUES]
+    return covered_in_order[0] if covered_in_order else AI_ARCHITECT_TECHNIQUES[0]
+
+
+def _find_inspiration(technique: str) -> dict | None:
+    """Best-effort: find a recent RSS item related to the technique, for context only."""
+    try:
+        items = fetch_feeds(days=7)
+    except Exception as exc:
+        log.warning("Feed fetch failed — proceeding without inspiration: %s", exc)
+        return None
+
+    keywords = [w.lower() for w in technique.replace("&", " ").replace("(", " ").replace(")", " ").split() if len(w) > 3]
+    for item in items:
+        text = (item.get("title", "") + " " + item.get("summary", "")).lower()
+        if any(k in text for k in keywords):
+            return item
+    return None
 
 
 def _commit_and_push() -> None:
@@ -86,7 +101,7 @@ def _commit_and_push() -> None:
     cmds = [
         ["git", "config", "user.email", "actions@github.com"],
         ["git", "config", "user.name", "GitHub Actions"],
-        ["git", "add", str(NEWS_JSON_PATH), str(SITE_OUTPUT_PATH)],
+        ["git", "add", "site/articles.json", "site/index.html", "site/posts"],
     ]
     for cmd in cmds:
         subprocess.run(cmd, check=True)
@@ -95,11 +110,11 @@ def _commit_and_push() -> None:
         log.info("No changes to commit")
         return
     subprocess.run(
-        ["git", "commit", "-m", "chore: update site digest [skip ci]"],
+        ["git", "commit", "-m", "chore: publish new AI Architect blog article [skip ci]"],
         check=True,
     )
     subprocess.run(["git", "push"], check=True)
-    log.info("Committed and pushed site digest")
+    log.info("Committed and pushed new article")
 
 
 def main() -> None:
@@ -108,117 +123,59 @@ def main() -> None:
 
     client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
 
-    # 1. Fetch RSS feeds — last 7 days from all configured blogger sources
-    raw_items = fetch_feeds(days=1)
-    if not raw_items:
-        log.error("No items from RSS feeds — aborting")
-        sys.exit(1)
-    log.info("RSS feeds: %d raw items collected", len(raw_items))
+    articles = load_articles()
+    existing_slugs = {a["slug"] for a in articles if a.get("slug")}
 
-    # 2. Extract primary source for each blogger post
-    #    (e.g. Ethan Mollick writes about GPT-5 → we use openai.com/blog/gpt-5)
-    #    Items with no clear primary source are kept with their original URL.
-    all_items: list[dict] = []
-    seen_extracted: set[str] = set()
+    technique = _pick_next_technique(articles)
+    log.info("Technique for this run: %s", technique)
 
-    for item in raw_items:
-        original = extract_original_source(item, client)
-        if original:
-            url = normalize_url(original["url"])
-            if url in seen_extracted:
-                log.debug("Dedup: multiple bloggers covered same source — skipping '%s'", url)
-                continue
-            seen_extracted.add(url)
-            enriched = dict(item)
-            enriched["link"] = url
-            enriched["title"] = original["title"] or item["title"]
-            enriched["source"] = original["source_name"] or item["source"]
-            enriched["blogger_context"] = item["summary"]  # original blogger analysis as context
-            all_items.append(enriched)
-        else:
-            # Blogger's own analysis — use as-is (original content, not a reaction)
-            all_items.append(item)
+    inspiration = _find_inspiration(technique)
+    if inspiration:
+        log.info("Found inspiration: %s (%s)", inspiration.get("title"), inspiration.get("source"))
+    else:
+        log.info("No inspiration found — writing from general knowledge")
 
-    log.info("After source extraction: %d unique items", len(all_items))
-
-    # 3. Rank with Claude Haiku — AI-only focus enforced via FOCUS_TOPICS
-    ranked = rank_stories(all_items, client, focus_topics=FOCUS_TOPICS, top_n=len(all_items))
-    if not ranked:
-        log.error("Ranking returned no results — aborting")
+    written = write_technique_article(technique, inspiration, client)
+    if not written or not written.get("title"):
+        log.error("Failed to write article for technique '%s' — aborting", technique)
         sys.exit(1)
 
-    # Deduplicate by URL (keep highest-ranked per URL)
-    seen_urls: set[str] = set()
-    deduped: list[dict] = []
-    for r in ranked:
-        u = normalize_url(r.get("url", ""))
-        if u not in seen_urls:
-            seen_urls.add(u)
-            deduped.append(r)
-    for i, r in enumerate(deduped, 1):
-        r["rank"] = i
-    ranked = deduped
-
-    # 3. Enrich top N with summary + considerations (La Malfa format)
-    stories = []
-    for candidate in ranked[:RANKED_SITE_TOP_N]:
-        url = normalize_url(candidate.get("url", ""))
-        if not is_valid_url(url):
-            log.warning("Invalid URL for '%s' — skipping", candidate.get("title"))
-            continue
-
-        candidate["url"] = url
-        title = candidate.get("title", "")
-        original = (
-            next((it for it in all_items if it["link"] == url and it["title"] == title), None)
-            or next((it for it in all_items if it["link"] == url), None)
-        )
-
-        source_name = original.get("source", "") if original else ""
-        og = fetch_og_meta(url)
-
-        # Use blogger's analysis as context if available, otherwise use RSS summary
-        if original and original.get("blogger_context"):
-            context_item = dict(original)
-            context_item["summary"] = original["blogger_context"]
-        else:
-            context_item = original
-
-        enrichment = write_site_entry(candidate, context_item, client)
-
-        stories.append({
-            "rank": candidate.get("rank"),
-            "score": candidate.get("score"),
-            "title": candidate.get("title", ""),
-            "url": url,
-            "source": source_name,
-            "summary": enrichment["summary"],
-            "considerations": enrichment["considerations"],
-            "published": original.get("published", "") if original else "",
-            "og_image": og.get("image") or None,
-            "is_feature_spotlight": False,
-        })
-
-    if not stories:
-        log.error("No valid stories after enrichment — aborting")
-        sys.exit(1)
-
-    # 4. Write news.json
+    slug = unique_slug(slugify(written["title"]), existing_slugs)
     now = datetime.now(timezone.utc)
-    news_data = {
-        "generated_at": now.isoformat(),
+
+    article = {
+        "slug": slug,
+        "title": written["title"],
+        "dek": written["dek"],
         "date": now.strftime("%Y-%m-%d"),
-        "stories": stories,
+        "published_at": now.isoformat(),
+        "technique": technique,
+        "tags": written["tags"],
+        "body_html": written["body_html"],
+        "how_i_use_it": written["how_i_use_it"],
+        "example_projects": TECHNIQUE_EXAMPLE_PROJECTS.get(technique, []),
+        "inspired_by": (
+            {
+                "title": inspiration["title"],
+                "url": inspiration["link"],
+                "source": inspiration["source"],
+            }
+            if inspiration
+            else None
+        ),
+        "og_image": None,
     }
-    _write_news_json(news_data)
 
-    # 5. Build HTML
-    build_site(news_data, TEMPLATE_PATH, SITE_OUTPUT_PATH)
+    # Append-only: never overwrite or drop previously published articles.
+    articles.append(article)
+    save_articles(articles)
 
-    # 6. Commit and push (GitHub Actions only)
+    build_post_page(article, POST_TEMPLATE_PATH, POSTS_DIR)
+    build_home_page(articles, TEMPLATE_PATH, SITE_OUTPUT_PATH)
+
     _commit_and_push()
 
-    log.info("Site pipeline complete — %d stories from RSS feeds", len(stories))
+    log.info("Blog pipeline complete — published '%s' (%d articles total)", article["title"], len(articles))
 
 
 if __name__ == "__main__":

@@ -1,96 +1,79 @@
-# AI Coding Tools Digest + LinkedIn Newsletter
+# The AI Architect Blog + LinkedIn Newsletter
 
 Two automated pipelines powered by Claude:
 
-1. **Daily Vercel site** — scrapes official changelogs and Claude Code docs, generates 3 curated stories with summaries and developer-focused analysis
-2. **Weekly LinkedIn post** — reads the site's top 3, picks the best one, writes and publishes a post with Telegram approval
+1. **The AI Architect blog** — a permanent, append-only personal blog. Each run writes one original article, from an AI Architect's point of view, about a specific AI technique and how it's used in practice — paired with curated real-world example projects. Nothing is ever overwritten; every article gets its own permanent page.
+2. **Weekly LinkedIn post** — picks a blog article not yet promoted on LinkedIn, writes and publishes a post linking back to it, with Telegram approval.
 
 ---
 
 ## What It Does
 
-### Pipeline 1 — Daily Site (5 AM UTC, Mon–Sat)
+### Pipeline 1 — Blog (5 AM UTC, Mon–Sat)
 
-1. **Scrapes** official changelog and release-note pages for 8 AI coding tools (no RSS)
-2. **Generates** self-made feature spotlight articles from Claude Code documentation pages — Claude Sonnet reads the docs and writes original analysis
-3. **Ranks** all collected items with Claude Haiku, prioritising Claude Code and coding-tool relevance
-4. **Writes** a 2–3 sentence factual summary and a developer-focused "considerations" paragraph for each of the top 3
-5. **Builds** a static HTML page and writes `site/news.json`
-6. **Commits** and pushes — Vercel auto-deploys the site
+1. **Loads** the existing archive (`site/articles.json`) — never truncated, only appended to
+2. **Picks** the next technique to write about, rotating through `AI_ARCHITECT_TECHNIQUES` (least-recently-covered first)
+3. **Searches** recent RSS items (from ~20 AI blogger/practitioner feeds) for optional inspiration related to that technique — used only as context, never summarized or copied
+4. **Writes** an original article with Claude Sonnet: what the technique is, why it matters for an AI Architect, a concrete trade-off, and a first-person "How I use this every day" section
+5. **Attaches** 1-3 curated, hand-verified example GitHub projects for that technique (never LLM-generated, to avoid inventing repo links)
+6. **Appends** the new article to `site/articles.json`, builds its permanent page (`site/posts/<slug>.html`), and rebuilds the home/archive page from the full archive
+7. **Commits** and pushes — Vercel auto-deploys the site
 
 ### Pipeline 2 — Weekly LinkedIn Post (7 AM UTC, Tuesday)
 
-1. **Reads** `site/news.json` (already built by Pipeline 1)
-2. **Picks** the single best story for LinkedIn using Claude Haiku, applying historical performance bonuses and source diversity penalties
-3. **Writes** a LinkedIn post with Claude Sonnet — natural, conversational, 2 sentences + hashtags
+1. **Reads** `site/articles.json` and filters out articles already promoted on LinkedIn (tracked in `history.json`)
+2. **Picks** a random not-yet-published article
+3. **Writes** a LinkedIn post with Claude Sonnet — an AI Architect's voice for CTOs/Heads of Innovation/CEOs
 4. **Critiques** the draft with Claude Haiku; regenerates once if quality score < 7/10
 5. **Sends** a Telegram preview with ✅ / ❌ approval buttons — waits up to 30 minutes
-6. **Publishes** to LinkedIn with thumbnail on approval; records to `history.json`
+6. **Publishes** to LinkedIn, linking back to the article's own permalink page; records to `history.json`
 
 ---
 
-## Sources
+## The Blog
 
-### Changelog sources (scraped directly, no RSS)
+### Techniques covered
 
-| Tool | URL scraped |
-|------|-------------|
-| **Claude Code** | `docs.anthropic.com/en/release-notes/claude-code` |
-| **Cursor** | `cursor.com/changelog` |
-| **OpenAI Codex** | `platform.openai.com/docs/changelog` |
-| **GitHub Copilot** | `docs.github.com/en/copilot/…/github-copilot-release-notes` |
-| **Windsurf** | `codeium.com/blog` |
-| **Aider** | `aider.chat/CHANGELOG.md` |
-| **Continue.dev** | `github.com/continuedev/continue/releases` |
-| **Amazon Q** | `aws.amazon.com/q/developer/` |
+The blog rotates through a curated list of practitioner-relevant AI techniques (`AI_ARCHITECT_TECHNIQUES` in `config.py`): agentic workflows & multi-agent orchestration, RAG, prompt caching, structured outputs & tool use, MCP, LLM evaluation, guardrails, observability & tracing, red-teaming, context engineering, vector search, agent memory, prompt engineering, and fine-tuning vs. prompting.
 
-### Claude Code feature spotlights (self-made articles)
+### Example projects
 
-Claude Sonnet reads each docs page and writes an original article explaining the feature, its non-obvious aspects, and practical implications for developers:
+Each technique maps to 1-3 curated, real GitHub repositories (`TECHNIQUE_EXAMPLE_PROJECTS` in `config.py`) that demonstrate it in practice — e.g. `anthropics/claude-cookbooks` for prompt caching, `langchain-ai/langgraph` for agent orchestration, `guardrails-ai/guardrails` for output validation. These are maintained by hand, not generated, so the blog never links to a URL that doesn't exist.
 
-- Hooks · MCP · Sub-agents · Memory · GitHub Actions integration
-- Slash Commands · Settings · Tutorials
+### Never overwritten
 
-These compete with changelog items for the 3 daily slots. Claude Code content gets a topic-relevance bonus in the ranking rubric.
+`site/articles.json` is an append-only array — every run adds one entry and never removes or rewrites previous ones. Every article also gets its own permanent page under `site/posts/`, so once published, a URL never disappears or changes.
 
 ---
 
 ## Architecture
 
-### Site pipeline (`site_pipeline.py`)
+### Blog pipeline (`site_pipeline.py`)
 
 ```
-CHANGELOG_SOURCES (8 URLs)
+load_articles()                — read site/articles.json (the full archive so far)
        │
        ▼
-fetch_page_text()           — HTTP fetch + HTML strip → clean text (≤8000 chars)
+_pick_next_technique()         — rotate AI_ARCHITECT_TECHNIQUES, least-recently-covered first
        │
        ▼
-extract_changelog_items()   — Claude Haiku: extract 2 recent items per source
-       │                       returns {source, title, link, summary, published}
-       ▼
-CLAUDE_CODE_FEATURE_PAGES (8 docs URLs)
+fetch_feeds() (optional)        — search ~20 RSS feeds for a relevant recent item, for context only
        │
        ▼
-generate_feature_spotlight() — Claude Sonnet: write original article from docs
-       │                        returns {title, summary, source="Claude Code Docs", ...}
+write_technique_article()      — Claude Sonnet: original article + "how I use this every day"
+       │                          returns {title, dek, body_html, how_i_use_it, tags}
        ▼
-rank_stories(top_n=3)       — Claude Haiku scores all items 0–10, returns top 3
+TECHNIQUE_EXAMPLE_PROJECTS      — curated example repos attached for this technique
        │
        ▼
-write_site_entry() × 3      — Claude Sonnet: factual summary + developer considerations
+articles.append(new_article)   — APPEND, never overwrite; save_articles() writes the full array
        │
        ▼
-fetch_og_meta()             — og:image for each story
+build_post_page()              — render site/posts/<slug>.html (permanent)
+build_home_page()               — rebuild site/index.html from the full archive
        │
        ▼
-site/news.json              — structured data (rank, score, title, url, source,
-       │                       summary, considerations, published, og_image)
-       ▼
-build_site()                — render site/template.html → site/index.html
-       │
-       ▼
-git commit + push           — Vercel auto-deploys on push to main
+git commit + push               — Vercel auto-deploys on push to main
 ```
 
 ### LinkedIn pipeline (`main.py`)
@@ -99,25 +82,22 @@ git commit + push           — Vercel auto-deploys on push to main
 load_history() + update_analytics()   — fetch LinkedIn engagement for posts 7–21 days old
        │
        ▼
-compute_performance_bonuses()         — per-source and per-topic adaptive bonuses
+_load_blog_articles()                 — read site/articles.json, drop already-published articles
        │
        ▼
-_load_news_json()                     — read site/news.json (3 pre-ranked stories)
+_pick_random_story()                  — pick one not-yet-promoted article
        │
        ▼
-_pick_linkedin_story()                — Claude Haiku picks best of 3 for LinkedIn
-       │                                (applies performance bonus + source diversity)
+write_post()                          — Claude Sonnet writes the post (or create_carousel() when
+       │                                 --post-type carousel is requested; article is the default)
        ▼
-write_post()                          — Claude Sonnet writes the post
-       │
-       ▼
-critique_post()                       — Claude Haiku scores quality 1–10
-       │  score < 7 → regenerate once
+critique_post() + check_human_voice() — Claude Haiku scores quality 1–10 and how human it reads
+       │  score < 7 or human_score < 6 → regenerate once
        ▼
 request_approval()                    — Telegram inline keyboard (✅/❌), 30 min timeout
        │
        ▼
-publish()                             — LinkedIn REST API with thumbnail
+publish() / publish_carousel()        — LinkedIn REST API, links back to the blog permalink
        │
        ▼
 save_history() + commit_history_to_git()
@@ -127,20 +107,12 @@ save_history() + commit_history_to_git()
 
 ## Site Design
 
-The static site (`site/index.html`) is a self-contained HTML/CSS page (no JavaScript framework, dark mode aware) showing 3 story cards:
+The static site is a self-contained HTML/CSS build (no JavaScript framework, dark mode aware):
 
-- Rank badge · Score badge
-- Title linked to original article
-- Source · Publication date
-- Factual summary paragraph
-- "Claude's take:" blockquote with developer-focused considerations
-- "Read full article →" link
+- `site/index.html` — home/archive page listing every article ever published, most recent first
+- `site/posts/<slug>.html` — one permanent page per article: title, dek, full body, "How I use this every day" callout, linked example projects, optional "Inspired by" attribution
 
-Updated daily at 5 AM UTC. Deployed automatically via Vercel on every push to `main`.
-
-### Changelog Sources (8, scraped directly)
-
-Claude Code, Cursor, OpenAI Codex, GitHub Copilot, Windsurf, Aider, Continue.dev, Amazon Q
+Deployed automatically via Vercel on every push to `main`.
 
 ---
 
@@ -148,45 +120,13 @@ Claude Code, Cursor, OpenAI Codex, GitHub Copilot, Windsurf, Aider, Continue.dev
 
 | Step | Model | Temp | Max tokens | Purpose |
 |------|-------|------|------------|---------|
-| `extract_changelog_items` | `claude-haiku-4-5-20251001` | 0 | 400 | Extract items from changelog HTML |
-| `generate_feature_spotlight` | `claude-sonnet-4-6` | 0.4 | 300 | Write original Claude Code article |
-| `rank_stories` (site) | `claude-haiku-4-5-20251001` | 0 | 500 | Rank all items, pick top 3 |
-| `write_site_entry` | `claude-sonnet-4-6` | 0.3 | 300 | Summary + considerations per story |
-| `_pick_linkedin_story` | `claude-haiku-4-5-20251001` | 0 | 50 | Pick 1 of 3 for LinkedIn |
+| `write_technique_article` | `claude-sonnet-4-6` | 0.7 | 1500 | Write the blog article + "how I use it" section |
 | `write_post` | `claude-sonnet-4-6` | 0.7 | 400 | Write LinkedIn post |
 | `critique_post` | `claude-haiku-4-5-20251001` | 0 | 150 | Quality evaluation |
+| `check_human_voice` | `claude-haiku-4-5-20251001` | 0 | 200 | Flags AI-sounding tells, scores humanness |
+| `generate_slides` (carousel) | `claude-sonnet-4-6` | 0.7 | 800 | Carousel slides + commentary |
 
-Prompt caching is enabled on the static portions of the feature spotlight system prompt, site writer system prompt, and LinkedIn writer system prompt.
-
----
-
-## Adaptive Ranking (LinkedIn)
-
-After several weeks of publishing, the pipeline accumulates engagement data in `history.json`. Before picking which story to post on LinkedIn, it injects a performance context into the Claude Haiku selection prompt:
-
-```
-HISTORICAL PERFORMANCE BONUS — apply +1 to stories from: Claude Code Docs, Cursor
-HISTORICAL PERFORMANCE PENALTY — apply -1 to stories from: Amazon Q
-HIGH-ENGAGEMENT TOPICS: hooks, sub-agents, mcp
-SOURCE DIVERSITY: 'GitHub Copilot' published last time — prefer a different source.
-```
-
-Engagement score formula: `reactions + comments × 2 + reposts × 3`
-
-Bonus thresholds: +1 when source mean ≥ 1.3× overall average; −1 when ≤ 0.6× average.
-
----
-
-## Post Format (LinkedIn)
-
-Claude Sonnet writes every post following strict constraints:
-
-- **Exactly 2 sentences** — no lists, no breakdowns, no call to action
-- Sentence 1: shares the news simply, with one emoji placed naturally
-- Sentence 2: one plain-language takeaway — why it matters or what's interesting
-- Final line: 2–3 relevant hashtags
-
-**Banned words**: game-changer, revolutionary, unlock, empower, leverage, synergy, groundbreaking, orchestration layer, control loop, paradigm, delve, transformative.
+Prompt caching is enabled on the static portions of the blog writer, LinkedIn writer, and carousel system prompts.
 
 ---
 
@@ -197,13 +137,14 @@ Claude Sonnet writes every post following strict constraints:
   "urn:li:share:1234567890": {
     "post_id":       "urn:li:share:1234567890",
     "published_at":  "2026-04-22T07:15:26+00:00",
-    "article_url":   "https://docs.anthropic.com/en/docs/claude-code/hooks",
-    "article_title": "Claude Code Hooks: Build Custom Automation Around Every Tool Call",
-    "source":        "Claude Code Docs",
-    "score":         9,
-    "comment_text":  "Claude Code now lets you intercept every tool call...\n#ClaudeCode #AI",
-    "topics":        ["hooks", "claude", "automation"],
-    "hashtags":      ["#ClaudeCode", "#AI", "#DevTools"],
+    "article_url":   "https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-agent-handoffs.html",
+    "article_title": "Structured Outputs for Reliable Agent Handoffs",
+    "source":        "The AI Architect (my blog)",
+    "score":         null,
+    "post_type":     "article",
+    "comment_text":  "Most agent handoffs fail silently...\n#AIArchitecture #AI",
+    "topics":        ["agents", "structured", "outputs"],
+    "hashtags":      ["#AIArchitecture", "#EnterpriseAI"],
     "analytics":     {
       "fetched_at":       "2026-04-29T07:10:00+00:00",
       "reactions":        142,
@@ -218,6 +159,31 @@ Claude Sonnet writes every post following strict constraints:
 
 `analytics` is `null` until the post is at least 7 days old.
 
+### `site/articles.json` Schema
+
+```json
+[
+  {
+    "slug": "structured-outputs-agent-handoffs",
+    "title": "Structured Outputs for Reliable Agent Handoffs",
+    "dek": "One-line teaser for the article.",
+    "date": "2026-07-21",
+    "published_at": "2026-07-21T05:00:00+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "tags": ["agents", "reliability", "orchestration"],
+    "body_html": "<p>...</p>",
+    "how_i_use_it": "<p>...</p>",
+    "example_projects": [
+      {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks", "note": "..."}
+    ],
+    "inspired_by": {"title": "...", "url": "...", "source": "..."},
+    "og_image": null
+  }
+]
+```
+
+This is an array, not a dict — new articles are appended, existing ones are never modified or removed.
+
 ---
 
 ## Project Structure
@@ -226,34 +192,35 @@ Claude Sonnet writes every post following strict constraints:
 .
 ├── .github/workflows/
 │   ├── post.yml              # LinkedIn pipeline — Tue 7 AM UTC
-│   └── update_site.yml       # Site pipeline — daily 5 AM UTC, Mon–Sat
+│   └── update_site.yml       # Blog pipeline — daily 5 AM UTC, Mon–Sat
 │
 ├── agents/
 │   ├── analytics_agent.py    # LinkedIn engagement data + adaptive bonuses
-│   ├── changelog_agent.py    # Claude Haiku: extract items from changelog pages
-│   ├── feature_spotlight_agent.py  # Claude Sonnet: self-made Claude Code articles
+│   ├── carousel_agent.py     # Claude Sonnet: LinkedIn carousel slides + PDF
+│   ├── feed_agent.py         # RSS feed fetcher (used for optional blog inspiration)
 │   ├── notifier_agent.py     # Telegram notifications + HITL approval
 │   ├── publisher_agent.py    # LinkedIn REST API
-│   ├── ranking_agent.py      # Claude Haiku: score and rank stories
-│   ├── site_writer_agent.py  # Claude Sonnet: summary + considerations for site
+│   ├── site_writer_agent.py  # Claude Sonnet: writes each blog article
 │   └── writer_agent.py       # Claude Sonnet: LinkedIn post + Haiku critique
 │
 ├── utils/
-│   ├── cursor_scraper.py     # HTML scraper for cursor.com/changelog
+│   ├── articles.py           # Load/save site/articles.json (append-only), slugs, rotation
 │   ├── history.py            # Load/save history.json, git commit
 │   ├── og_meta.py            # og:image fetch + LinkedIn image upload
 │   ├── page_scraper.py       # Generic HTML/Markdown fetcher → clean text
-│   ├── site_builder.py       # Render template.html → index.html
+│   ├── site_builder.py       # Render post + home/archive pages
 │   └── url_utils.py          # URL normalisation and validation
 │
 ├── site/
-│   ├── template.html         # HTML/CSS template (authored once, never overwritten)
-│   ├── index.html            # Generated daily by site_pipeline.py
-│   └── news.json             # Generated daily; read by main.py
+│   ├── template.html         # Home/archive page template (authored once, never overwritten)
+│   ├── post_template.html    # Single-article permalink page template
+│   ├── index.html            # Rebuilt every blog run from the full archive
+│   ├── posts/                # One permanent HTML page per article, never deleted
+│   └── articles.json         # Append-only archive; read by main.py
 │
 ├── main.py                   # LinkedIn pipeline entry point
-├── site_pipeline.py          # Site generation entry point
-├── config.py                 # All constants, URLs, and source lists
+├── site_pipeline.py          # Blog pipeline entry point
+├── config.py                 # All constants, techniques, example projects, source lists
 ├── vercel.json               # Vercel static deployment config (outputDirectory: site)
 ├── history.json              # Post history + analytics (auto-committed by CI)
 ├── requirements.txt          # anthropic, feedparser, requests
@@ -290,12 +257,12 @@ TELEGRAM_BOT_TOKEN=123456789:ABC...
 TELEGRAM_CHAT_ID=123456789
 ```
 
-Run the site pipeline (generates `site/news.json` and `site/index.html`):
+Run the blog pipeline (appends one article to `site/articles.json`, rebuilds `site/index.html` and `site/posts/`):
 ```bash
 python site_pipeline.py
 ```
 
-Run the LinkedIn pipeline (reads `site/news.json`):
+Run the LinkedIn pipeline (reads `site/articles.json`):
 ```bash
 python main.py
 python main.py --no-confirm    # skip Telegram approval
@@ -313,7 +280,7 @@ python main.py --no-confirm    # skip Telegram approval
 | `TELEGRAM_BOT_TOKEN` | LinkedIn pipeline | Telegram bot token |
 | `TELEGRAM_CHAT_ID` | LinkedIn pipeline | Telegram chat ID |
 
-The site pipeline (`site_pipeline.py`) only requires `ANTHROPIC_API_KEY`.
+The blog pipeline (`site_pipeline.py`) only requires `ANTHROPIC_API_KEY`.
 
 ### Getting LinkedIn Credentials
 
@@ -334,10 +301,10 @@ Add all 5 environment variables under **Settings → Secrets and variables → A
 
 | Workflow | File | Schedule | Secrets needed |
 |----------|------|----------|----------------|
-| Update site | `update_site.yml` | Daily 5 AM UTC, Mon–Sat | `ANTHROPIC_API_KEY` (+ Telegram for failure alerts) |
+| Blog | `update_site.yml` | Daily 5 AM UTC, Mon–Sat | `ANTHROPIC_API_KEY` (+ Telegram for failure alerts) |
 | LinkedIn post | `post.yml` | Tuesday 7 AM UTC | All 5 |
 
-Both workflows have `permissions: contents: write` to commit `site/news.json`, `site/index.html`, and `history.json`.
+Both workflows have `permissions: contents: write` to commit `site/articles.json`, `site/index.html`, `site/posts/`, and `history.json`.
 
 ### Vercel Setup (one-time)
 
@@ -351,19 +318,19 @@ Both workflows have `permissions: contents: write` to commit `site/news.json`, `
 
 ## Troubleshooting
 
-**`site/news.json not found`** — Run `python site_pipeline.py` first, or trigger `update_site.yml` via workflow dispatch.
+**`articles.json not found`** — Run `python site_pipeline.py` first, or trigger `update_site.yml` via workflow dispatch.
 
 **`LinkedIn error 401`** — Token expired. Regenerate from the LinkedIn Developer Portal and update the GitHub Secret.
 
 **`LinkedIn error 422`** — API version mismatch. Check `LINKEDIN_VERSION` in `config.py` (currently `202603`).
 
-**`No thumbnail — skipping`** — The selected story's `og:image` could not be fetched. The pipeline only skips this candidate; others are tried if available. Feature spotlight articles link to docs pages which may not have og:image — ensure changelog items are also in the top 3.
+**`No thumbnail — skipping`** — The selected article's `og:image` could not be fetched live. The pipeline continues without a thumbnail.
 
-**Analytics silently skipped** — `r_member_social` scope not granted. The pipeline continues with static ranking.
+**Analytics silently skipped** — `r_member_social` scope not granted. The pipeline continues without adaptive bonuses.
 
 **`history.json` push conflict** — Two workflow runs overlapped. Re-run the failed workflow; it will pick up the latest `history.json` via fresh checkout.
 
-**Cursor scraper returns no items** — The changelog page structure changed. Update `utils/cursor_scraper.py` to match the new HTML.
+**No fresh articles for LinkedIn** — All existing blog articles have already been promoted. Run `site_pipeline.py` to publish a new one.
 
 ---
 
