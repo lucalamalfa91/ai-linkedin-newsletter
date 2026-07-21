@@ -105,6 +105,7 @@ Defined in `RSS_FEEDS` dict in `config.py` (30 sources):
 - **Ranking** (`ranking_agent.py`): `claude-haiku-4-5-20251001`, max_tokens=500, temperature=0 — structured scoring
 - **Writing** (`writer_agent.py`): `claude-sonnet-4-6`, max_tokens=200, temperature=0.7 — creative post generation
 - **Critique** (`writer_agent.py`): `claude-haiku-4-5-20251001`, max_tokens=200, temperature=0 — post quality check
+- **Humanness check** (`writer_agent.py`, `check_human_voice`): `claude-haiku-4-5-20251001`, max_tokens=200, temperature=0 — flags AI-sounding tells (uniform rhythm, hedge-everything tone, visible template, generic conclusions) and scores the post 0-10 on how human it reads; `main.py` retries the write if `human_score < 6`
 
 ## Dependencies
 
