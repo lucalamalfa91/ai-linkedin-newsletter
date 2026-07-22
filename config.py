@@ -149,6 +149,12 @@ TEMPLATE_PATH = _ROOT / "site" / "template.html"
 POST_TEMPLATE_PATH = _ROOT / "site" / "post_template.html"
 SITE_OUTPUT_PATH = _ROOT / "site" / "index.html"
 POSTS_DIR = _ROOT / "site" / "posts"
+POST_IMAGES_DIR = POSTS_DIR / "images"
+
+# Bundled fonts (SIL OFL) for utils/diagram_renderer.py — guarantees identical
+# typography regardless of what's installed on the machine running the pipeline.
+FONT_REGULAR_PATH = _ROOT / "assets" / "fonts" / "LiberationSans-Regular.ttf"
+FONT_BOLD_PATH = _ROOT / "assets" / "fonts" / "LiberationSans-Bold.ttf"
 
 # Fallback og:image per source — used when the article/changelog URL returns no image.
 CHANGELOG_SOURCE_HOMEPAGES = {

@@ -1,9 +1,11 @@
 import io
 import json
 import logging
+import os
 import re
 
 import anthropic
+from PIL import Image
 
 from agents.publisher_agent import upload_document
 from config import BANNED_WORDS
@@ -91,12 +93,18 @@ def generate_slides(story: dict, client: anthropic.Anthropic) -> dict | None:
     body = (story.get("body") or "")[:2000]
     content_section = f"Article content:\n{body}\n\n" if body else ""
 
+    diagram_note = (
+        "\n\nA diagram image for this story already exists and will be inserted automatically "
+        "— do NOT generate a 'diagram' slide type; use steps/content/cta instead."
+        if story.get("diagram_images") else ""
+    )
     user = (
         f"Story: {story['title']}\n"
         f"Source: {story.get('source', 'AI News')}\n"
         f"Date: {date_str}\n"
         f"{content_section}"
         "Generate 5-7 slides and a short commentary for this story."
+        f"{diagram_note}"
     )
     msg = client.messages.create(
         model="claude-sonnet-4-6",
@@ -266,6 +274,32 @@ def build_pdf(slides: list[dict]) -> bytes:
                     y += box_h + gap
             _draw_accent_bar(PAGE_H - 10)
 
+        elif stype == "image":
+            img_path = slide.get("path", "")
+            heading = _sanitize_pdf_text(slide.get("heading", ""))
+            _draw_accent_bar(10)
+            top = 14
+            if heading:
+                pdf.set_font("Helvetica", style="B", size=12)
+                pdf.set_text_color(*WHITE)
+                pdf.set_xy(10, 16)
+                pdf.multi_cell(PAGE_W - 20, 6, heading, align="C")
+                top = pdf.get_y() + 4
+
+            if img_path and os.path.exists(img_path):
+                max_w, max_h = PAGE_W - 20, (PAGE_H - 10) - top
+                try:
+                    with Image.open(img_path) as im:
+                        iw, ih = im.size
+                    scale = min(max_w / iw, max_h / ih)
+                    draw_w, draw_h = iw * scale, ih * scale
+                    x = (PAGE_W - draw_w) / 2
+                    y = top + (max_h - draw_h) / 2
+                    pdf.image(img_path, x=x, y=y, w=draw_w, h=draw_h)
+                except Exception:
+                    log.warning("Could not place diagram image on slide: %s", img_path)
+            _draw_accent_bar(PAGE_H - 10)
+
         elif stype == "cta":
             _draw_accent_bar(10)
             pdf.set_font("Helvetica", style="B", size=12)
@@ -299,6 +333,16 @@ def create_carousel(
     if not slides or not commentary:
         log.error("Carousel generation returned empty slides or commentary")
         return None
+
+    diagram_images = story.get("diagram_images") or []
+    if diagram_images:
+        # Reuse the blog's own rendered diagram — same visual asset in both places —
+        # instead of a separate hand-drawn PDF diagram. Drop any LLM "diagram" slide
+        # (it was told not to generate one, but strip defensively) to avoid a duplicate.
+        slides = [s for s in slides if s.get("type") != "diagram"]
+        image_slide = {"type": "image", "path": diagram_images[0]}
+        insert_at = 1 if slides and slides[0].get("type") == "cover" else 0
+        slides = slides[:insert_at] + [image_slide] + slides[insert_at:]
 
     log.info("Building carousel PDF — %d slides", len(slides))
     try:

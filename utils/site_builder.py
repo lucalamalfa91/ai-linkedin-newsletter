@@ -68,29 +68,19 @@ def build_home_page(articles: list[dict], template_path: str | Path, output_path
 
 
 def _render_diagram(diagram: dict) -> str:
-    heading = diagram.get("heading", "")
-    nodes = diagram.get("nodes", [])
-    if not nodes:
+    image = diagram.get("image", "")
+    if not image:
         return ""
-
-    node_blocks = []
-    for i, node in enumerate(nodes):
-        node_blocks.append(f'        <div class="diagram-node">{node}</div>')
-        if i < len(nodes) - 1:
-            node_blocks.append('        <div class="diagram-arrow">&#8595;</div>')
-
+    alt = _escape(diagram.get("alt", diagram.get("heading", "")))
     return (
-        f'    <div class="diagram-block">\n'
-        f'      <p class="diagram-heading">{heading}</p>\n'
-        f'      <div class="diagram-flow">\n'
-        + "\n".join(node_blocks) + "\n"
-        f'      </div>\n'
-        f'    </div>'
+        f'    <figure class="diagram-figure">\n'
+        f'      <img src="images/{image}" alt="{alt}" loading="lazy">\n'
+        f'    </figure>'
     )
 
 
 def _render_diagrams(diagrams: list[dict]) -> str:
-    return "\n".join(_render_diagram(d) for d in diagrams)
+    return "\n".join(_render_diagram(d) for d in diagrams if d.get("image"))
 
 
 def _render_project_block(project: dict) -> str:

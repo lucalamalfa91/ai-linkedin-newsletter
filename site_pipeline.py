@@ -7,12 +7,14 @@ Flow:
      covered first).
   3. Optionally find a recent RSS item related to that technique, used only as inspiration —
      the article itself is always original, written by Luca via Claude.
-  4. Write the article (agents/site_writer_agent.py): body copy, boxes-and-arrows diagrams,
+  4. Write the article (agents/site_writer_agent.py): body copy, 1-2 flow diagrams (rendered
+     to real PNGs by utils/diagram_renderer.py — HTML/SVG screenshotted with headless Chromium),
      and, for each curated example project (config.TECHNIQUE_EXAMPLE_PROJECTS — name/url never
      LLM-generated, to avoid inventing repo links), a real usage code snippet + example output.
   5. Append the new article to site/articles.json, build its permalink page
      (site/posts/<slug>.html), and rebuild the home/archive page (site/index.html) from the
-     full archive.
+     full archive. Diagram PNGs live under site/posts/images/ and are reused as-is for the
+     LinkedIn carousel (see agents/carousel_agent.py).
   6. Commit + push → Vercel auto-deploys.
 """
 
@@ -29,6 +31,7 @@ from agents.feed_agent import fetch_feeds
 from agents.site_writer_agent import write_technique_article
 from config import (
     AI_ARCHITECT_TECHNIQUES,
+    POST_IMAGES_DIR,
     POST_TEMPLATE_PATH,
     POSTS_DIR,
     SITE_OUTPUT_PATH,
@@ -36,6 +39,7 @@ from config import (
     TEMPLATE_PATH,
 )
 from utils.articles import covered_techniques, load_articles, save_articles, slugify, unique_slug
+from utils.diagram_renderer import render_flow_diagram, theme_for
 from utils.site_builder import build_home_page, build_post_page
 
 logging.basicConfig(
@@ -95,6 +99,26 @@ def _find_inspiration(technique: str) -> dict | None:
     return None
 
 
+def _render_diagrams(slug: str, technique: str, diagrams: list[dict]) -> list[dict]:
+    """Render each diagram to a PNG (best-effort). Returns the diagram list with an
+    "image" filename attached for every diagram that rendered successfully; diagrams
+    that fail to render are dropped rather than shipping a broken <img> reference."""
+    theme = theme_for(technique)
+    rendered = []
+    for i, diagram in enumerate(diagrams, start=1):
+        filename = f"{slug}-diagram-{i}.png"
+        output_path = POST_IMAGES_DIR / filename
+        badge = diagram.get("badge") or technique.split("&")[0].strip().upper()
+        ok = render_flow_diagram(diagram["heading"], badge, theme, diagram["nodes"], output_path)
+        if ok:
+            rendered.append({
+                "heading": diagram["heading"],
+                "image": filename,
+                "alt": " → ".join(n["label"] for n in diagram["nodes"]),
+            })
+    return rendered
+
+
 def _commit_and_push() -> None:
     if not os.environ.get("GITHUB_ACTIONS"):
         log.info("Skipping git commit (not in GitHub Actions)")
@@ -145,6 +169,8 @@ def main() -> None:
     slug = unique_slug(slugify(written["title"]), existing_slugs)
     now = datetime.now(timezone.utc)
 
+    diagrams = _render_diagrams(slug, technique, written.get("diagrams", []))
+
     # Zip curated (never LLM-invented) name/url/note with the LLM's per-project usage
     # example — index-aligned, so a short/missing model response just leaves that project
     # without a code example rather than misattributing one to the wrong repo.
@@ -163,7 +189,7 @@ def main() -> None:
         "technique": technique,
         "tags": written["tags"],
         "body_html": written["body_html"],
-        "diagrams": written.get("diagrams", []),
+        "diagrams": diagrams,
         "how_i_use_it": written["how_i_use_it"],
         "example_projects": example_projects,
         "inspired_by": (
