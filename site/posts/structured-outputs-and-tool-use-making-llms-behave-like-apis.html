@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Structured Outputs and Tool Use: Making LLMs Behave Like APIs — The AI Architect</title>
+  <meta name="description" content="How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.">
+  <meta property="og:title" content="Structured Outputs and Tool Use: Making LLMs Behave Like APIs">
+  <meta property="og:description" content="How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.">
+  <meta property="og:type" content="article">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .article-body { font-size: 1rem; color: var(--text); }
+    .article-body p { margin-bottom: 1.1rem; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem 1.25rem 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .diagram-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .diagram-flow {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .diagram-node {
+      width: 100%;
+      max-width: 420px;
+      background: var(--source-bg);
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      padding: 0.6rem 1rem;
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .diagram-node:last-child {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .diagram-arrow {
+      color: var(--accent);
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .how-i-use-it {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .how-i-use-it-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .how-i-use-it p { margin: 0; }
+
+    .example-projects {
+      margin: 1.75rem 0;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .example-projects h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-block:last-child { margin-bottom: 0; }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Structured Outputs & Tool Use</span>
+      <h1 class="article-title">Structured Outputs and Tool Use: Making LLMs Behave Like APIs</h1>
+      <p class="article-dek">How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.</p>
+      <p class="article-date">July 22, 2026</p>
+    </div>
+
+    <div class="article-body">
+<p>Structured outputs and tool use are two sides of the same coin. Structured outputs constrain what the model returns — a JSON schema, a typed object, a predictable envelope — so downstream code can parse it without brittle regex. Tool use (function calling) goes the other direction: you give the model a declared interface, and it decides when and how to invoke it, passing back arguments you can execute. Together they let you treat an LLM as an orchestrator rather than a text generator, which is the shift that makes agents practical rather than demo-ware.</p><p>From an architecture standpoint, the reason this matters is reliability under composition. A single LLM call that returns freeform prose is fine for a chatbot. The moment you chain three or four calls together — retrieval, reasoning, action, summarization — unstructured outputs cascade failures downstream. If step two cannot parse step one's response, your agent halts or, worse, silently continues with garbage. Defining strict schemas at every handoff is the equivalent of typing your function signatures: it surfaces contract violations at the boundary rather than three layers deep in a stack trace.</p><p>The catch is that schema strictness and model capability trade off against each other in non-obvious ways. Very tight schemas — deeply nested objects, many required fields, strict enums — can cause the model to hallucinate values just to satisfy the shape, especially on smaller or quantized models. I have seen production systems where enforcing a 12-field JSON schema caused the model to invent plausible-sounding but wrong values for optional fields rather than omit them. The fix is usually to make optional fields genuinely optional, add a free-text <code>reasoning</code> field the model can use as scratch space, and validate outputs against business rules separately from schema validation. Schema compliance and semantic correctness are not the same thing.</p><p>Tool design has its own failure mode: tool proliferation. When you give a model 30 tools, retrieval of the right one degrades — the model either picks the wrong tool or calls multiple tools redundantly. The discipline is to design tools like Unix commands: small, single-purpose, composable. A <code>search_contracts</code> tool and a <code>summarize_document</code> tool beat a single <code>handle_contract_query</code> tool every time, because the model can reason about what each does without ambiguity. Name them like functions you would actually write, not like features in a product spec.</p>
+    </div>
+
+    <div class="diagram-block">
+      <p class="diagram-heading">Structured Output Request Lifecycle</p>
+      <div class="diagram-flow">
+        <div class="diagram-node">Define JSON schema</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Attach schema to request</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Model generates output</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Validate against schema</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Validate business rules</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Pass to next step</div>
+      </div>
+    </div>
+    <div class="diagram-block">
+      <p class="diagram-heading">Tool Use Decision Path</p>
+      <div class="diagram-flow">
+        <div class="diagram-node">Model receives prompt</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Model selects tool</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Arguments extracted</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Tool executes</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Result returned to model</div>
+        <div class="diagram-arrow">&#8595;</div>
+        <div class="diagram-node">Model produces final response</div>
+      </div>
+    </div>
+
+    <div class="how-i-use-it">
+      <p class="how-i-use-it-label">How I use this every day</p>
+<p>My default rule: every LLM call that feeds into another system component gets a response schema defined before I write a single line of prompt. I open a Pydantic model first, sketch the fields, then write the prompt around it — not the other way around. For tool definitions I keep a personal checklist: each tool must have a name that reads like a Python function, a docstring the model will actually see, and no more than four parameters. If I find myself adding a fifth parameter, that is a signal the tool is doing two things and needs to be split. When I hand off a new agent design to a client team, I run a quick adversarial test: I ask the model to call each tool with deliberately ambiguous input and check whether it picks the right one or halts and asks for clarification — that single test reveals most tool-naming and schema problems before they hit production.</p>
+    </div>
+
+    <div class="example-projects">
+      <h2>Example projects</h2>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/anthropics/claude-cookbooks" target="_blank" rel="noopener noreferrer">anthropics/claude-cookbooks</a> &mdash; Tool-use and structured-output recipes (calculators, SQL, customer service agents).</p>
+      <p class="project-usage-note">I reach for the Claude cookbooks when I need a concrete, already-debugged pattern for a specific tool-use scenario — the SQL and customer-service agent recipes save me from reinventing the schema and prompt structure every engagement.</p>
+      <p class="code-label">python</p>
+      <pre class="code-block"><code>import anthropic
+import json
+
+client = anthropic.Anthropic()
+
+tools = [
+    {
+        "name": "run_sql_query",
+        "description": "Execute a read-only SQL query and return rows as a list of dicts.",
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Valid SELECT statement"},
+                "limit": {"type": "integer", "default": 50}
+            },
+            "required": ["query"]
+        }
+    }
+]
+
+response = client.messages.create(
+    model="claude-opus-4-5",
+    max_tokens=1024,
+    tools=tools,
+    messages=[{"role": "user", "content": "How many invoices are overdue by more than 30 days?"}]
+)
+
+for block in response.content:
+    if block.type == "tool_use":
+        print(f"Tool: {block.name}")
+        print(f"Input: {json.dumps(block.input, indent=2)}")</code></pre>
+      <p class="output-label">Example output</p>
+      <div class="terminal-output">
+        <div class="terminal-dots"><span></span><span></span><span></span></div>
+        <pre>Tool: run_sql_query
+Input: {
+  "query": "SELECT COUNT(*) AS overdue_count FROM invoices WHERE due_date &lt; CURRENT_DATE - INTERVAL '30 days' AND status != 'paid'",
+  "limit": 50
+}</pre>
+      </div>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noopener noreferrer">modelcontextprotocol/servers</a> &mdash; Reference MCP server implementations that expose tools to LLMs.</p>
+      <p class="project-usage-note">I use the MCP reference servers as a baseline when wiring a client's internal data sources into an agent — they give me a spec-compliant server skeleton so I spend time on business logic rather than protocol plumbing.</p>
+      <p class="code-label">python</p>
+      <pre class="code-block"><code># Minimal MCP server exposing a single read-only tool
+# Based on the modelcontextprotocol/servers reference pattern
+
+from mcp.server import Server
+from mcp.server.stdio import stdio_server
+from mcp.types import Tool, TextContent
+import asyncio
+
+app = Server("contracts-db")
+
+@app.list_tools()
+async def list_tools() -&gt; list[Tool]:
+    return [
+        Tool(
+            name="search_contracts",
+            description="Full-text search over active contracts. Returns title, counterparty, expiry.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "query": {"type": "string"},
+                    "max_results": {"type": "integer", "default": 5}
+                },
+                "required": ["query"]
+            }
+        )
+    ]
+
+@app.call_tool()
+async def call_tool(name: str, arguments: dict):
+    if name == "search_contracts":
+        # Replace with real DB call
+        results = [{"title": "MSA - Acme AG", "expiry": "2026-03-31", "counterparty": "Acme AG"}]
+        return [TextContent(type="text", text=str(results))]
+
+async def main():
+    async with stdio_server() as streams:
+        await app.run(*streams, app.create_initialization_options())
+
+if __name__ == "__main__":
+    asyncio.run(main())</code></pre>
+      <p class="output-label">Example output</p>
+      <div class="terminal-output">
+        <div class="terminal-dots"><span></span><span></span><span></span></div>
+        <pre>[{"title": "MSA - Acme AG", "expiry": "2026-03-31", "counterparty": "Acme AG"}]
+
+Server running on stdio — ready for MCP client connection.
+Tool registered: search_contracts</pre>
+      </div>
+    </div>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Jul/21/cat-and-thariq/#atom-everything" target="_blank" rel="noopener noreferrer">A Fireside Chat with Cat and Thariq from the Claude Code team</a> (Simon Willison)</p>
+
+    <div class="tag-row">
+      <span class="tag-chip">structured-outputs</span>
+      <span class="tag-chip">tool-use</span>
+      <span class="tag-chip">agents</span>
+      <span class="tag-chip">schema-design</span>
+      <span class="tag-chip">reliability</span>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+</body>
+</html>

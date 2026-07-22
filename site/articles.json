@@ -123,5 +123,76 @@
       "source": "Simon Willison"
     },
     "og_image": null
+  },
+  {
+    "slug": "structured-outputs-and-tool-use-making-llms-behave-like-apis",
+    "title": "Structured Outputs and Tool Use: Making LLMs Behave Like APIs",
+    "dek": "How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.",
+    "date": "2026-07-22",
+    "published_at": "2026-07-22T07:34:48.839963+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "tags": [
+      "structured-outputs",
+      "tool-use",
+      "agents",
+      "schema-design",
+      "reliability"
+    ],
+    "body_html": "<p>Structured outputs and tool use are two sides of the same coin. Structured outputs constrain what the model returns — a JSON schema, a typed object, a predictable envelope — so downstream code can parse it without brittle regex. Tool use (function calling) goes the other direction: you give the model a declared interface, and it decides when and how to invoke it, passing back arguments you can execute. Together they let you treat an LLM as an orchestrator rather than a text generator, which is the shift that makes agents practical rather than demo-ware.</p><p>From an architecture standpoint, the reason this matters is reliability under composition. A single LLM call that returns freeform prose is fine for a chatbot. The moment you chain three or four calls together — retrieval, reasoning, action, summarization — unstructured outputs cascade failures downstream. If step two cannot parse step one's response, your agent halts or, worse, silently continues with garbage. Defining strict schemas at every handoff is the equivalent of typing your function signatures: it surfaces contract violations at the boundary rather than three layers deep in a stack trace.</p><p>The catch is that schema strictness and model capability trade off against each other in non-obvious ways. Very tight schemas — deeply nested objects, many required fields, strict enums — can cause the model to hallucinate values just to satisfy the shape, especially on smaller or quantized models. I have seen production systems where enforcing a 12-field JSON schema caused the model to invent plausible-sounding but wrong values for optional fields rather than omit them. The fix is usually to make optional fields genuinely optional, add a free-text <code>reasoning</code> field the model can use as scratch space, and validate outputs against business rules separately from schema validation. Schema compliance and semantic correctness are not the same thing.</p><p>Tool design has its own failure mode: tool proliferation. When you give a model 30 tools, retrieval of the right one degrades — the model either picks the wrong tool or calls multiple tools redundantly. The discipline is to design tools like Unix commands: small, single-purpose, composable. A <code>search_contracts</code> tool and a <code>summarize_document</code> tool beat a single <code>handle_contract_query</code> tool every time, because the model can reason about what each does without ambiguity. Name them like functions you would actually write, not like features in a product spec.</p>",
+    "diagrams": [
+      {
+        "heading": "Structured Output Request Lifecycle",
+        "nodes": [
+          "Define JSON schema",
+          "Attach schema to request",
+          "Model generates output",
+          "Validate against schema",
+          "Validate business rules",
+          "Pass to next step"
+        ]
+      },
+      {
+        "heading": "Tool Use Decision Path",
+        "nodes": [
+          "Model receives prompt",
+          "Model selects tool",
+          "Arguments extracted",
+          "Tool executes",
+          "Result returned to model",
+          "Model produces final response"
+        ]
+      }
+    ],
+    "how_i_use_it": "<p>My default rule: every LLM call that feeds into another system component gets a response schema defined before I write a single line of prompt. I open a Pydantic model first, sketch the fields, then write the prompt around it — not the other way around. For tool definitions I keep a personal checklist: each tool must have a name that reads like a Python function, a docstring the model will actually see, and no more than four parameters. If I find myself adding a fifth parameter, that is a signal the tool is doing two things and needs to be split. When I hand off a new agent design to a client team, I run a quick adversarial test: I ask the model to call each tool with deliberately ambiguous input and check whether it picks the right one or halts and asks for clarification — that single test reveals most tool-naming and schema problems before they hit production.</p>",
+    "example_projects": [
+      {
+        "name": "anthropics/claude-cookbooks",
+        "url": "https://github.com/anthropics/claude-cookbooks",
+        "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents).",
+        "usage_note": "I reach for the Claude cookbooks when I need a concrete, already-debugged pattern for a specific tool-use scenario — the SQL and customer-service agent recipes save me from reinventing the schema and prompt structure every engagement.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\ntools = [\n    {\n        \"name\": \"run_sql_query\",\n        \"description\": \"Execute a read-only SQL query and return rows as a list of dicts.\",\n        \"input_schema\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"query\": {\"type\": \"string\", \"description\": \"Valid SELECT statement\"},\n                \"limit\": {\"type\": \"integer\", \"default\": 50}\n            },\n            \"required\": [\"query\"]\n        }\n    }\n]\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    tools=tools,\n    messages=[{\"role\": \"user\", \"content\": \"How many invoices are overdue by more than 30 days?\"}]\n)\n\nfor block in response.content:\n    if block.type == \"tool_use\":\n        print(f\"Tool: {block.name}\")\n        print(f\"Input: {json.dumps(block.input, indent=2)}\")"
+        },
+        "example_output": "Tool: run_sql_query\nInput: {\n  \"query\": \"SELECT COUNT(*) AS overdue_count FROM invoices WHERE due_date < CURRENT_DATE - INTERVAL '30 days' AND status != 'paid'\",\n  \"limit\": 50\n}"
+      },
+      {
+        "name": "modelcontextprotocol/servers",
+        "url": "https://github.com/modelcontextprotocol/servers",
+        "note": "Reference MCP server implementations that expose tools to LLMs.",
+        "usage_note": "I use the MCP reference servers as a baseline when wiring a client's internal data sources into an agent — they give me a spec-compliant server skeleton so I spend time on business logic rather than protocol plumbing.",
+        "code_example": {
+          "language": "python",
+          "code": "# Minimal MCP server exposing a single read-only tool\n# Based on the modelcontextprotocol/servers reference pattern\n\nfrom mcp.server import Server\nfrom mcp.server.stdio import stdio_server\nfrom mcp.types import Tool, TextContent\nimport asyncio\n\napp = Server(\"contracts-db\")\n\n@app.list_tools()\nasync def list_tools() -> list[Tool]:\n    return [\n        Tool(\n            name=\"search_contracts\",\n            description=\"Full-text search over active contracts. Returns title, counterparty, expiry.\",\n            inputSchema={\n                \"type\": \"object\",\n                \"properties\": {\n                    \"query\": {\"type\": \"string\"},\n                    \"max_results\": {\"type\": \"integer\", \"default\": 5}\n                },\n                \"required\": [\"query\"]\n            }\n        )\n    ]\n\n@app.call_tool()\nasync def call_tool(name: str, arguments: dict):\n    if name == \"search_contracts\":\n        # Replace with real DB call\n        results = [{\"title\": \"MSA - Acme AG\", \"expiry\": \"2026-03-31\", \"counterparty\": \"Acme AG\"}]\n        return [TextContent(type=\"text\", text=str(results))]\n\nasync def main():\n    async with stdio_server() as streams:\n        await app.run(*streams, app.create_initialization_options())\n\nif __name__ == \"__main__\":\n    asyncio.run(main())"
+        },
+        "example_output": "[{\"title\": \"MSA - Acme AG\", \"expiry\": \"2026-03-31\", \"counterparty\": \"Acme AG\"}]\n\nServer running on stdio — ready for MCP client connection.\nTool registered: search_contracts"
+      }
+    ],
+    "inspired_by": {
+      "title": "A Fireside Chat with Cat and Thariq from the Claude Code team",
+      "url": "https://simonwillison.net/2026/Jul/21/cat-and-thariq/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": null
   }
 ]
