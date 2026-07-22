@@ -3,6 +3,7 @@ import logging
 
 import anthropic
 
+from utils.diagram_renderer import ICON_NAMES
 from utils.json_utils import strip_json_fences
 
 log = logging.getLogger(__name__)
@@ -36,10 +37,13 @@ technique actually is (skip the marketing version), why an AI Architect designin
 systems needs to care about it, and at least one concrete trade-off or failure mode — every \
 technique has a catch, name it.
 
-"diagrams": 1-2 objects, each a simple linear flow that visually explains one concrete aspect \
-of the technique (an architecture, a request lifecycle, a decision path). Each is \
-{"heading": "...", "nodes": ["...", "...", "..."]} — 3-6 nodes, each node <=4 words so it reads \
-as a label, not a sentence. Order nodes as they actually happen, first to last.
+"diagrams": 1-2 objects, each a simple linear flow rendered as a real diagram image — an \
+architecture, a request lifecycle, or a decision path. Each is {"heading": "...", "badge": \
+"...", "nodes": [{"label": "...", "icon": "..."}, ...]}
+  - "badge": a short (1-3 word) uppercase-style tag for the diagram, e.g. "AGENTIC WORKFLOWS".
+  - "nodes": 3-6 steps in the order they actually happen, first to last. Each "label" <=3 words \
+so it reads like a caption, not a sentence. Each "icon" must be EXACTLY one of: \
+""" + ", ".join(ICON_NAMES) + """ — pick whichever best matches that node semantically.
 
 "how_i_use_it": ONE HTML paragraph (<p> tag) written in first person, describing concretely \
 how Luca applies this technique day-to-day in his own architecture work — a workflow, a \
@@ -101,14 +105,22 @@ def write_technique_article(
         )
         raw = strip_json_fences(msg.content[0].text)
         data = json.loads(raw)
-        diagrams = [
-            {
-                "heading": d.get("heading", "").strip(),
-                "nodes": [n.strip() for n in d.get("nodes", []) if n.strip()],
-            }
-            for d in data.get("diagrams", [])
-            if d.get("nodes")
-        ]
+        diagrams = []
+        for d in data.get("diagrams", []):
+            nodes = [
+                {
+                    "label": n.get("label", "").strip(),
+                    "icon": n.get("icon", "") if n.get("icon", "") in ICON_NAMES else "chip",
+                }
+                for n in d.get("nodes", [])
+                if n.get("label", "").strip()
+            ]
+            if nodes:
+                diagrams.append({
+                    "heading": d.get("heading", "").strip(),
+                    "badge": d.get("badge", "").strip(),
+                    "nodes": nodes,
+                })
         project_examples = [
             {
                 "usage_note": pe.get("usage_note", "").strip(),

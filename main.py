@@ -25,7 +25,7 @@ from agents.carousel_agent import create_carousel
 from agents.notifier_agent import request_approval, send as notify
 from agents.publisher_agent import publish, publish_carousel, publish_text
 from agents.writer_agent import check_human_voice, critique_post, truncate_comment, write_post
-from config import ARTICLES_JSON_PATH, CHANGELOG_SOURCE_HOMEPAGES, NEWSLETTER_URL
+from config import ARTICLES_JSON_PATH, CHANGELOG_SOURCE_HOMEPAGES, NEWSLETTER_URL, POSTS_DIR
 from utils.history import commit_history_to_git, extract_hashtags, extract_topics, load_history, save_history
 from utils.og_meta import fetch_og_meta
 from utils.page_scraper import fetch_page_text
@@ -87,6 +87,11 @@ def _load_blog_articles(published_urls: set[str]) -> list[dict]:
         if url in published_urls:
             continue
         body = _strip_html(a.get("body_html", "")) + " " + _strip_html(a.get("how_i_use_it", ""))
+        diagram_images = [
+            str(POSTS_DIR / "images" / d["image"])
+            for d in a.get("diagrams", [])
+            if d.get("image")
+        ]
         candidates.append({
             "title": a.get("title", ""),
             "url": url,
@@ -94,6 +99,7 @@ def _load_blog_articles(published_urls: set[str]) -> list[dict]:
             "summary": a.get("dek", ""),
             "body": body.strip(),
             "technique": a.get("technique", ""),
+            "diagram_images": diagram_images,
         })
 
     log.info("After dedup filter: %d fresh articles", len(candidates))

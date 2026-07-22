@@ -58,16 +58,17 @@ The scripts require these environment variables (defined in `.env` locally, or a
 1. `utils/articles.py` — `load_articles()`/`save_articles()` (atomic, append-only), `covered_techniques()` for rotation, slug helpers
 2. Picks the least-recently-covered technique from `AI_ARCHITECT_TECHNIQUES`
 3. **`agents/feed_agent.py`** — optionally fetches RSS feeds looking for a recent item related to the chosen technique, used only as inspiration context (never summarized as the article itself)
-4. **`agents/site_writer_agent.py`** — Claude Sonnet writes the article (`title`, `dek`, `body_html`, 1-2 boxes-and-arrows `diagrams`, `how_i_use_it`, `tags`), plus, for each curated example project, a `usage_note` + `code_example` + `example_output` (`project_examples`)
+4. **`agents/site_writer_agent.py`** — Claude Sonnet writes the article (`title`, `dek`, `body_html`, 1-2 `diagrams`, `how_i_use_it`, `tags`), plus, for each curated example project, a `usage_note` + `code_example` + `example_output` (`project_examples`)
 5. Curated example projects (name/url/note) come from `TECHNIQUE_EXAMPLE_PROJECTS` in `config.py` — never LLM-generated, to avoid inventing repo URLs; only the usage code/output/note around them is written by Claude
-6. **`utils/site_builder.py`** — `build_post_page()` renders the new permalink page; `build_home_page()` rebuilds the archive index from the full article list
+6. **`utils/diagram_renderer.py`** — renders each diagram to a PNG under `site/posts/images/`: real HTML/CSS + inline SVG icons, screenshotted with headless Chromium via Playwright (`render_flow_diagram()`). Best-effort — a failed render just drops that diagram. Bundled Liberation Sans font under `assets/fonts/` keeps typography consistent across machines.
+7. **`utils/site_builder.py`** — `build_post_page()` renders the new permalink page (diagrams as `<img>`); `build_home_page()` rebuilds the archive index from the full article list
 
 ### LinkedIn pipeline (`main.py` orchestrates `agents/` and `utils/`)
 
 1. **`agents/analytics_agent.py`** — Fetches LinkedIn post analytics, computes performance bonuses for adaptive ranking
 2. `_load_blog_articles()` (in `main.py`) — reads `site/articles.json`, drops articles already promoted on LinkedIn (tracked via `history.json`)
 3. **`agents/writer_agent.py`** — Calls Claude Sonnet to write the post, then Claude Haiku to critique it
-4. **`agents/carousel_agent.py`** — optional post type (`--post-type carousel`): generates a 5-slide PDF carousel + short commentary
+4. **`agents/carousel_agent.py`** — optional post type (`--post-type carousel`): generates a 5-slide PDF carousel + short commentary; reuses the blog article's own rendered diagram PNG as an image slide instead of asking the LLM to hand-draw a separate one
 5. **`agents/notifier_agent.py`** — Sends Telegram messages and handles inline-keyboard HITL approval
 6. **`agents/publisher_agent.py`** — Posts to LinkedIn REST API
 
@@ -104,7 +105,7 @@ Defined in `config.py`:
 
 ## LLM Integration
 
-- **Blog writing** (`site_writer_agent.py`): `claude-sonnet-4-6`, max_tokens=3000, temperature=0.7 — original technique article, diagrams, "how I use it" section, and per-project code examples
+- **Blog writing** (`site_writer_agent.py`): `claude-sonnet-4-6`, max_tokens=3000, temperature=0.7 — original technique article, diagram content (headings/labels/icons), "how I use it" section, and per-project code examples
 - **LinkedIn writing** (`writer_agent.py`): `claude-sonnet-4-6`, max_tokens=400, temperature=0.7 — creative post generation
 - **LinkedIn critique** (`writer_agent.py`): `claude-haiku-4-5-20251001`, max_tokens=150, temperature=0 — post quality check
 - **Humanness check** (`writer_agent.py`, `check_human_voice`): `claude-haiku-4-5-20251001`, max_tokens=200, temperature=0 — flags AI-sounding tells (uniform rhythm, hedge-everything tone, visible template, generic conclusions) and scores the post 0-10 on how human it reads; `main.py` retries the write if `human_score < 6`
@@ -112,6 +113,6 @@ Defined in `config.py`:
 
 ## Dependencies
 
-Core: `anthropic`, `feedparser`, `requests`, `fpdf2`
+Core: `anthropic`, `feedparser`, `requests`, `fpdf2`, `Pillow`, `playwright` (+ `playwright install --with-deps chromium` for diagram rendering — only needed by `site_pipeline.py`, not `main.py`)
 - No testing framework (single-script utility)
 - No linting config (follow PEP 8)

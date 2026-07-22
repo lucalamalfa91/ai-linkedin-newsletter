@@ -1,0 +1,6 @@
+Liberation Sans (Regular, Bold) is distributed under the SIL Open Font
+License, Version 1.1. It is bundled here so diagram rendering produces
+identical, consistent typography regardless of what fonts happen to be
+installed on the machine running the pipeline (e.g. GitHub Actions runners).
+
+Full license text: https://openfontlicense.org

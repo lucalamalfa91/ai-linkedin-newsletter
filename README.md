@@ -40,6 +40,10 @@ The blog rotates through a curated list of practitioner-relevant AI techniques (
 
 Each technique maps to 1-3 curated, real GitHub repositories (`TECHNIQUE_EXAMPLE_PROJECTS` in `config.py`) that demonstrate it in practice — e.g. `anthropics/claude-cookbooks` for prompt caching, `langchain-ai/langgraph` for agent orchestration, `guardrails-ai/guardrails` for output validation. These are maintained by hand, not generated, so the blog never links to a URL that doesn't exist.
 
+### Diagrams
+
+Each article includes 1-2 flow diagrams rendered as real images (`utils/diagram_renderer.py`): a small HTML/CSS layout with inline SVG icons, screenshotted with headless Chromium via Playwright at 2x scale. A fixed, muted color palette (`THEMES`) is picked deterministically per technique, and each node picks the best-fitting icon from a fixed icon set (`ICON_NAMES`) — the LLM only supplies headings/labels/icon choice, never raw pixels or HTML. Rendering is best-effort: if it fails for any reason, that diagram is silently dropped rather than shipping a broken image or failing the run. Liberation Sans (SIL OFL) is bundled under `assets/fonts/` so typography is identical regardless of what's installed on the machine running the pipeline.
+
 ### Never overwritten
 
 `site/articles.json` is an append-only array — every run adds one entry and never removes or rewrites previous ones. Every article also gets its own permanent page under `site/posts/`, so once published, a URL never disappears or changes.
@@ -60,10 +64,16 @@ _pick_next_technique()         — rotate AI_ARCHITECT_TECHNIQUES, least-recentl
 fetch_feeds() (optional)        — search ~20 RSS feeds for a relevant recent item, for context only
        │
        ▼
-write_technique_article()      — Claude Sonnet: body copy, boxes-and-arrows diagrams, and,
-       │                          per curated example project, a usage note + code example +
-       │                          example output. Returns {title, dek, body_html, diagrams,
-       │                          how_i_use_it, tags, project_examples}
+write_technique_article()      — Claude Sonnet: body copy, 1-2 flow diagrams (heading + nodes,
+       │                          each node an icon + short label), and, per curated example
+       │                          project, a usage note + code example + example output.
+       │                          Returns {title, dek, body_html, diagrams, how_i_use_it, tags,
+       │                          project_examples}
+       ▼
+render_flow_diagram()          — utils/diagram_renderer.py: real HTML/CSS + inline SVG icons,
+       │                          screenshotted with headless Chromium (Playwright) → PNG under
+       │                          site/posts/images/. Best-effort — a failed render just drops
+       │                          that diagram rather than failing the run.
        ▼
 TECHNIQUE_EXAMPLE_PROJECTS      — curated repo name/url/note (never LLM-generated) zipped
        │                          index-aligned with the model's per-project code examples
@@ -101,7 +111,10 @@ request_approval()                    — Telegram inline keyboard (✅/❌), 30
        ▼
 publish() / publish_carousel()        — LinkedIn REST API; article gets an automatic link
        │                                 card, carousel/text get "Full breakdown on my blog:
-       │                                 <url>" inserted before the hashtags (_append_reference_link)
+       │                                 <url>" inserted before the hashtags (_append_reference_link).
+       │                                 Carousel also reuses the article's own diagram PNG as an
+       │                                 image slide (agents/carousel_agent.py), instead of asking
+       │                                 the LLM to hand-draw a separate one.
        │
        ▼
 save_history() + commit_history_to_git()
@@ -114,7 +127,8 @@ save_history() + commit_history_to_git()
 The static site is a self-contained HTML/CSS build (no JavaScript framework, dark mode aware):
 
 - `site/index.html` — home/archive page listing every article ever published, most recent first
-- `site/posts/<slug>.html` — one permanent page per article: title, dek, full body, one or two boxes-and-arrows diagrams illustrating the technique, "How I use this every day" callout, and per example project a usage note, a real code snippet, and an example output block (styled like a terminal), plus optional "Inspired by" attribution
+- `site/posts/<slug>.html` — one permanent page per article: title, dek, full body, one or two rendered diagram images illustrating the technique, "How I use this every day" callout, and per example project a usage note, a real code snippet, and an example output block (styled like a terminal), plus optional "Inspired by" attribution
+- `site/posts/images/` — the rendered diagram PNGs (one per diagram, `<slug>-diagram-<n>.png`), committed alongside each post and reused as-is for the LinkedIn carousel
 
 Deployed automatically via Vercel on every push to `main`.
 
@@ -177,7 +191,7 @@ Prompt caching is enabled on the static portions of the blog writer, LinkedIn wr
     "tags": ["agents", "reliability", "orchestration"],
     "body_html": "<p>...</p>",
     "diagrams": [
-      {"heading": "How it flows", "nodes": ["Client request", "Tool call", "Validation", "Structured response"]}
+      {"heading": "How it flows", "image": "structured-outputs-agent-handoffs-diagram-1.png", "alt": "Client request → Tool call → Validation → Structured response"}
     ],
     "how_i_use_it": "<p>...</p>",
     "example_projects": [
@@ -219,17 +233,21 @@ This is an array, not a dict — new articles are appended, existing ones are ne
 │
 ├── utils/
 │   ├── articles.py           # Load/save site/articles.json (append-only), slugs, rotation
+│   ├── diagram_renderer.py   # Renders flow diagrams to PNG (HTML/SVG + Playwright screenshot)
 │   ├── history.py            # Load/save history.json, git commit
 │   ├── og_meta.py            # og:image fetch + LinkedIn image upload
 │   ├── page_scraper.py       # Generic HTML/Markdown fetcher → clean text
 │   ├── site_builder.py       # Render post + home/archive pages
 │   └── url_utils.py          # URL normalisation and validation
 │
+├── assets/fonts/              # Bundled Liberation Sans (SIL OFL) for diagram rendering
+│
 ├── site/
 │   ├── template.html         # Home/archive page template (authored once, never overwritten)
 │   ├── post_template.html    # Single-article permalink page template
 │   ├── index.html            # Rebuilt every blog run from the full archive
 │   ├── posts/                # One permanent HTML page per article, never deleted
+│   │   └── images/           # Rendered diagram PNGs, one per diagram
 │   └── articles.json         # Append-only archive; read by main.py
 │
 ├── main.py                   # LinkedIn pipeline entry point
@@ -237,7 +255,7 @@ This is an array, not a dict — new articles are appended, existing ones are ne
 ├── config.py                 # All constants, techniques, example projects, source lists
 ├── vercel.json               # Vercel static deployment config (outputDirectory: site)
 ├── history.json              # Post history + analytics (auto-committed by CI)
-├── requirements.txt          # anthropic, feedparser, requests
+├── requirements.txt          # anthropic, feedparser, requests, fpdf2, Pillow, playwright
 └── CLAUDE.md                 # Instructions for Claude Code
 ```
 
@@ -260,6 +278,7 @@ git clone https://github.com/lucalamalfa91/ai-linkedin-newsletter.git
 cd ai-linkedin-newsletter
 python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+playwright install --with-deps chromium  # only needed to run site_pipeline.py (diagram rendering)
 ```
 
 Create `.env`:
@@ -333,6 +352,8 @@ Both workflows have `permissions: contents: write` to commit `site/articles.json
 ## Troubleshooting
 
 **`articles.json not found`** — Run `python site_pipeline.py` first, or trigger `update_site.yml` via workflow dispatch.
+
+**Article published with no diagrams** — Diagram rendering is best-effort (`utils/diagram_renderer.py`); if Playwright/Chromium isn't installed or a screenshot fails, that diagram is silently dropped rather than failing the whole run. Run `playwright install --with-deps chromium` and check the logs for "Diagram render failed".
 
 **`LinkedIn error 401`** — Token expired. Regenerate from the LinkedIn Developer Portal and update the GitHub Secret.
 
