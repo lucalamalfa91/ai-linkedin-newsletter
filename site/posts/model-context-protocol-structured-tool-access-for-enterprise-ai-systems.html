@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Context Protocol: Structured Tool Access for Enterprise AI Systems — The AI Architect</title>
+  <meta name="description" content="MCP standardizes how language models discover and call external tools — here is what that means in practice.">
+  <meta property="og:title" content="Model Context Protocol: Structured Tool Access for Enterprise AI Systems">
+  <meta property="og:description" content="MCP standardizes how language models discover and call external tools — here is what that means in practice.">
+  <meta property="og:type" content="article">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .article-body { font-size: 1rem; color: var(--text); }
+    .article-body p { margin-bottom: 1.1rem; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    .how-i-use-it {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .how-i-use-it-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .how-i-use-it p { margin: 0; }
+
+    .example-projects {
+      margin: 1.75rem 0;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .example-projects h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-block:last-child { margin-bottom: 0; }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Model Context Protocol (MCP)</span>
+      <h1 class="article-title">Model Context Protocol: Structured Tool Access for Enterprise AI Systems</h1>
+      <p class="article-dek">MCP standardizes how language models discover and call external tools — here is what that means in practice.</p>
+      <p class="article-date">July 23, 2026</p>
+    </div>
+
+    <div class="article-body">
+<p>Model Context Protocol (MCP) is an open specification that defines a standard wire format for exposing tools, resources, and prompts to a language model host. Instead of every team writing bespoke function-calling glue code for each model and each data source, MCP gives you a client-server contract: the host (your LLM runtime) speaks to one or more MCP servers, each of which advertises a capability manifest and handles JSON-RPC calls at runtime. The model never talks to your database directly — it talks to the protocol, and the server mediates everything. That separation is the point.</p><p>For an AI Architect designing enterprise systems, this matters for a specific reason: tool sprawl. In a typical agentic build you end up with a dozen ad-hoc integrations — a Slack wrapper here, a SQL executor there, a PDF reader bolted on — each with its own auth pattern, error contract, and retry logic. MCP forces you to think about each integration as a declared service with a schema. That means you can version it, test it in isolation, swap the underlying implementation without touching the agent, and audit exactly what the model was allowed to call in any given session. Observability and access control become first-class concerns instead of afterthoughts.</p><p>The catch is operational overhead. Every MCP server is a process you now have to run, monitor, and secure. In a local developer setup that is fine. In a multi-tenant enterprise deployment you are suddenly managing a sidecar fleet, and the latency of an extra network hop per tool call adds up inside tight agentic loops. There is also a subtler failure mode: because MCP makes it easy to expose many tools, teams tend to expose too many. A model presented with forty tools in its context window performs noticeably worse at tool selection than one presented with eight. The protocol does not solve the curation problem — you still have to make hard choices about what the model should be allowed to see.</p><p>The discovery mechanism is worth understanding before you commit to it. At session start the host sends an <code>initialize</code> request; the server responds with its declared tools, resources, and supported protocol version. From that point, every tool invocation is a <code>tools/call</code> JSON-RPC request with a named tool and a typed argument payload. The server executes and returns a structured result or a typed error. That lifecycle is simple enough that you can implement a compliant server in an afternoon — but simple does not mean trivial to operate at scale, especially when you need per-request auth context flowing through the call.</p>
+    </div>
+
+    <figure class="diagram-figure">
+      <img src="images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-diagram-1.png" alt="User Prompt → LLM Host → MCP Client → MCP Server → Data Source → Tool Result" loading="lazy">
+    </figure>
+    <figure class="diagram-figure">
+      <img src="images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-diagram-2.png" alt="Initialize Request → Manifest Response → Tool Selection → Access Check → Execution" loading="lazy">
+    </figure>
+
+    <div class="how-i-use-it">
+      <p class="how-i-use-it-label">How I use this every day</p>
+<p>Before I wire any new data source into an agentic system, I write the MCP server manifest first — the tool names, their input schemas, and the error types — and review it with the client team before a single line of implementation exists. That manifest review is where we cut tools down to the minimum viable set: if we cannot explain in one sentence why the model needs that specific tool, it does not go in. I also run the manifest through a quick token count, because the tool descriptions land in the context window and I want to know the overhead before the first integration test, not after I see latency regressions in staging.</p>
+    </div>
+
+    <div class="example-projects">
+      <h2>Example projects</h2>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noopener noreferrer">modelcontextprotocol/servers</a> &mdash; Reference implementations and community MCP servers.</p>
+      <p class="project-usage-note">I use the reference server implementations as a baseline audit — I read their tool schemas before writing my own to make sure I am not reinventing patterns the spec already solves.</p>
+      <p class="code-label">python</p>
+      <pre class="code-block"><code>from mcp.server.fastmcp import FastMCP
+from mcp.types import TextContent
+import httpx
+
+mcp = FastMCP("internal-docs")
+
+@mcp.tool()
+async def search_docs(query: str, max_results: int = 5) -&gt; list[TextContent]:
+    """Search the internal knowledge base. Returns ranked text snippets."""
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(
+            "https://kb.internal/api/search",
+            params={"q": query, "limit": max_results},
+            headers={"Authorization": "Bearer ${KB_TOKEN}"},
+            timeout=8.0,
+        )
+        resp.raise_for_status()
+        hits = resp.json()["hits"]
+    return [
+        TextContent(type="text", text=f"{h['title']}\n{h['excerpt']}")
+        for h in hits
+    ]
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")</code></pre>
+      <p class="output-label">Example output</p>
+      <div class="terminal-output">
+        <div class="terminal-dots"><span></span><span></span><span></span></div>
+        <pre>MCP server 'internal-docs' running on stdio
+Registered tools: ['search_docs']
+Awaiting initialize request from host...
+[2025-05-14 09:12:03] tools/call search_docs {"query": "data retention policy", "max_results": 3}
+[2025-05-14 09:12:03] -&gt; returned 3 TextContent items (1 240 chars total)</pre>
+      </div>
+    </div>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://www.latent.space/p/poolside" target="_blank" rel="noopener noreferrer">Inside the Model Factory — Eiso Kant, Poolside AI</a> (Latent Space)</p>
+
+    <div class="tag-row">
+      <span class="tag-chip">mcp</span>
+      <span class="tag-chip">agents</span>
+      <span class="tag-chip">tool-use</span>
+      <span class="tag-chip">enterprise-architecture</span>
+      <span class="tag-chip">agentic-workflows</span>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+</body>
+</html>

@@ -194,5 +194,53 @@
       "source": "Simon Willison"
     },
     "og_image": null
+  },
+  {
+    "slug": "model-context-protocol-structured-tool-access-for-enterprise-ai-systems",
+    "title": "Model Context Protocol: Structured Tool Access for Enterprise AI Systems",
+    "dek": "MCP standardizes how language models discover and call external tools — here is what that means in practice.",
+    "date": "2026-07-23",
+    "published_at": "2026-07-23T07:33:53.903869+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "tags": [
+      "mcp",
+      "agents",
+      "tool-use",
+      "enterprise-architecture",
+      "agentic-workflows"
+    ],
+    "body_html": "<p>Model Context Protocol (MCP) is an open specification that defines a standard wire format for exposing tools, resources, and prompts to a language model host. Instead of every team writing bespoke function-calling glue code for each model and each data source, MCP gives you a client-server contract: the host (your LLM runtime) speaks to one or more MCP servers, each of which advertises a capability manifest and handles JSON-RPC calls at runtime. The model never talks to your database directly — it talks to the protocol, and the server mediates everything. That separation is the point.</p><p>For an AI Architect designing enterprise systems, this matters for a specific reason: tool sprawl. In a typical agentic build you end up with a dozen ad-hoc integrations — a Slack wrapper here, a SQL executor there, a PDF reader bolted on — each with its own auth pattern, error contract, and retry logic. MCP forces you to think about each integration as a declared service with a schema. That means you can version it, test it in isolation, swap the underlying implementation without touching the agent, and audit exactly what the model was allowed to call in any given session. Observability and access control become first-class concerns instead of afterthoughts.</p><p>The catch is operational overhead. Every MCP server is a process you now have to run, monitor, and secure. In a local developer setup that is fine. In a multi-tenant enterprise deployment you are suddenly managing a sidecar fleet, and the latency of an extra network hop per tool call adds up inside tight agentic loops. There is also a subtler failure mode: because MCP makes it easy to expose many tools, teams tend to expose too many. A model presented with forty tools in its context window performs noticeably worse at tool selection than one presented with eight. The protocol does not solve the curation problem — you still have to make hard choices about what the model should be allowed to see.</p><p>The discovery mechanism is worth understanding before you commit to it. At session start the host sends an <code>initialize</code> request; the server responds with its declared tools, resources, and supported protocol version. From that point, every tool invocation is a <code>tools/call</code> JSON-RPC request with a named tool and a typed argument payload. The server executes and returns a structured result or a typed error. That lifecycle is simple enough that you can implement a compliant server in an afternoon — but simple does not mean trivial to operate at scale, especially when you need per-request auth context flowing through the call.</p>",
+    "diagrams": [
+      {
+        "heading": "MCP Request Lifecycle",
+        "image": "model-context-protocol-structured-tool-access-for-enterprise-ai-systems-diagram-1.png",
+        "alt": "User Prompt → LLM Host → MCP Client → MCP Server → Data Source → Tool Result"
+      },
+      {
+        "heading": "MCP Server Capability Discovery",
+        "image": "model-context-protocol-structured-tool-access-for-enterprise-ai-systems-diagram-2.png",
+        "alt": "Initialize Request → Manifest Response → Tool Selection → Access Check → Execution"
+      }
+    ],
+    "how_i_use_it": "<p>Before I wire any new data source into an agentic system, I write the MCP server manifest first — the tool names, their input schemas, and the error types — and review it with the client team before a single line of implementation exists. That manifest review is where we cut tools down to the minimum viable set: if we cannot explain in one sentence why the model needs that specific tool, it does not go in. I also run the manifest through a quick token count, because the tool descriptions land in the context window and I want to know the overhead before the first integration test, not after I see latency regressions in staging.</p>",
+    "example_projects": [
+      {
+        "name": "modelcontextprotocol/servers",
+        "url": "https://github.com/modelcontextprotocol/servers",
+        "note": "Reference implementations and community MCP servers.",
+        "usage_note": "I use the reference server implementations as a baseline audit — I read their tool schemas before writing my own to make sure I am not reinventing patterns the spec already solves.",
+        "code_example": {
+          "language": "python",
+          "code": "from mcp.server.fastmcp import FastMCP\nfrom mcp.types import TextContent\nimport httpx\n\nmcp = FastMCP(\"internal-docs\")\n\n@mcp.tool()\nasync def search_docs(query: str, max_results: int = 5) -> list[TextContent]:\n    \"\"\"Search the internal knowledge base. Returns ranked text snippets.\"\"\"\n    async with httpx.AsyncClient() as client:\n        resp = await client.get(\n            \"https://kb.internal/api/search\",\n            params={\"q\": query, \"limit\": max_results},\n            headers={\"Authorization\": \"Bearer ${KB_TOKEN}\"},\n            timeout=8.0,\n        )\n        resp.raise_for_status()\n        hits = resp.json()[\"hits\"]\n    return [\n        TextContent(type=\"text\", text=f\"{h['title']}\\n{h['excerpt']}\")\n        for h in hits\n    ]\n\nif __name__ == \"__main__\":\n    mcp.run(transport=\"stdio\")"
+        },
+        "example_output": "MCP server 'internal-docs' running on stdio\nRegistered tools: ['search_docs']\nAwaiting initialize request from host...\n[2025-05-14 09:12:03] tools/call search_docs {\"query\": \"data retention policy\", \"max_results\": 3}\n[2025-05-14 09:12:03] -> returned 3 TextContent items (1 240 chars total)"
+      }
+    ],
+    "inspired_by": {
+      "title": "Inside the Model Factory — Eiso Kant, Poolside AI",
+      "url": "https://www.latent.space/p/poolside",
+      "source": "Latent Space"
+    },
+    "og_image": null
   }
 ]
