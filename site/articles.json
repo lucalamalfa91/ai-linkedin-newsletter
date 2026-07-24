@@ -242,5 +242,60 @@
       "source": "Latent Space"
     },
     "og_image": null
+  },
+  {
+    "slug": "systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates",
+    "title": "Systematic LLM Evaluation: From Vibe Checks to Measurable Quality Gates",
+    "dek": "How to replace gut-feel LLM testing with repeatable, metric-driven evaluation pipelines that actually catch regressions.",
+    "date": "2026-07-24",
+    "published_at": "2026-07-24T07:32:20.199448+00:00",
+    "technique": "LLM Evaluation & Testing",
+    "tags": [
+      "evaluation",
+      "testing",
+      "rag",
+      "reliability",
+      "llm-ops"
+    ],
+    "body_html": "<p>LLM evaluation is the part of the stack that most teams skip until something breaks in production. The usual substitute is manual spot-checking: a developer reads a handful of outputs, nods, and ships. That works once. It fails the moment you swap a model version, tweak a system prompt, or add a retrieval layer — because you have no baseline to compare against. Systematic evaluation means defining what \"good\" looks like before you need to defend it, encoding that definition as executable tests, and running those tests on every meaningful change. It is less glamorous than building the pipeline itself, but it is the only way to know whether the pipeline is actually getting better or just differently wrong.</p><p>For an AI Architect designing enterprise systems, evaluation sits at the intersection of two concerns that clients care about deeply: reliability and cost. A model that scores 0.91 on your faithfulness metric at $0.002 per call is a different conversation than one that scores 0.87 at $0.0004. Without a consistent measurement harness, you cannot have that conversation with any honesty. Evaluation also surfaces the failure modes that are invisible in demos: hallucinated citations, context that was retrieved but ignored, answers that are technically correct but completely off-topic for the user's intent. Each of those has a metric — or should have one.</p><p>The catch that most teams hit is evaluation data. Automated metrics are only as trustworthy as the reference answers and the judge model you use to score them. If your ground-truth dataset was assembled quickly, or if your LLM judge shares the same biases as the model under test, you will get confident numbers that mean very little. A second, subtler trap is metric gaming: optimizing a prompt specifically against your eval set until it scores well, then discovering the gains do not transfer to real traffic. The discipline is to treat your evaluation set like a held-out test set in classical ML — you do not tune against it, you measure against it.</p>",
+    "diagrams": [
+      {
+        "heading": "LLM Evaluation Pipeline",
+        "image": "systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates-diagram-1.png",
+        "alt": "Test Dataset → LLM System → Output Collection → Metric Scoring → Quality Gate"
+      },
+      {
+        "heading": "RAG Evaluation Flow",
+        "image": "systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates-diagram-2.png",
+        "alt": "User Query → Retrieve Context → Generate Answer → Score Faithfulness → Log & Compare"
+      }
+    ],
+    "how_i_use_it": "<p>Before any model or prompt change goes near a client's staging environment, I run it through a fixed eval suite that I maintain per project — typically 50 to 150 curated examples that cover the edge cases the client has actually complained about, plus a synthetic set generated from their document corpus. I keep the scores in a simple CSV versioned alongside the prompt files, so a git diff tells me immediately whether a change moved the needle in the right direction. My default rule: if faithfulness or answer relevancy drops more than two percentage points from the previous run, the change does not proceed without a written explanation of why the trade-off is acceptable. That one rule has stopped three \"improvements\" from reaching production that would have quietly made things worse.</p>",
+    "example_projects": [
+      {
+        "name": "openai/evals",
+        "url": "https://github.com/openai/evals",
+        "note": "Framework and open registry of benchmarks for evaluating LLM systems.",
+        "usage_note": "I reach for openai/evals when I need a structured registry of test cases that the whole team can run identically, without anyone re-inventing the harness.",
+        "code_example": {
+          "language": "python",
+          "code": "import json, subprocess\n\n# Define a minimal eval spec inline (normally lives in a YAML/JSONL file)\nsamples = [\n    {\"input\": \"What is the capital of Switzerland?\", \"ideal\": \"Bern\"},\n    {\"input\": \"Summarise ISO 27001 in one sentence.\",\n     \"ideal\": \"ISO 27001 is an international standard for information security management systems.\"},\n]\n\nwith open(\"my_eval_samples.jsonl\", \"w\") as f:\n    for s in samples:\n        f.write(json.dumps(s) + \"\\n\")\n\n# Run via the oaieval CLI (assumes `pip install evals` and OPENAI_API_KEY set)\nresult = subprocess.run(\n    [\"oaieval\", \"gpt-4o\", \"match\", \"--record_path\", \"results.jsonl\"],\n    capture_output=True, text=True\n)\nprint(result.stdout)"
+        },
+        "example_output": "Running eval: match\nTotal samples: 2\nAccuracy: 1.0 (2/2 correct)\nResults written to results.jsonl"
+      },
+      {
+        "name": "vibrantlabsai/ragas",
+        "url": "https://github.com/vibrantlabsai/ragas",
+        "note": "Objective metrics and test-data generation for evaluating RAG/LLM apps.",
+        "usage_note": "I use ragas to get per-dimension scores on RAG pipelines — especially faithfulness and context precision — because those two metrics together tell me whether the retriever or the generator is the weak link.",
+        "code_example": {
+          "language": "python",
+          "code": "from datasets import Dataset\nfrom ragas import evaluate\nfrom ragas.metrics import faithfulness, answer_relevancy, context_precision\n\ndata = {\n    \"question\": [\"What does the data retention policy state?\"],\n    \"answer\": [\"Data must be retained for a minimum of seven years under the policy.\"],\n    \"contexts\": [[\n        \"Section 4.2: All financial records shall be retained for no fewer than seven years.\",\n        \"Section 4.3: Personal data may be deleted after consent is withdrawn.\"\n    ]],\n    \"ground_truth\": [\"The policy requires a minimum retention period of seven years for financial records.\"]\n}\n\ndataset = Dataset.from_dict(data)\nresult = evaluate(\n    dataset,\n    metrics=[faithfulness, answer_relevancy, context_precision]\n)\nprint(result)"
+        },
+        "example_output": "{\n  'faithfulness': 0.9333,\n  'answer_relevancy': 0.8871,\n  'context_precision': 1.0000\n}"
+      }
+    ],
+    "inspired_by": null,
+    "og_image": null
   }
 ]
