@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guardrails and Output Validation for Production LLM Systems — The AI Architect</title>
+  <meta name="description" content="How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.">
+  <meta property="og:title" content="Guardrails and Output Validation for Production LLM Systems">
+  <meta property="og:description" content="How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.">
+  <meta property="og:type" content="article">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .article-body { font-size: 1rem; color: var(--text); }
+    .article-body p { margin-bottom: 1.1rem; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    .how-i-use-it {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .how-i-use-it-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .how-i-use-it p { margin: 0; }
+
+    .example-projects {
+      margin: 1.75rem 0;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .example-projects h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .project-block:last-child { margin-bottom: 0; }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+    }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Guardrails & Output Validation</span>
+      <h1 class="article-title">Guardrails and Output Validation for Production LLM Systems</h1>
+      <p class="article-dek">How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.</p>
+      <p class="article-date">July 25, 2026</p>
+    </div>
+
+    <div class="article-body">
+<p>Every LLM output is a hypothesis. The model proposes a string; your system decides whether to trust it. In production, that decision cannot be implicit — you need explicit validation logic sitting between the model and whatever consumes its output. Guardrails are that logic: a layer of checks that inspect the raw completion, verify it against a schema or a policy, and either pass it through, flag it, or trigger a corrective action such as a retry or a fallback. The technique covers both structural validation (did the model return valid JSON with the expected fields?) and semantic validation (does the content violate a safety policy, leak PII, or hallucinate a number outside a plausible range?).</p><p>For an AI Architect designing enterprise systems, this matters because the failure modes of unvalidated LLM output compound quickly. A missing field in a JSON response silently breaks a downstream API call. A hallucinated figure in a financial summary gets copy-pasted into a board deck. A prompt-injection payload in user input rewrites the model's behavior. None of these are hypothetical — they show up in the first month of a real deployment. Validation at the boundary is the same discipline as input sanitization in traditional software: obvious in retrospect, skipped under deadline pressure, and expensive when absent.</p><p>The catch is latency and complexity. Every validation step adds round-trip time, and if your corrective strategy is to re-prompt the model on failure, you can easily double your p95 latency for a non-trivial failure rate. Validators that call a second model (for example, a classifier checking toxicity) add cost and a new dependency. You also have to decide what to do when validation fails repeatedly: surface an error, return a degraded response, or silently drop the request — each choice has product implications. The guardrail layer needs its own monitoring so you can see failure rates by validator type and tune thresholds without guessing.</p>
+    </div>
+
+    <figure class="diagram-figure">
+      <img src="images/guardrails-and-output-validation-for-production-llm-systems-diagram-1.png" alt="User Input → Input Guard → LLM Call → Output Guard → Validated Response" loading="lazy">
+    </figure>
+    <figure class="diagram-figure">
+      <img src="images/guardrails-and-output-validation-for-production-llm-systems-diagram-2.png" alt="Guard Fails → Retry / Fix → Re-validate → Fallback Response → Log &amp; Alert" loading="lazy">
+    </figure>
+
+    <div class="how-i-use-it">
+      <p class="how-i-use-it-label">How I use this every day</p>
+<p>My default is to define a Pydantic schema for every structured output before I write the prompt — the schema is the contract, and the guardrail enforces it. In practice I keep a small registry of reusable validators (PII regex, numeric range checks, JSON schema) that I attach to any new endpoint in under ten minutes. I also set a hard retry budget of two attempts per request: if the model fails validation twice I return a typed error to the caller rather than looping indefinitely, and I log the raw completion so I can diagnose whether the prompt or the validator needs tuning. That two-attempt rule has saved several clients from runaway token spend when a prompt regression caused a high failure rate overnight.</p>
+    </div>
+
+    <div class="example-projects">
+      <h2>Example projects</h2>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/guardrails-ai/guardrails" target="_blank" rel="noopener noreferrer">guardrails-ai/guardrails</a> &mdash; Input/output guards to detect and mitigate LLM risks, and enforce structure.</p>
+      <p class="project-usage-note">I reach for guardrails-ai when I need both structural enforcement and semantic validators — such as PII detection or toxic content checks — wired together in a single pipeline without building the orchestration myself.</p>
+      <p class="code-label">python</p>
+      <pre class="code-block"><code>import guardrails as gd
+from guardrails.hub import DetectPII, ValidLength
+from pydantic import BaseModel
+
+class SummaryResponse(BaseModel):
+    summary: str
+    key_points: list[str]
+
+guard = gd.Guard.from_pydantic(
+    output_class=SummaryResponse,
+    prompt="Summarize the following contract excerpt:\n${document}",
+)
+guard.use(DetectPII(pii_entities=["EMAIL_ADDRESS", "PHONE_NUMBER"], on_fail="fix"))
+guard.use(ValidLength(min=50, max=500, on_fail="reask"))
+
+result = guard(
+    llm_api=openai.chat.completions.create,
+    model="gpt-4o",
+    prompt_params={"document": contract_text},
+    max_reasks=2,
+)
+print(result.validated_output)</code></pre>
+      <p class="output-label">Example output</p>
+      <div class="terminal-output">
+        <div class="terminal-dots"><span></span><span></span><span></span></div>
+        <pre>{
+  "summary": "The agreement establishes a 12-month service term with automatic renewal unless either party provides 30 days written notice.",
+  "key_points": [
+    "12-month initial term",
+    "Auto-renewal clause",
+    "30-day cancellation notice required"
+  ]
+}</pre>
+      </div>
+    </div>
+    </div>
+
+
+
+    <div class="tag-row">
+      <span class="tag-chip">guardrails</span>
+      <span class="tag-chip">output-validation</span>
+      <span class="tag-chip">reliability</span>
+      <span class="tag-chip">structured-outputs</span>
+      <span class="tag-chip">enterprise-ai</span>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+</body>
+</html>
