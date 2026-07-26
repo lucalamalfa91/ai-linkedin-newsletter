@@ -1,13 +1,50 @@
 import html
 import logging
 from datetime import datetime, timezone
+from html.parser import HTMLParser
 from pathlib import Path
 
 log = logging.getLogger(__name__)
 
+# Only these tags survive _sanitize_rich_html — matches what the writer prompt asks the model
+# to use for "html" fields (prose/callout body). No attributes are ever kept on any tag.
+_ALLOWED_RICH_TAGS = {"p", "strong", "em"}
+
 
 def _escape(text: str) -> str:
-    return html.escape(text or "", quote=False)
+    # quote=True (the default) so this is safe both in text nodes and inside HTML attribute
+    # values (e.g. alt="...", content="...") — several call sites use it in both contexts.
+    return html.escape(text or "", quote=True)
+
+
+class _RichTextSanitizer(HTMLParser):
+    """Allow-list sanitizer for LLM-authored "html" fields (prose/callout body). The writer
+    prompt restricts these to <p>/<strong>/<em> with no attributes, but that's not enforced
+    upstream — and the writer is fed untrusted RSS content as inspiration (agents/feed_agent.py),
+    a realistic indirect-prompt-injection vector. This is the actual enforcement boundary,
+    since the result lands on a permanent, never-re-rendered static page."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.out: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in _ALLOWED_RICH_TAGS:
+            self.out.append(f"<{tag}>")
+
+    def handle_endtag(self, tag):
+        if tag in _ALLOWED_RICH_TAGS:
+            self.out.append(f"</{tag}>")
+
+    def handle_data(self, data):
+        self.out.append(html.escape(data, quote=True))
+
+
+def _sanitize_rich_html(text: str) -> str:
+    parser = _RichTextSanitizer()
+    parser.feed(text or "")
+    parser.close()
+    return "".join(parser.out)
 
 
 def _format_date(iso: str) -> str:
@@ -19,14 +56,14 @@ def _format_date(iso: str) -> str:
 
 
 def _render_tag_chips(tags: list[str]) -> str:
-    return "\n".join(f'      <span class="tag-chip">{t}</span>' for t in tags)
+    return "\n".join(f'      <span class="tag-chip">{_escape(t)}</span>' for t in tags)
 
 
 def _render_archive_entry(article: dict) -> str:
-    title = article.get("title", "")
-    dek = article.get("dek", "")
+    title = _escape(article.get("title", ""))
+    dek = _escape(article.get("dek", ""))
     slug = article.get("slug", "")
-    technique = article.get("technique", "")
+    technique = _escape(article.get("technique", ""))
     published = _format_date(article.get("date", ""))
 
     return (
@@ -72,12 +109,12 @@ def build_home_page(articles: list[dict], template_path: str | Path, output_path
 
 
 def _render_prose(block: dict) -> str:
-    return f'    <div class="prose-block">\n{block.get("html", "")}\n    </div>'
+    return f'    <div class="prose-block">\n{_sanitize_rich_html(block.get("html", ""))}\n    </div>'
 
 
 def _render_callout(block: dict, skin: str) -> str:
-    label = block.get("label", "")
-    content = block.get("html", "")
+    label = _escape(block.get("label", ""))
+    content = _sanitize_rich_html(block.get("html", ""))
     if skin == "boxed-callout":
         return (
             f'    <div class="callout-box">\n'
@@ -95,7 +132,7 @@ def _render_callout(block: dict, skin: str) -> str:
 
 
 def _render_quote(block: dict) -> str:
-    text = block.get("text", "")
+    text = _escape(block.get("text", ""))
     return f'    <blockquote class="pull-quote">&ldquo;{text}&rdquo;</blockquote>'
 
 
@@ -154,13 +191,13 @@ def _render_project_block(project: dict, comparison_label: str = "") -> str:
 
 
 def _render_list_block(block: dict) -> str:
-    heading = block.get("heading", "")
+    heading = _escape(block.get("heading", ""))
     items = block.get("items", [])
     heading_html = f'      <p class="list-heading">{heading}</p>\n' if heading else ""
     items_html = "\n".join(
         f'        <li><span class="list-badge">{i + 1}</span><div>'
-        f'<p class="list-item-title">{it.get("title", "")}</p>'
-        + (f'<p class="list-item-detail">{it["detail"]}</p>' if it.get("detail") else "")
+        f'<p class="list-item-title">{_escape(it.get("title", ""))}</p>'
+        + (f'<p class="list-item-detail">{_escape(it["detail"])}</p>' if it.get("detail") else "")
         + '</div></li>'
         for i, it in enumerate(items)
     )
@@ -215,20 +252,22 @@ def build_post_page(article: dict, post_template_path: str | Path, posts_dir: st
 
     inspired_by = article.get("inspired_by")
     if inspired_by:
+        # inspired_by fields come straight from RSS feed content (untrusted) — always escape,
+        # same as every other text/attribute sink on this page.
         inspired_html = (
             f'    <p class="inspired-by">Inspired by '
-            f'<a href="{inspired_by["url"]}" target="_blank" rel="noopener noreferrer">'
-            f'{inspired_by.get("title", inspired_by["url"])}</a>'
-            f' ({inspired_by.get("source", "")})</p>'
+            f'<a href="{_escape(inspired_by["url"])}" target="_blank" rel="noopener noreferrer">'
+            f'{_escape(inspired_by.get("title", inspired_by["url"]))}</a>'
+            f' ({_escape(inspired_by.get("source", ""))})</p>'
         )
     else:
         inspired_html = ""
 
     html = (
         template
-        .replace("{{ TITLE }}", article.get("title", ""))
-        .replace("{{ DEK }}", article.get("dek", ""))
-        .replace("{{ TECHNIQUE }}", article.get("technique", ""))
+        .replace("{{ TITLE }}", _escape(article.get("title", "")))
+        .replace("{{ DEK }}", _escape(article.get("dek", "")))
+        .replace("{{ TECHNIQUE }}", _escape(article.get("technique", "")))
         .replace("{{ DATE }}", _format_date(article.get("date", "")))
         .replace("{{ TAGS_HTML }}", _render_tag_chips(article.get("tags", [])))
         .replace("{{ BLOCKS_HTML }}", blocks_html)
