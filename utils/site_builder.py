@@ -46,7 +46,11 @@ def _render_archive_entry(article: dict) -> str:
 
 
 def build_home_page(articles: list[dict], template_path: str | Path, output_path: str | Path) -> None:
-    """Render the home/archive page listing ALL articles, most recent first. Never drops entries."""
+    """Render the home/archive page listing ALL articles, most recent first. Never drops entries.
+
+    Reads only title/dek/slug/date/technique/published_at — fields common to both the old
+    fixed-field article schema and the new block-based one, so this needs no schema branching.
+    """
     template = Path(template_path).read_text(encoding="utf-8")
 
     ordered = sorted(articles, key=lambda a: a.get("published_at", ""), reverse=True)
@@ -67,11 +71,39 @@ def build_home_page(articles: list[dict], template_path: str | Path, output_path
     log.info("Built home page: %s (%d articles)", output_path, len(ordered))
 
 
-def _render_diagram(diagram: dict) -> str:
-    image = diagram.get("image", "")
+def _render_prose(block: dict) -> str:
+    return f'    <div class="prose-block">\n{block.get("html", "")}\n    </div>'
+
+
+def _render_callout(block: dict, skin: str) -> str:
+    label = block.get("label", "")
+    content = block.get("html", "")
+    if skin == "boxed-callout":
+        return (
+            f'    <div class="callout-box">\n'
+            f'      <p class="callout-label">{label}</p>\n'
+            f'{content}\n'
+            f'    </div>'
+        )
+    # Pull-quote treatment (e.g. contrarian-take's thesis-as-callout, placed early)
+    return (
+        f'    <div class="callout-pullquote">\n'
+        f'      <p class="pullquote-label">{label}</p>\n'
+        f'{content}\n'
+        f'    </div>'
+    )
+
+
+def _render_quote(block: dict) -> str:
+    text = block.get("text", "")
+    return f'    <blockquote class="pull-quote">&ldquo;{text}&rdquo;</blockquote>'
+
+
+def _render_diagram_block(block: dict) -> str:
+    image = block.get("image", "")
     if not image:
         return ""
-    alt = _escape(diagram.get("alt", diagram.get("heading", "")))
+    alt = _escape(block.get("alt", block.get("heading", "")))
     return (
         f'    <figure class="diagram-figure">\n'
         f'      <img src="images/{image}" alt="{alt}" loading="lazy">\n'
@@ -79,11 +111,7 @@ def _render_diagram(diagram: dict) -> str:
     )
 
 
-def _render_diagrams(diagrams: list[dict]) -> str:
-    return "\n".join(_render_diagram(d) for d in diagrams if d.get("image"))
-
-
-def _render_project_block(project: dict) -> str:
+def _render_project_block(project: dict, comparison_label: str = "") -> str:
     name = project.get("name", "")
     url = project.get("url", "#")
     note = project.get("note", "")
@@ -92,6 +120,7 @@ def _render_project_block(project: dict) -> str:
     language = (project.get("code_example") or {}).get("language", "") or "python"
     output = project.get("example_output", "").strip()
 
+    label_html = f'      <p class="comparison-label">{comparison_label}</p>\n' if comparison_label else ""
     usage_html = f'      <p class="project-usage-note">{usage_note}</p>\n' if usage_note else ""
 
     code_html = ""
@@ -112,7 +141,8 @@ def _render_project_block(project: dict) -> str:
         )
 
     return (
-        f'    <div class="project-block">\n'
+        f'    <div class="project-block{" project-block-comparison" if comparison_label else ""}">\n'
+        f'{label_html}'
         f'      <p class="project-name">'
         f'<a href="{url}" target="_blank" rel="noopener noreferrer">{name}</a>'
         f' &mdash; {note}</p>\n'
@@ -123,15 +153,65 @@ def _render_project_block(project: dict) -> str:
     )
 
 
+def _render_list_block(block: dict) -> str:
+    heading = block.get("heading", "")
+    items = block.get("items", [])
+    heading_html = f'      <p class="list-heading">{heading}</p>\n' if heading else ""
+    items_html = "\n".join(
+        f'        <li><span class="list-badge">{i + 1}</span><div>'
+        f'<p class="list-item-title">{it.get("title", "")}</p>'
+        + (f'<p class="list-item-detail">{it["detail"]}</p>' if it.get("detail") else "")
+        + '</div></li>'
+        for i, it in enumerate(items)
+    )
+    return (
+        f'    <div class="list-block">\n'
+        f'{heading_html}'
+        f'      <ol class="checklist">\n{items_html}\n      </ol>\n'
+        f'    </div>'
+    )
+
+
+def _render_block(block: dict, skin: str, code_project_index: int) -> str:
+    btype = block.get("type", "")
+    if btype == "prose":
+        return _render_prose(block)
+    if btype == "callout":
+        return _render_callout(block, skin)
+    if btype == "quote":
+        return _render_quote(block)
+    if btype == "diagram":
+        return _render_diagram_block(block)
+    if btype == "code_project":
+        label = ""
+        if skin == "side-by-side":
+            label = "Option A" if code_project_index == 0 else f"Option {chr(ord('A') + code_project_index)}"
+        return _render_project_block(block.get("project", {}), comparison_label=label)
+    if btype == "list":
+        return _render_list_block(block)
+    # Defensive: an unrecognized block type reaching the renderer means either a bug in
+    # site_writer_agent.py's validation or a schema drift — fail loudly rather than
+    # silently dropping content on a page that, once published, is never rewritten.
+    raise ValueError(f"Unknown block type: {btype!r}")
+
+
 def build_post_page(article: dict, post_template_path: str | Path, posts_dir: str | Path) -> None:
-    """Render the permanent permalink page for a single article. Existing pages are untouched
-    unless this function is called again for that exact slug."""
+    """Render the permanent permalink page for a single article from its ordered `blocks`
+    list. Existing pages are untouched unless this function is called again for that exact
+    slug — and it never is, since site_pipeline.py only calls this for the newly written
+    article each run. Old articles (pre-dating the block schema) already have their static
+    HTML on disk and are never re-rendered, so no legacy branch is needed here."""
     template = Path(post_template_path).read_text(encoding="utf-8")
 
-    diagrams_html = _render_diagrams(article.get("diagrams", []))
-    example_projects_html = "\n".join(
-        _render_project_block(p) for p in article.get("example_projects", [])
-    )
+    skin = article.get("skin", "boxed-callout")
+    blocks = article.get("blocks", [])
+    code_project_index = 0
+    blocks_html_parts = []
+    for block in blocks:
+        blocks_html_parts.append(_render_block(block, skin, code_project_index))
+        if block.get("type") == "code_project":
+            code_project_index += 1
+    blocks_html = "\n".join(p for p in blocks_html_parts if p)
 
     inspired_by = article.get("inspired_by")
     if inspired_by:
@@ -151,10 +231,7 @@ def build_post_page(article: dict, post_template_path: str | Path, posts_dir: st
         .replace("{{ TECHNIQUE }}", article.get("technique", ""))
         .replace("{{ DATE }}", _format_date(article.get("date", "")))
         .replace("{{ TAGS_HTML }}", _render_tag_chips(article.get("tags", [])))
-        .replace("{{ BODY_HTML }}", article.get("body_html", ""))
-        .replace("{{ DIAGRAMS_HTML }}", diagrams_html)
-        .replace("{{ HOW_I_USE_IT }}", article.get("how_i_use_it", ""))
-        .replace("{{ EXAMPLE_PROJECTS_HTML }}", example_projects_html)
+        .replace("{{ BLOCKS_HTML }}", blocks_html)
         .replace("{{ INSPIRED_BY_HTML }}", inspired_html)
     )
 
