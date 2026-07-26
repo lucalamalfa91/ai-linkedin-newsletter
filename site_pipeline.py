@@ -5,15 +5,21 @@ Flow:
   1. Load the existing archive (site/articles.json) — never truncated, only appended to.
   2. Pick the next technique to cover (rotates through AI_ARCHITECT_TECHNIQUES, least-recently
      covered first) AND the next editorial archetype (config.ARTICLE_ARCHETYPES, same rotation
-     logic) — the archetype fixes hard constraints on which content blocks appear, roughly how
-     many, and roughly where, so structural variety across articles is enforced deterministically
-     rather than left to the model's own judgment about "how to vary things".
+     logic, restricted to archetypes whose code_project minimum the technique's curated project
+     count can actually satisfy) — the archetype fixes hard constraints on which content blocks
+     appear, roughly how many, and roughly where, so structural variety across articles is
+     enforced deterministically rather than left to the model's own judgment about "how to vary
+     things".
   3. Optionally find a recent RSS item related to that technique, used only as inspiration —
      the article itself is always original, written by Luca via Claude.
   4. Write the article (agents/site_writer_agent.py) as an ordered list of typed content blocks
-     (prose, callout, quote, diagram, code_project, list) constrained by the archetype. Retry
-     once if the result reads as AI-written (agents/writer_agent.check_human_voice_longform) or
-     if it happens to repeat the immediately preceding article's exact block structure.
+     (prose, callout, quote, diagram, code_project, list) constrained by the archetype, then
+     enforce those constraints in code (drop disallowed block types, cap each type at its
+     archetype max, best-effort reorder position-constrained blocks). Retry once if the result
+     reads as AI-written (agents/writer_agent.check_human_voice_longform), repeats the
+     immediately preceding article's exact block structure, or fails to meet the archetype's
+     minimum block counts — keep whichever of the two attempts is best; abort the run rather
+     than publish if neither attempt meets the minimums.
   5. Render each diagram-type block to a real PNG (utils/diagram_renderer.py — HTML/SVG
      screenshotted with headless Chromium), dropping any that fail to render.
   6. Append the new article to site/articles.json, build its permalink page
@@ -137,15 +143,153 @@ def _build_avoid_hint(last_article: dict | None) -> str | None:
     )
 
 
-def _needs_retry(written: dict, last_article: dict | None, human_score: int) -> tuple[bool, str]:
-    reasons = []
-    if human_score < 6:
-        reasons.append(f"human_score={human_score}")
+def _eligible_archetype_names(archetype_names: list[str], num_curated_projects: int) -> list[str]:
+    """Restrict the archetype rotation candidates to ones the technique can actually satisfy:
+    an archetype requiring more code_project blocks (min) than there are curated projects for
+    this technique would force the writer to invent or duplicate projects. Falls back to the
+    full list if that would leave nothing eligible (defensive; never hit in practice since the
+    smallest archetype code_project minimum still in use is 1, matched by every technique)."""
+    eligible = [
+        name for name in archetype_names
+        if ARTICLE_ARCHETYPES[name]["blocks"].get("code_project", {}).get("min", 0) <= num_curated_projects
+    ]
+    return eligible or archetype_names
+
+
+def _blocks_meet_minimums(blocks: list[dict], archetype_name: str) -> tuple[bool, str]:
+    """Whether `blocks` satisfies every min-count constraint for the assigned archetype.
+    Publishing blocks that don't (e.g. the model dropped the archetype's only code_project
+    because it botched the JSON for it) would ship an article that doesn't match its own
+    editorial archetype — this is a hard requirement, not a best-effort one."""
+    if not blocks:
+        return False, "no blocks"
+    counts: dict[str, int] = {}
+    for b in blocks:
+        btype = b.get("type", "")
+        counts[btype] = counts.get(btype, 0) + 1
+    missing = [
+        f"{btype} (need >= {rule['min']}, got {counts.get(btype, 0)})"
+        for btype, rule in ARTICLE_ARCHETYPES[archetype_name]["blocks"].items()
+        if counts.get(btype, 0) < rule["min"]
+    ]
+    return not missing, "; ".join(missing)
+
+
+def _enforce_archetype_constraints(blocks: list[dict], archetype_name: str) -> list[dict]:
+    """Code-level enforcement of the archetype's block-type constraints on the model's output
+    (the prompt states these constraints but nothing upstream of this function forces the
+    model to actually respect them): drop block types not allowed for this archetype, cap each
+    type at its archetype max, and best-effort reorder blocks that carry a "position"
+    constraint (early/late/last)."""
+    spec = ARTICLE_ARCHETYPES[archetype_name]["blocks"]
+    kept = []
+    counts: dict[str, int] = {}
+    for b in blocks:
+        btype = b.get("type", "")
+        rule = spec.get(btype)
+        if rule is None:
+            log.warning("Dropping block type '%s' — not allowed for archetype '%s'", btype, archetype_name)
+            continue
+        if counts.get(btype, 0) >= rule["max"]:
+            log.warning("Dropping extra '%s' block — archetype '%s' allows at most %d", btype, archetype_name, rule["max"])
+            continue
+        counts[btype] = counts.get(btype, 0) + 1
+        kept.append(b)
+    return _apply_position_constraints(kept, spec)
+
+
+def _move_block(blocks: list[dict], predicate, target_index: int) -> list[dict]:
+    idx = next((i for i, b in enumerate(blocks) if predicate(b)), None)
+    if idx is None or idx == target_index:
+        return blocks
+    b = blocks.pop(idx)
+    blocks.insert(min(target_index, len(blocks)), b)
+    return blocks
+
+
+def _apply_position_constraints(blocks: list[dict], spec: dict) -> list[dict]:
+    """Best-effort reordering for archetypes that pin a block type to roughly the start
+    ("early"), roughly the end ("late"), or the very last slot ("last"). Only moves a block
+    that's clearly on the wrong side of the article — leaves the model's own placement alone
+    otherwise, since the prompt already asks for the right position and this is a backstop,
+    not a full layout engine."""
+    blocks = list(blocks)
+    for btype, rule in spec.items():
+        if rule.get("position") == "last":
+            blocks = _move_block(blocks, lambda b, t=btype: b.get("type") == t, len(blocks) - 1 if blocks else 0)
+
+    n = len(blocks)
+    midpoint = n // 2
+    for btype, rule in spec.items():
+        pos = rule.get("position")
+        if pos == "early":
+            idx = next((i for i, b in enumerate(blocks) if b.get("type") == btype), None)
+            if idx is not None and idx > midpoint:
+                blocks = _move_block(blocks, lambda b, t=btype: b.get("type") == t, 1 if n > 1 else 0)
+        elif pos == "late":
+            idx = next((i for i, b in enumerate(blocks) if b.get("type") == btype), None)
+            if idx is not None and idx < midpoint:
+                blocks = _move_block(blocks, lambda b, t=btype: b.get("type") == t, midpoint)
+    return blocks
+
+
+def _evaluate_attempt(written: dict, archetype_name: str, last_article: dict | None, client: anthropic.Anthropic) -> dict:
+    """Score one write_technique_article() attempt so main() can keep the best of (at most)
+    two. blocks_valid is a hard requirement (see _blocks_meet_minimums); human_score and
+    structure_repeated are best-effort signals used only to pick between attempts, never to
+    block publication on their own."""
+    blocks = written.get("blocks", [])
+    blocks_valid, valid_reason = _blocks_meet_minimums(blocks, archetype_name)
+
+    text = _prose_text(blocks)
+    if text:
+        humanness = check_human_voice_longform(text, client)
+        human_score = humanness.get("human_score", 0)
+        verdict = humanness.get("verdict", "unknown")
+    else:
+        # No prose/callout/quote text at all is a bad sign, not a free pass — score it as
+        # the worst case rather than defaulting to a hardcoded "human" verdict.
+        human_score = 0
+        verdict = "empty"
+
+    structure_repeated = False
     if last_article is not None:
         last_sig = last_article.get("block_signature")
-        if last_sig and _block_signature(written.get("blocks", [])) == last_sig:
-            reasons.append("identical block structure to previous article")
-    return bool(reasons), "; ".join(reasons)
+        if last_sig and _block_signature(blocks) == last_sig:
+            structure_repeated = True
+
+    return {
+        "written": written,
+        "blocks_valid": blocks_valid,
+        "valid_reason": valid_reason,
+        "human_score": human_score,
+        "verdict": verdict,
+        "structure_repeated": structure_repeated,
+    }
+
+
+def _attempt_is_acceptable(attempt: dict) -> bool:
+    return attempt["blocks_valid"] and attempt["human_score"] >= 6 and not attempt["structure_repeated"]
+
+
+def _attempt_retry_reason(attempt: dict) -> str:
+    reasons = []
+    if not attempt["blocks_valid"]:
+        reasons.append(f"blocks invalid: {attempt['valid_reason']}")
+    if attempt["human_score"] < 6:
+        reasons.append(f"human_score={attempt['human_score']}")
+    if attempt["structure_repeated"]:
+        reasons.append("identical block structure to previous article")
+    return "; ".join(reasons)
+
+
+def _pick_best_attempt(attempts: list[dict]) -> dict:
+    """Prefer an attempt whose blocks meet the archetype minimums over one that doesn't,
+    then the higher human score, then the one that didn't repeat the previous structure."""
+    return max(
+        attempts,
+        key=lambda a: (a["blocks_valid"], a["human_score"], not a["structure_repeated"]),
+    )
 
 
 def _render_diagram_blocks(slug: str, blocks: list[dict]) -> list[dict]:
@@ -176,6 +320,25 @@ def _render_diagram_blocks(slug: str, blocks: list[dict]) -> list[dict]:
         else:
             log.warning("Dropping diagram block '%s' — render failed", block.get("heading", ""))
     return rendered
+
+
+def _write_constrained_article(
+    technique: str,
+    inspiration: dict | None,
+    curated_projects: list[dict],
+    archetype_name: str,
+    avoid_hint: str | None,
+    client: anthropic.Anthropic,
+) -> dict | None:
+    """write_technique_article() plus code-level enforcement of the archetype's block
+    constraints — applied to every attempt (initial and retry) before it's ever scored or
+    published."""
+    written = write_technique_article(technique, inspiration, curated_projects, archetype_name, avoid_hint, client)
+    if not written or not written.get("title"):
+        return None
+    written = dict(written)
+    written["blocks"] = _enforce_archetype_constraints(written.get("blocks", []), archetype_name)
+    return written
 
 
 def _commit_and_push() -> None:
@@ -212,7 +375,9 @@ def main() -> None:
     last_article = articles[-1] if articles else None
 
     technique = next_technique(articles, AI_ARCHITECT_TECHNIQUES)
-    archetype_name = next_archetype(articles, ARTICLE_ARCHETYPE_NAMES)
+    curated_projects = TECHNIQUE_EXAMPLE_PROJECTS.get(technique, [])
+    eligible_archetypes = _eligible_archetype_names(ARTICLE_ARCHETYPE_NAMES, len(curated_projects))
+    archetype_name = next_archetype(articles, eligible_archetypes)
     log.info("Technique for this run: %s (archetype: %s)", technique, archetype_name)
 
     inspiration = _find_inspiration(technique)
@@ -221,34 +386,37 @@ def main() -> None:
     else:
         log.info("No inspiration found — writing from general knowledge")
 
-    curated_projects = TECHNIQUE_EXAMPLE_PROJECTS.get(technique, [])
     avoid_hint = _build_avoid_hint(last_article)
 
-    written = write_technique_article(technique, inspiration, curated_projects, archetype_name, avoid_hint, client)
-    if not written or not written.get("title"):
+    written = _write_constrained_article(technique, inspiration, curated_projects, archetype_name, avoid_hint, client)
+    if not written:
         log.error("Failed to write article for technique '%s' — aborting", technique)
         sys.exit(1)
 
-    for attempt in range(2):
-        text = _prose_text(written.get("blocks", []))
-        humanness = (
-            check_human_voice_longform(text, client)
-            if text
-            else {"human_score": 10, "verdict": "human", "tells": []}
+    attempts = [_evaluate_attempt(written, archetype_name, last_article, client)]
+    log.info(
+        "Attempt=1 blocks_valid=%s human_score=%d verdict=%s structure_repeated=%s",
+        attempts[0]["blocks_valid"], attempts[0]["human_score"], attempts[0]["verdict"], attempts[0]["structure_repeated"],
+    )
+
+    if not _attempt_is_acceptable(attempts[0]):
+        log.warning("Retrying article generation: %s", _attempt_retry_reason(attempts[0]))
+        retry = _write_constrained_article(technique, inspiration, curated_projects, archetype_name, avoid_hint, client)
+        if retry:
+            attempts.append(_evaluate_attempt(retry, archetype_name, last_article, client))
+            log.info(
+                "Attempt=2 blocks_valid=%s human_score=%d verdict=%s structure_repeated=%s",
+                attempts[1]["blocks_valid"], attempts[1]["human_score"], attempts[1]["verdict"], attempts[1]["structure_repeated"],
+            )
+
+    best = _pick_best_attempt(attempts)
+    if not best["blocks_valid"]:
+        log.error(
+            "No attempt produced blocks meeting archetype '%s' minimums — aborting (%s)",
+            archetype_name, best["valid_reason"],
         )
-        h_score = humanness.get("human_score", 10)
-        retry_needed, reason = _needs_retry(written, last_article, h_score)
-        log.info(
-            "Attempt=%d human_score=%d verdict=%s retry_needed=%s (%s)",
-            attempt + 1, h_score, humanness.get("verdict"), retry_needed, reason,
-        )
-        if not retry_needed:
-            break
-        if attempt == 0:
-            log.warning("Retrying article generation: %s", reason)
-            retry = write_technique_article(technique, inspiration, curated_projects, archetype_name, avoid_hint, client)
-            if retry and retry.get("title"):
-                written = retry
+        sys.exit(1)
+    written = best["written"]
 
     slug = unique_slug(slugify(written["title"]), existing_slugs)
     now = datetime.now(timezone.utc)
