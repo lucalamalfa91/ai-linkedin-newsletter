@@ -2,12 +2,14 @@ import io
 import json
 import logging
 import os
+import random
 import re
 
 import anthropic
 from PIL import Image
 
 from agents.publisher_agent import upload_document
+from agents.writer_agent import check_human_voice
 from config import BANNED_WORDS
 
 log = logging.getLogger(__name__)
@@ -20,9 +22,16 @@ GOAL: a carousel people actually swipe through and like/save, not a slide deck o
 Showing beats telling: a numbered sequence of steps or prompts, or a simple boxes-and-arrows diagram of how a
 system is wired together, earns more saves than a wall of text ever will.
 
+NEVER SETTLE INTO A FORMULA. Every carousel must look like it came from a different train of thought than the
+last one — different opening move, different slide count, different mix of types, different closing beat. If
+your first instinct is "cover, diagram, steps, content, cta" in that exact order, that's the default anyone
+could see coming — pick something else unless this specific story genuinely demands that shape. Let THIS
+story's content decide the structure, not habit.
+
 Produce 5-7 slides plus a short commentary for the LinkedIn post text.
 
-Slide types (pick whatever actually fits the story, don't default to "content" out of habit):
+Slide types (pick whatever actually fits the story — mix freely, skip types that don't earn their slot, and
+don't fall back to the same slide-count/type-order pattern every time):
   cover    — big punchy headline (<=10 words) + subtitle with source and date
   content  — heading + up to 3 bullet points (each <=12 words). Use ONLY when neither steps nor diagram fits.
   steps    — heading + 3-5 numbered items, each a short title plus a one-line detail. Use this for "here's how
@@ -33,11 +42,19 @@ Slide types (pick whatever actually fits the story, don't default to "content" o
              keep every label short enough to read at a glance.
   cta      — closing question a CTO would wrestle with + call to follow
 
-Vary the shape across the deck (e.g. cover, diagram, steps, content, cta) — don't repeat "content" on every slide.
+WRITE LIKE LUCA, NOT LIKE AN AI SUMMARY (applies to every heading, bullet, item detail, and the commentary):
+  - Take a side. If a common way people use this technique is overhyped or gets abused, say so on a slide
+    instead of staying neutral.
+  - A specific detail (a real number, a real failure mode, a real client situation) beats a generic claim —
+    vague enthusiasm on a slide is the tell of a machine.
+  - Uneven rhythm: not every slide needs the same sentence shape. Let some headings be blunt, some a
+    half-question, some a fragment.
 
-Commentary: hook <=8 words + 1 blank line + 2-3 hashtags (include at least one of:
+Commentary (the LinkedIn post text, not a slide): 2-4 short lines in Luca's own voice, written by the same
+rules above — not a formulaic "hook + hashtags" caption. Give the reader a real opinion or a specific detail
+that earns the swipe, not a generic tease like "here's how to do X, swipe to learn more." It must NOT repeat
+slide content verbatim. Then one blank line, then 2-3 hashtags (include at least one of:
 #AIStrategy #EnterpriseAI #AIArchitecture #DigitalTransformation).
-The commentary must NOT repeat slide content — it teases the carousel.
 
 Never use the em dash character anywhere. If you would reach for one, rewrite with a period, comma, or
 parenthesis instead.
@@ -45,7 +62,7 @@ Banned words in all text: """ + ", ".join(BANNED_WORDS) + """.
 
 Return ONLY valid JSON — no markdown fences:
 {
-  "commentary": "<hook text>\\n\\n<hashtags>",
+  "commentary": "<2-4 line teaser in Luca's voice>\\n\\n<hashtags>",
   "slides": [
     {"type": "cover",   "title": "...", "subtitle": "Source · Month Year"},
     {"type": "diagram", "heading": "...", "nodes": ["...", "...", "..."]},
@@ -55,6 +72,28 @@ Return ONLY valid JSON — no markdown fences:
   ]
 }
 """
+
+# Randomly injected into the user prompt so consecutive carousels don't converge on the same
+# structure even at temperature 0.7 — each one rules out (or forces) a specific choice.
+_STRUCTURE_NUDGES = [
+    "Open cold with a blunt claim or a specific number, not a title slide — skip 'cover' or make it a single stat.",
+    "Don't use a diagram slide this time even if the topic has an architecture in it — tell it as steps instead.",
+    "Use exactly 5 slides. Cut anything that isn't essential.",
+    "Close on a slide that names a real failure mode instead of a generic question.",
+    "Put the steps slide first, before any framing or cover slide.",
+    "Make the cover slide's headline a question, not a statement.",
+    "If the story genuinely has two distinct ideas, use two content-style slides in a row — don't force a "
+    "diagram or steps slide in between just for variety's sake.",
+    "Skip the closing 'cta' question format entirely — end on a flat, confident statement instead.",
+]
+
+# Curated, on-brand color schemes for build_pdf() — one is picked at random per carousel so
+# consecutive decks don't look visually identical even when the slide structure is similar.
+_PALETTES = [
+    {"bg": (10, 25, 47), "accent": (10, 102, 194), "node_bg": (18, 42, 74)},   # navy / LinkedIn blue
+    {"bg": (20, 20, 26), "accent": (16, 163, 127), "node_bg": (30, 34, 40)},   # charcoal / emerald
+    {"bg": (30, 20, 40), "accent": (176, 130, 255), "node_bg": (46, 32, 61)},  # deep plum / violet
+]
 
 # Characters Claude reaches for that fpdf2's core Helvetica font (latin-1 only) can't render.
 _UNICODE_REPLACEMENTS = {
@@ -98,13 +137,15 @@ def generate_slides(story: dict, client: anthropic.Anthropic) -> dict | None:
         "— do NOT generate a 'diagram' slide type; use steps/content/cta instead."
         if story.get("diagram_images") else ""
     )
+    nudge = random.choice(_STRUCTURE_NUDGES)
     user = (
         f"Story: {story['title']}\n"
         f"Source: {story.get('source', 'AI News')}\n"
         f"Date: {date_str}\n"
         f"{content_section}"
         "Generate 5-7 slides and a short commentary for this story."
-        f"{diagram_note}"
+        f"{diagram_note}\n\n"
+        f"For THIS carousel specifically: {nudge}"
     )
     msg = client.messages.create(
         model="claude-sonnet-4-6",
@@ -122,7 +163,7 @@ def generate_slides(story: dict, client: anthropic.Anthropic) -> dict | None:
         return None
 
 
-def build_pdf(slides: list[dict]) -> bytes:
+def build_pdf(slides: list[dict], palette: dict | None = None) -> bytes:
     """Generate a square PDF carousel from slide dicts using fpdf2. Returns raw bytes."""
     from fpdf import FPDF
 
@@ -130,12 +171,14 @@ def build_pdf(slides: list[dict]) -> bytes:
     PAGE_W = 135
     PAGE_H = 135
 
+    palette = palette or _PALETTES[0]
+
     # Colours (R, G, B)
-    BG = (10, 25, 47)         # navy #0A192F
+    BG = palette["bg"]
     WHITE = (255, 255, 255)
     GRAY = (176, 196, 216)    # #B0C4D8
-    ACCENT = (10, 102, 194)   # LinkedIn blue #0A66C2
-    NODE_BG = (18, 42, 74)    # muted navy for non-final diagram nodes
+    ACCENT = palette["accent"]
+    NODE_BG = palette["node_bg"]  # muted background for non-final diagram nodes
     DOT_FAINT = (40, 60, 90)
 
     pdf = FPDF(unit="mm", format=(PAGE_W, PAGE_H))
@@ -334,6 +377,17 @@ def create_carousel(
         log.error("Carousel generation returned empty slides or commentary")
         return None
 
+    humanness = check_human_voice(commentary, client)
+    h_score = humanness.get("human_score", 10)
+    if h_score < 6:
+        log.warning(
+            "Carousel commentary human_score=%d tells=%s — retrying generation",
+            h_score, humanness.get("tells", []),
+        )
+        retry = generate_slides(story, client)
+        if retry and retry.get("slides") and retry.get("commentary"):
+            slides, commentary = retry["slides"], retry["commentary"]
+
     diagram_images = story.get("diagram_images") or []
     if diagram_images:
         # Reuse the blog's own rendered diagram — same visual asset in both places —
@@ -344,9 +398,10 @@ def create_carousel(
         insert_at = 1 if slides and slides[0].get("type") == "cover" else 0
         slides = slides[:insert_at] + [image_slide] + slides[insert_at:]
 
+    palette = random.choice(_PALETTES)
     log.info("Building carousel PDF — %d slides", len(slides))
     try:
-        pdf_bytes = build_pdf(slides)
+        pdf_bytes = build_pdf(slides, palette)
     except Exception:
         log.exception("PDF build failed")
         return None
