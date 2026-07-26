@@ -608,5 +608,38 @@
       "#AIStrategy"
     ],
     "analytics": null
+  },
+  "urn:li:ugcPost:7487030730112495616": {
+    "post_id": "urn:li:ugcPost:7487030730112495616",
+    "published_at": "2026-07-26T06:27:08.633710+00:00",
+    "article_url": "https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html",
+    "article_title": "Model Context Protocol: Structured Tool Access for Enterprise AI Systems",
+    "source": "The AI Architect (my blog)",
+    "score": null,
+    "post_type": "carousel",
+    "comment_text": "MCP is not the integration problem solved. It's the integration problem made visible.\n\nEvery enterprise AI build I've seen past a certain scale collapses into the same mess: a dozen ad-hoc tool wrappers, each with its own auth quirks, no shared error contract, nothing you can actually audit. MCP forces you to treat each integration as a declared service with a schema. That's genuinely useful. And yet the teams adopting it fastest are already hitting the wall I expected: they expose forty tools because they can, and the model gets confused picking between them. The protocol doesn't save you from yourself.\n\nThe operational side is also not trivial. In a multi-tenant deployment you're suddenly running a sidecar fleet. That's a real infrastructure commitment, not a config file. 🏗️\n\n#AIArchitecture #EnterpriseAI #AIStrategy",
+    "topics": [
+      "model",
+      "context",
+      "protocol",
+      "structured",
+      "tool",
+      "access",
+      "enterprise",
+      "systems",
+      "integration",
+      "problem",
+      "solved",
+      "made",
+      "visible",
+      "every",
+      "build"
+    ],
+    "hashtags": [
+      "#AIArchitecture",
+      "#EnterpriseAI",
+      "#AIStrategy"
+    ],
+    "analytics": null
   }
 }
