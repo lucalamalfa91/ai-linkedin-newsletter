@@ -341,5 +341,58 @@
     ],
     "inspired_by": null,
     "og_image": null
+  },
+  {
+    "slug": "you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice",
+    "title": "You Can't Debug What You Can't See: LLM Tracing in Practice",
+    "dek": "How adding proper observability to an LLM pipeline changed the way I diagnose and fix production issues.",
+    "date": "2026-07-26",
+    "published_at": "2026-07-26T11:28:09.488713+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "observability",
+      "tracing",
+      "llm-ops",
+      "debugging",
+      "production"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A few months ago I was helping a client whose RAG pipeline was producing confidently wrong answers on a subset of queries. The developers had added logging — print statements, basically — but nothing that told them <em>which</em> retrieval step had returned garbage, whether the reranker had quietly dropped the right chunk, or what the model had actually been handed as context when it hallucinated. Every debugging session was a reconstruction exercise. They'd repro the bad output, then manually re-run each step, comparing notes. It was slow and it missed edge cases entirely, because the failure pattern only showed up under specific retrieval conditions that were hard to replicate by hand.</p><p>That's the thing about LLM pipelines: they're probabilistic, they're multi-step, and the interesting failures rarely happen in isolation. A single bad answer is usually the downstream effect of something that went wrong two or three steps earlier. Without a trace — a structured record of every step, its inputs, its outputs, its latency, its token counts — you're guessing. And guessing in production is expensive.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langfuse/langfuse",
+          "url": "https://github.com/langfuse/langfuse",
+          "note": "Open-source LLM observability platform: tracing, evals, prompt management."
+        },
+        "usage_note": "Langfuse is what I reach for when a client needs observability that goes beyond logs — it gives me full trace trees, per-step latency, cost tracking, and a UI that non-engineers on the team can actually read.",
+        "code_example": {
+          "language": "python",
+          "code": "from langfuse import Langfuse\nfrom langfuse.decorators import observe, langfuse_context\nimport openai\n\nlangfuse = Langfuse()  # reads LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY from env\nclient = openai.OpenAI()\n\n@observe()  # wraps the whole pipeline as a single root trace\ndef answer_question(user_query: str) -> str:\n    chunks = retrieve_chunks(user_query)\n    return generate_answer(user_query, chunks)\n\n@observe()  # child span: retrieval\ndef retrieve_chunks(query: str) -> list[str]:\n    # your vector DB call here\n    results = [\"chunk A\", \"chunk B\"]  # placeholder\n    langfuse_context.update_current_observation(metadata={\"num_chunks\": len(results)})\n    return results\n\n@observe(as_type=\"generation\")  # child span: LLM call, tracked as a generation\ndef generate_answer(query: str, chunks: list[str]) -> str:\n    context = \"\\n\".join(chunks)\n    response = client.chat.completions.create(\n        model=\"gpt-4o-mini\",\n        messages=[\n            {\"role\": \"system\", \"content\": \"Answer using the context below.\\n\" + context},\n            {\"role\": \"user\", \"content\": query},\n        ],\n    )\n    return response.choices[0].message.content\n\nresult = answer_question(\"What is the refund policy?\")\nprint(result)"
+        },
+        "example_output": "Trace created in Langfuse UI:\n  root: answer_question  [212 ms]\n    ├─ retrieve_chunks    [38 ms]  metadata: {num_chunks: 2}\n    └─ generate_answer    [174 ms] model: gpt-4o-mini\n                                   prompt_tokens: 143, completion_tokens: 61\n                                   cost: $0.000031\n\nLLM response: \"Returns are accepted within 30 days of purchase with original receipt.\""
+      },
+      {
+        "type": "prose",
+        "html": "<p>The decorator approach is what I like about Langfuse's Python SDK — you annotate functions, and the library builds the trace tree automatically. You get parent-child relationships between spans without manually threading trace IDs around. When that RAG pipeline I mentioned got instrumented this way, we immediately saw that the retriever was returning chunks from the wrong tenant's data on queries that contained certain special characters. The bug had been there for weeks. It took about ten minutes to spot once we had a real trace to look at.</p><p>There's a common mistake I see with observability setups: people instrument only the LLM call and ignore everything around it. That's almost useless. The model call is usually the least surprising part. What breaks is the prompt assembly, the retrieval quality, the context truncation logic, the output parser. Trace the whole pipeline or don't bother — partial visibility creates false confidence more than it helps.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "A trace doesn't tell you why your model is wrong — it tells you exactly what your model was working with when it went wrong, which is almost always enough."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": null
   }
 ]
