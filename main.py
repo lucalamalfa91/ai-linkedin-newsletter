@@ -65,6 +65,37 @@ def _strip_html(html: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html or "")).strip()
 
 
+def _extract_article_content(article: dict) -> tuple[str, list[str]]:
+    """Returns (plain-text body for LinkedIn context, diagram image paths for carousel reuse).
+
+    Handles both the current block-based article schema and the older fixed-field schema
+    (articles published before the block-based rewrite — never rewritten once published, so
+    both shapes coexist in the archive forever). Only prose/callout/quote text is ever used
+    for the LinkedIn body — never raw code or diagram data, which would degrade the post.
+    """
+    if "blocks" in article:
+        body_parts = []
+        diagram_images = []
+        for b in article["blocks"]:
+            btype = b.get("type")
+            if btype in ("prose", "callout"):
+                body_parts.append(_strip_html(b.get("html", "")))
+            elif btype == "quote":
+                body_parts.append(b.get("text", ""))
+            elif btype == "diagram" and b.get("image"):
+                diagram_images.append(str(POSTS_DIR / "images" / b["image"]))
+        return " ".join(p for p in body_parts if p).strip(), diagram_images
+
+    # Legacy fixed-field schema (articles published before the block-based rewrite)
+    body = _strip_html(article.get("body_html", "")) + " " + _strip_html(article.get("how_i_use_it", ""))
+    diagram_images = [
+        str(POSTS_DIR / "images" / d["image"])
+        for d in article.get("diagrams", [])
+        if d.get("image")
+    ]
+    return body.strip(), diagram_images
+
+
 def _load_blog_articles(published_urls: set[str]) -> list[dict]:
     """Load articles from the AI Architect blog archive, filter out already-published ones.
 
@@ -86,18 +117,13 @@ def _load_blog_articles(published_urls: set[str]) -> list[dict]:
         url = normalize_url(f"{NEWSLETTER_URL}/posts/{a['slug']}.html")
         if url in published_urls:
             continue
-        body = _strip_html(a.get("body_html", "")) + " " + _strip_html(a.get("how_i_use_it", ""))
-        diagram_images = [
-            str(POSTS_DIR / "images" / d["image"])
-            for d in a.get("diagrams", [])
-            if d.get("image")
-        ]
+        body, diagram_images = _extract_article_content(a)
         candidates.append({
             "title": a.get("title", ""),
             "url": url,
             "source": "The AI Architect (my blog)",
             "summary": a.get("dek", ""),
-            "body": body.strip(),
+            "body": body,
             "technique": a.get("technique", ""),
             "diagram_images": diagram_images,
         })

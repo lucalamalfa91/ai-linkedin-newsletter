@@ -12,10 +12,10 @@ Two automated pipelines powered by Claude:
 ### Pipeline 1 — Blog (5 AM UTC, Mon–Sat)
 
 1. **Loads** the existing archive (`site/articles.json`) — never truncated, only appended to
-2. **Picks** the next technique to write about, rotating through `AI_ARCHITECT_TECHNIQUES` (least-recently-covered first)
+2. **Picks** the next technique to write about, rotating through `AI_ARCHITECT_TECHNIQUES` (least-recently-used first), and independently the next editorial archetype from `ARTICLE_ARCHETYPES` (same rotation logic) — the archetype fixes which content blocks this article uses, roughly how many, and roughly where, so structure varies deterministically across articles instead of every article having the same sections in the same order
 3. **Searches** recent RSS items (from ~20 AI blogger/practitioner feeds) for optional inspiration related to that technique — used only as context, never summarized or copied
-4. **Writes** an original article with Claude Sonnet: what the technique is, why it matters for an AI Architect, a concrete trade-off, and a first-person "How I use this every day" section
-5. **Attaches** 1-3 curated, hand-verified example GitHub projects for that technique (never LLM-generated, to avoid inventing repo links)
+4. **Writes** an original article with Claude Sonnet as an ordered list of typed content blocks (prose, callout, quote, diagram, code_project, list), constrained by the archetype; retries once if the result reads as AI-written or happens to repeat the previous article's exact block structure
+5. **Attaches** 1-3 curated, hand-verified example GitHub projects for that technique (never LLM-generated, to avoid inventing repo links) to any `code_project` blocks
 6. **Appends** the new article to `site/articles.json`, builds its permanent page (`site/posts/<slug>.html`), and rebuilds the home/archive page from the full archive
 7. **Commits** and pushes — Vercel auto-deploys the site
 
@@ -40,9 +40,24 @@ The blog rotates through a curated list of practitioner-relevant AI techniques (
 
 Each technique maps to 1-3 curated, real GitHub repositories (`TECHNIQUE_EXAMPLE_PROJECTS` in `config.py`) that demonstrate it in practice — e.g. `anthropics/claude-cookbooks` for prompt caching, `langchain-ai/langgraph` for agent orchestration, `guardrails-ai/guardrails` for output validation. These are maintained by hand, not generated, so the blog never links to a URL that doesn't exist.
 
+### Editorial archetypes — why no two articles look the same
+
+Every article is assigned one of 6 archetypes (`ARTICLE_ARCHETYPES` in `config.py`), rotated the same least-recently-used way as techniques so structural variety is enforced by code, not left to hope that "please vary the structure" alone stops the model from converging on the same shape every time:
+
+| Archetype | Shape |
+|-----------|-------|
+| `field-note` | Anecdote-led, no diagram, one code example, closes on a pull-quote |
+| `deep-dive` | The full treatment: 1-2 diagrams, longest prose, boxed callout, up to 3 code examples |
+| `contrarian-take` | Opens with a blunt claim; the callout is the thesis, placed early as a pull-quote — no diagram, no code |
+| `how-to` | Practical: diagram near the top, one or two checklists, short prose |
+| `quick-hit` | 2-3 tight paragraphs and one code example, nothing else |
+| `comparison` | For "X vs Y" techniques: two contrasting code examples with prose in between, optional comparison-table diagram |
+
+Each archetype also has its own hand-built visual treatment (`skin`) — a boxed callout, a pull-quote, a numbered checklist, a labeled side-by-side code comparison — so the same content type doesn't always render identically either. The writer prompt also ports anti-template prose guidance (vary the opening move, uneven rhythm, take a side) from the LinkedIn writer, and a Haiku-based humanness check (`check_human_voice_longform`) retries the article once if it reads as AI-written.
+
 ### Diagrams
 
-Each article includes 1-2 flow diagrams rendered as real images (`utils/diagram_renderer.py`): a small HTML/CSS layout with inline SVG icons, screenshotted with headless Chromium via Playwright at 2x scale. A fixed, muted color palette (`THEMES`) is picked deterministically per technique, and each node picks the best-fitting icon from a fixed icon set (`ICON_NAMES`) — the LLM only supplies headings/labels/icon choice, never raw pixels or HTML. Rendering is best-effort: if it fails for any reason, that diagram is silently dropped rather than shipping a broken image or failing the run. Liberation Sans (SIL OFL) is bundled under `assets/fonts/` so typography is identical regardless of what's installed on the machine running the pipeline.
+Diagram-type blocks render as real images (`utils/diagram_renderer.py`): a small HTML/CSS layout with inline SVG icons, screenshotted with headless Chromium via Playwright at 2x scale. Either a linear flow (icon nodes connected by arrows) or, for the `comparison` archetype, a comparison table. A muted color theme is picked at random per render (not tied to the technique — otherwise every article on the same topic would render the same color, its own form of a recognizable pattern) and each node picks the best-fitting icon from a fixed icon set (`ICON_NAMES`) — the LLM only supplies headings/labels/icon choice, never raw pixels or HTML. Rendering is best-effort: if it fails for any reason, that diagram is silently dropped rather than shipping a broken image or failing the run. Liberation Sans (SIL OFL) is bundled under `assets/fonts/` so typography is identical regardless of what's installed on the machine running the pipeline.
 
 ### Never overwritten
 
@@ -58,30 +73,33 @@ Each article includes 1-2 flow diagrams rendered as real images (`utils/diagram_
 load_articles()                — read site/articles.json (the full archive so far)
        │
        ▼
-_pick_next_technique()         — rotate AI_ARCHITECT_TECHNIQUES, least-recently-covered first
-       │
+next_technique() / next_archetype() — rotate AI_ARCHITECT_TECHNIQUES and ARTICLE_ARCHETYPES,
+       │                          both least-recently-used first (utils/articles.py)
        ▼
 fetch_feeds() (optional)        — search ~20 RSS feeds for a relevant recent item, for context only
        │
        ▼
-write_technique_article()      — Claude Sonnet: body copy, 1-2 flow diagrams (heading + nodes,
-       │                          each node an icon + short label), and, per curated example
-       │                          project, a usage note + code example + example output.
-       │                          Returns {title, dek, body_html, diagrams, how_i_use_it, tags,
-       │                          project_examples}
+write_technique_article()      — Claude Sonnet: an ordered list of typed content blocks
+       │                          (prose/callout/quote/diagram/code_project/list), constrained
+       │                          by the archetype's allowed block types/counts/positions.
+       │                          Returns {title, dek, tags, blocks}
        ▼
-render_flow_diagram()          — utils/diagram_renderer.py: real HTML/CSS + inline SVG icons,
-       │                          screenshotted with headless Chromium (Playwright) → PNG under
-       │                          site/posts/images/. Best-effort — a failed render just drops
-       │                          that diagram rather than failing the run.
+check_human_voice_longform()   — Haiku: scores whether the prose reads as human-written;
+       │                          retry once (with a "don't repeat this structure" hint) if the
+       │                          score is low OR the block-type sequence matches the last article
+       ▼
+render_flow_diagram() /         — utils/diagram_renderer.py: real HTML/CSS + inline SVG icons
+render_compare_table()          screenshotted with headless Chromium (Playwright) → PNG under
+       │                          site/posts/images/, for each diagram-type block. Best-effort —
+       │                          a failed render just drops that diagram block.
        ▼
 TECHNIQUE_EXAMPLE_PROJECTS      — curated repo name/url/note (never LLM-generated) zipped
-       │                          index-aligned with the model's per-project code examples
+       │                          index-aligned with the model's code_project blocks
        ▼
 articles.append(new_article)   — APPEND, never overwrite; save_articles() writes the full array
        │
        ▼
-build_post_page()              — render site/posts/<slug>.html (permanent)
+build_post_page()              — render site/posts/<slug>.html from the block list (permanent)
 build_home_page()               — rebuild site/index.html from the full archive
        │
        ▼
@@ -127,7 +145,7 @@ save_history() + commit_history_to_git()
 The static site is a self-contained HTML/CSS build (no JavaScript framework, dark mode aware):
 
 - `site/index.html` — home/archive page listing every article ever published, most recent first
-- `site/posts/<slug>.html` — one permanent page per article: title, dek, full body, one or two rendered diagram images illustrating the technique, "How I use this every day" callout, and per example project a usage note, a real code snippet, and an example output block (styled like a terminal), plus optional "Inspired by" attribution
+- `site/posts/<slug>.html` — one permanent page per article, rendered from its ordered list of content blocks (`build_post_page()` in `utils/site_builder.py`): prose, a boxed callout or pull-quote (label varies per article), a pull-quote, rendered diagram images, and per code example a usage note + real code snippet + example output block (styled like a terminal) — which blocks appear, how many, and in what order depends on the article's editorial archetype, plus optional "Inspired by" attribution
 - `site/posts/images/` — the rendered diagram PNGs (one per diagram, `<slug>-diagram-<n>.png`), committed alongside each post and reused as-is for the LinkedIn carousel
 
 Deployed automatically via Vercel on every push to `main`.
@@ -138,10 +156,11 @@ Deployed automatically via Vercel on every push to `main`.
 
 | Step | Model | Temp | Max tokens | Purpose |
 |------|-------|------|------------|---------|
-| `write_technique_article` | `claude-sonnet-4-6` | 0.7 | 3000 | Write the article, diagrams, "how I use it" section, and per-project code examples |
+| `write_technique_article` | `claude-sonnet-4-6` | 0.8 | 3500 | Write the article as archetype-constrained content blocks |
+| `check_human_voice_longform` | `claude-haiku-4-5-20251001` | 0 | 200 | Flags AI-sounding tells in blog prose, scores humanness |
 | `write_post` | `claude-sonnet-4-6` | 0.7 | 400 | Write LinkedIn post |
 | `critique_post` | `claude-haiku-4-5-20251001` | 0 | 150 | Quality evaluation |
-| `check_human_voice` | `claude-haiku-4-5-20251001` | 0 | 200 | Flags AI-sounding tells, scores humanness |
+| `check_human_voice` | `claude-haiku-4-5-20251001` | 0 | 200 | Flags AI-sounding tells in LinkedIn posts, scores humanness |
 | `generate_slides` (carousel) | `claude-sonnet-4-6` | 0.7 | 800 | Carousel slides + commentary |
 
 Prompt caching is enabled on the static portions of the blog writer, LinkedIn writer, and carousel system prompts.
@@ -188,17 +207,18 @@ Prompt caching is enabled on the static portions of the blog writer, LinkedIn wr
     "date": "2026-07-21",
     "published_at": "2026-07-21T05:00:00+00:00",
     "technique": "Structured Outputs & Tool Use",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
     "tags": ["agents", "reliability", "orchestration"],
-    "body_html": "<p>...</p>",
-    "diagrams": [
-      {"heading": "How it flows", "image": "structured-outputs-agent-handoffs-diagram-1.png", "alt": "Client request → Tool call → Validation → Structured response"}
-    ],
-    "how_i_use_it": "<p>...</p>",
-    "example_projects": [
+    "block_signature": ["prose", "diagram", "prose", "callout", "code_project"],
+    "blocks": [
+      {"type": "prose", "html": "<p>...</p>"},
+      {"type": "diagram", "heading": "How it flows", "image": "structured-outputs-agent-handoffs-diagram-1.png", "alt": "Client request → Tool call → Validation → Structured response"},
+      {"type": "prose", "html": "<p>...</p>"},
+      {"type": "callout", "label": "The one rule I don't break", "html": "<p>...</p>"},
       {
-        "name": "anthropics/claude-cookbooks",
-        "url": "https://github.com/anthropics/claude-cookbooks",
-        "note": "...",
+        "type": "code_project",
+        "project": {"name": "anthropics/claude-cookbooks", "url": "https://github.com/anthropics/claude-cookbooks", "note": "..."},
         "usage_note": "One sentence on why Luca reaches for this specific project.",
         "code_example": {"language": "python", "code": "..."},
         "example_output": "..."
@@ -210,7 +230,7 @@ Prompt caching is enabled on the static portions of the blog writer, LinkedIn wr
 ]
 ```
 
-This is an array, not a dict — new articles are appended, existing ones are never modified or removed.
+This is an array, not a dict — new articles are appended, existing ones are never modified or removed. `blocks` is an ordered list of typed content blocks (`prose`/`callout`/`quote`/`diagram`/`code_project`/`list`) — which ones appear, how many, and in what order is constrained by `archetype` (see "Editorial archetypes" above), not fixed. Articles published before this schema (still permanently in the archive, never rewritten) instead have the older fixed fields `body_html`/`diagrams`/`how_i_use_it`/`example_projects` — `main.py::_load_blog_articles()` and `utils/site_builder.py` both understand only their respective schema (old articles' pages are static and never re-rendered, so `build_post_page()` only ever needs to handle the current `blocks` schema; `main.py` handles both since it reads the whole archive every run).
 
 ---
 
@@ -228,11 +248,11 @@ This is an array, not a dict — new articles are appended, existing ones are ne
 │   ├── feed_agent.py         # RSS feed fetcher (used for optional blog inspiration)
 │   ├── notifier_agent.py     # Telegram notifications + HITL approval
 │   ├── publisher_agent.py    # LinkedIn REST API
-│   ├── site_writer_agent.py  # Claude Sonnet: writes each blog article
-│   └── writer_agent.py       # Claude Sonnet: LinkedIn post + Haiku critique
+│   ├── site_writer_agent.py  # Claude Sonnet: writes each blog article as archetype-constrained blocks
+│   └── writer_agent.py       # Claude Sonnet: LinkedIn post + Haiku critique + check_human_voice_longform
 │
 ├── utils/
-│   ├── articles.py           # Load/save site/articles.json (append-only), slugs, rotation
+│   ├── articles.py           # Load/save site/articles.json (append-only), slugs, technique/archetype rotation
 │   ├── diagram_renderer.py   # Renders flow diagrams to PNG (HTML/SVG + Playwright screenshot)
 │   ├── history.py            # Load/save history.json, git commit
 │   ├── og_meta.py            # og:image fetch + LinkedIn image upload
@@ -252,7 +272,7 @@ This is an array, not a dict — new articles are appended, existing ones are ne
 │
 ├── main.py                   # LinkedIn pipeline entry point
 ├── site_pipeline.py          # Blog pipeline entry point
-├── config.py                 # All constants, techniques, example projects, source lists
+├── config.py                 # All constants: techniques, article archetypes, example projects, source lists
 ├── vercel.json               # Vercel static deployment config (outputDirectory: site)
 ├── history.json              # Post history + analytics (auto-committed by CI)
 ├── requirements.txt          # anthropic, feedparser, requests, fpdf2, Pillow, playwright

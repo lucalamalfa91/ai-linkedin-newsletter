@@ -3,6 +3,7 @@ import logging
 
 import anthropic
 
+from config import ARTICLE_ARCHETYPES
 from utils.diagram_renderer import ICON_NAMES
 from utils.json_utils import strip_json_fences
 
@@ -22,64 +23,97 @@ provided, use it only as a jumping-off point or a real-world example — never s
 paraphrase it as the article's content. The article is about the TECHNIQUE, not about the \
 inspiration source.
 
-This is a technical blog: readers expect diagrams and runnable code, not just prose. Showing \
-beats telling wherever a picture or a snippet would land faster than another paragraph.
+WRITE LIKE A HUMAN, NOT LIKE AN AI TEMPLATE (this matters as much as getting the facts right):
+  - Vary how you open: sometimes a specific incident, sometimes a blunt claim, sometimes a
+    question, sometimes a concrete number. Never repeat the same opening move as the previous
+    article if you're told what it was.
+  - Uneven rhythm: not every paragraph needs the same length or shape. Let some sentences be
+    short and blunt, others longer and more considered.
+  - Take a side. If a common way people talk about this technique is wrong or overhyped, say
+    so plainly — don't hedge every claim into mush.
+  - The article you write today must not be structurally interchangeable with the one you
+    wrote for the last technique. Don't silently reach for the same recipe every time.
 
-STRUCTURE — return these exact JSON fields:
+You will be given an EDITORIAL ARCHETYPE for this specific article: a set of hard constraints \
+on which content blocks to use, roughly how many, and roughly where. These constraints are not \
+optional and not yours to override — but within them you have full freedom in what you SAY.
 
-"title": a specific, concrete headline for the technique (max 12 words). No clickbait, \
-no question mark.
+BLOCK TYPES (only use types listed as allowed for this article's archetype):
 
+"prose" — {"type": "prose", "html": "<p>...</p>"} one or two paragraphs of body copy. <p> tags \
+only (optionally <strong>/<em> inside, nothing else). Skip the marketing version of the \
+technique; name a concrete trade-off or failure mode somewhere in the article.
+
+"callout" — {"type": "callout", "label": "...", "html": "<p>...</p>"} a single boxed-out \
+first-person aside. "label" is a short (3-6 word) caption you invent FRESH for this specific \
+article — never a generic reused label; make it describe what THIS callout actually says (e.g. \
+"Where this bit me in production", "The one rule I don't break").
+
+"quote" — {"type": "quote", "text": "..."} one short, quotable, first-person sentence — the \
+single line a reader would screenshot.
+
+"diagram" — either a linear flow or a comparison table:
+  flow: {"type": "diagram", "diagram_type": "flow", "heading": "...", "badge": "...", "nodes": \
+[{"label": "...", "icon": "..."}, ...]} — 3-6 nodes, each label <=3 words, in the order they \
+actually happen. icon must be EXACTLY one of: """ + ", ".join(ICON_NAMES) + """
+  compare: {"type": "diagram", "diagram_type": "compare", "heading": "...", "badge": "...", \
+"headers": ["Aspect", "Option A", "Option B"], "rows": [["...", "...", "..."], ...]} — 3-5 rows, \
+use only for a genuine two-option trade-off.
+
+"code_project" — {"type": "code_project", "usage_note": "...", "code_example": {"language": \
+"...", "code": "..."}, "example_output": "..."} — one block per curated example project listed \
+in the user message, returned IN THE SAME ORDER as listed, one code_project block per project \
+(don't combine or skip any). "usage_note": one first-person sentence on why Luca reaches for \
+THIS specific project. "code_example": 8-20 realistic, runnable-looking lines using that \
+project's real API/import style, plain ASCII quotes, no markdown fences. "example_output": a \
+short, plausible, illustrative result (3-8 lines) — never claim it was captured live.
+
+"list" — {"type": "list", "heading": "...", "items": [{"title": "...", "detail": "..."}, ...]} \
+— 3-5 items, for a checklist / rules-of-thumb / ordered sequence.
+
+Return ONLY valid JSON, no markdown fences, no extra text:
+{"title": "...", "dek": "...", "tags": ["...", ...], "blocks": [ ... in reading order ... ]}
+
+"title": a specific, concrete headline for the technique (max 12 words). No clickbait, no \
+question mark.
 "dek": one sentence (max 25 words) that teases what the reader will get out of the article.
+"tags": 3-5 short lowercase kebab-case tags (e.g. "prompt-caching", "agents", "reliability")."""
 
-"body_html": 3-5 short paragraphs as HTML (<p> tags only, no headings). Cover: what the \
-technique actually is (skip the marketing version), why an AI Architect designing enterprise \
-systems needs to care about it, and at least one concrete trade-off or failure mode — every \
-technique has a catch, name it.
 
-"diagrams": 1-2 objects, each a simple linear flow rendered as a real diagram image — an \
-architecture, a request lifecycle, or a decision path. Each is {"heading": "...", "badge": \
-"...", "nodes": [{"label": "...", "icon": "..."}, ...]}
-  - "badge": a short (1-3 word) uppercase-style tag for the diagram, e.g. "AGENTIC WORKFLOWS".
-  - "nodes": 3-6 steps in the order they actually happen, first to last. Each "label" <=3 words \
-so it reads like a caption, not a sentence. Each "icon" must be EXACTLY one of: \
-""" + ", ".join(ICON_NAMES) + """ — pick whichever best matches that node semantically.
-
-"how_i_use_it": ONE HTML paragraph (<p> tag) written in first person, describing concretely \
-how Luca applies this technique day-to-day in his own architecture work — a workflow, a \
-decision rule, a check he runs, a default he now uses. Not generic advice — a specific habit.
-
-"tags": 3-5 short lowercase kebab-case tags (e.g. "prompt-caching", "agents", "reliability").
-
-"project_examples": one entry for EACH project listed under "Example projects to write up" in \
-the user message, IN THE SAME ORDER, showing how Luca actually uses that specific project. Each: \
-{"usage_note": "...", "code_example": {"language": "...", "code": "..."}, "example_output": "..."}
-  - "usage_note": ONE first-person sentence on how/why Luca reaches for this specific project \
-(not a repeat of the technique in general).
-  - "code_example": a short (8-20 lines), realistic, runnable-looking snippet using that \
-project's actual API/import style to apply the technique. Prefer Python. Use plain ASCII quotes \
-and no markdown fences inside "code".
-  - "example_output": a plausible, concrete result of running that snippet — terminal output, \
-a JSON response, or a small numeric result — labeled implicitly as illustrative (never claim it \
-was actually captured live). Keep it short (3-8 lines).
-
-Return ONLY valid JSON, no markdown fences, no extra text."""
+def _format_archetype_brief(archetype_name: str) -> str:
+    spec = ARTICLE_ARCHETYPES[archetype_name]
+    lines = [f"Archetype for this article: {archetype_name}", spec["description"], "", "Block constraints:"]
+    for block_type, rule in spec["blocks"].items():
+        count = f"{rule['min']}-{rule['max']}" if rule["max"] > rule["min"] else str(rule["min"])
+        pos = f" (position: {rule['position']})" if "position" in rule else ""
+        lines.append(f"  - {block_type}: {count} block(s){pos}")
+    allowed = ", ".join(spec["blocks"].keys())
+    lines.append(f"\nUse ONLY these block types: {allowed}. No other block type is allowed for this article.")
+    return "\n".join(lines)
 
 
 def write_technique_article(
     technique: str,
     inspiration: dict | None,
     example_projects: list[dict],
+    archetype_name: str,
+    avoid_repeat_hint: str | None,
     client: anthropic.Anthropic,
 ) -> dict | None:
-    """Generate a technique article, including diagrams and per-project code examples.
+    """Generate a technique article as an ordered list of content blocks, constrained by
+    `archetype_name` (see config.ARTICLE_ARCHETYPES). Structural variety across articles is
+    enforced by the archetype rotation (utils.articles.next_archetype) and this hard
+    constraint set — not left to the model's own judgment about "how to vary things".
 
     `example_projects` are the curated (never LLM-invented) repos for this technique, from
     config.TECHNIQUE_EXAMPLE_PROJECTS — passed in so Claude can write real usage examples for
     them. Their name/url/note are never altered here; only code_example/example_output/
-    usage_note are generated and merged in by the caller.
+    usage_note are generated and merged in by the caller (site_pipeline.py), index-aligned
+    with the "code_project" blocks returned here.
     """
-    user_parts = [f"Technique: {technique}"]
+    user_parts = [f"Technique: {technique}", _format_archetype_brief(archetype_name)]
+    if avoid_repeat_hint:
+        user_parts.append(avoid_repeat_hint)
     if inspiration:
         user_parts.append(
             "Optional inspiration (a recent piece Luca came across — use only as context, "
@@ -98,49 +132,110 @@ def write_technique_article(
     try:
         msg = client.messages.create(
             model="claude-sonnet-4-6",
-            max_tokens=3000,
-            temperature=0.7,
+            max_tokens=3500,
+            temperature=0.8,
             system=[{"type": "text", "text": _SYSTEM, "cache_control": {"type": "ephemeral"}}],
             messages=[{"role": "user", "content": user_content}],
         )
         raw = strip_json_fences(msg.content[0].text)
         data = json.loads(raw)
-        diagrams = []
-        for d in data.get("diagrams", []):
-            nodes = [
-                {
-                    "label": n.get("label", "").strip(),
-                    "icon": n.get("icon", "") if n.get("icon", "") in ICON_NAMES else "chip",
-                }
-                for n in d.get("nodes", [])
-                if n.get("label", "").strip()
-            ]
-            if nodes:
-                diagrams.append({
-                    "heading": d.get("heading", "").strip(),
-                    "badge": d.get("badge", "").strip(),
-                    "nodes": nodes,
-                })
-        project_examples = [
-            {
-                "usage_note": pe.get("usage_note", "").strip(),
-                "code_example": {
-                    "language": (pe.get("code_example") or {}).get("language", "python").strip(),
-                    "code": (pe.get("code_example") or {}).get("code", "").strip(),
-                },
-                "example_output": pe.get("example_output", "").strip(),
-            }
-            for pe in data.get("project_examples", [])
-        ]
+        blocks = _clean_blocks(data.get("blocks", []), example_projects)
         return {
             "title": data.get("title", "").strip(),
             "dek": data.get("dek", "").strip(),
-            "body_html": data.get("body_html", "").strip(),
-            "diagrams": diagrams,
-            "how_i_use_it": data.get("how_i_use_it", "").strip(),
             "tags": [t.strip() for t in data.get("tags", []) if t.strip()],
-            "project_examples": project_examples,
+            "blocks": blocks,
         }
     except Exception as exc:
         log.warning("site_writer_agent failed for technique '%s': %s", technique, exc)
         return None
+
+
+def _clean_blocks(raw_blocks: list[dict], example_projects: list[dict]) -> list[dict]:
+    """Validate and normalize model-returned blocks. Drops individual malformed blocks
+    (missing required content, unknown type) rather than failing the whole article —
+    same best-effort philosophy as the rest of the pipeline."""
+    cleaned = []
+    project_index = 0
+    for b in raw_blocks:
+        btype = b.get("type", "")
+
+        if btype == "prose":
+            html = b.get("html", "").strip()
+            if html:
+                cleaned.append({"type": "prose", "html": html})
+
+        elif btype == "callout":
+            html = b.get("html", "").strip()
+            label = b.get("label", "").strip()
+            if html and label:
+                cleaned.append({"type": "callout", "label": label, "html": html})
+
+        elif btype == "quote":
+            text = b.get("text", "").strip()
+            if text:
+                cleaned.append({"type": "quote", "text": text})
+
+        elif btype == "diagram":
+            cleaned_diagram = _clean_diagram_block(b)
+            if cleaned_diagram:
+                cleaned.append(cleaned_diagram)
+
+        elif btype == "code_project":
+            if project_index < len(example_projects):
+                code = (b.get("code_example") or {}).get("code", "").strip()
+                if code:
+                    cleaned.append({
+                        "type": "code_project",
+                        "project": example_projects[project_index],
+                        "usage_note": b.get("usage_note", "").strip(),
+                        "code_example": {
+                            "language": (b.get("code_example") or {}).get("language", "python").strip(),
+                            "code": code,
+                        },
+                        "example_output": b.get("example_output", "").strip(),
+                    })
+                project_index += 1
+
+        elif btype == "list":
+            heading = b.get("heading", "").strip()
+            items = [
+                {"title": it.get("title", "").strip(), "detail": it.get("detail", "").strip()}
+                for it in b.get("items", [])
+                if it.get("title", "").strip()
+            ]
+            if items:
+                cleaned.append({"type": "list", "heading": heading, "items": items})
+
+        else:
+            log.warning("Dropping block with unknown type: %r", btype)
+
+    return cleaned
+
+
+def _clean_diagram_block(b: dict) -> dict | None:
+    diagram_type = b.get("diagram_type", "flow")
+    heading = b.get("heading", "").strip()
+    badge = b.get("badge", "").strip()
+
+    if diagram_type == "compare":
+        headers = [h.strip() for h in b.get("headers", []) if h.strip()]
+        rows = [[str(c).strip() for c in row] for row in b.get("rows", []) if row]
+        if headers and rows:
+            return {
+                "type": "diagram", "diagram_type": "compare",
+                "heading": heading, "badge": badge, "headers": headers, "rows": rows,
+            }
+        return None
+
+    nodes = [
+        {
+            "label": n.get("label", "").strip(),
+            "icon": n.get("icon", "") if n.get("icon", "") in ICON_NAMES else "chip",
+        }
+        for n in b.get("nodes", [])
+        if n.get("label", "").strip()
+    ]
+    if nodes:
+        return {"type": "diagram", "diagram_type": "flow", "heading": heading, "badge": badge, "nodes": nodes}
+    return None

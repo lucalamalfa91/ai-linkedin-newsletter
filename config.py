@@ -122,6 +122,97 @@ TECHNIQUE_EXAMPLE_PROJECTS = {
     ],
 }
 
+# Editorial archetypes for blog articles — rotated deterministically (see
+# utils/articles.next_archetype), never chosen by the LLM itself. Each fixes hard
+# constraints on which content blocks appear, roughly how many, and where, so
+# structural variety across articles is enforced by code, not left to hope that
+# temperature alone stops the model from converging on the same shape every time.
+# "skin" selects the hand-built visual treatment in utils/site_builder.py — tying
+# visual style to editorial intent instead of an independent random skin per article.
+ARTICLE_ARCHETYPES = {
+    "field-note": {
+        "skin": "quote-close",
+        "description": (
+            "Open with a specific incident or anecdote from Luca's own work, not a definition. "
+            "Casual, first-person, a bit informal. No diagram. Exactly one code_project block, "
+            "placed mid-article. Close with a short, quotable one-line takeaway (a 'quote' block) "
+            "instead of a boxed callout."
+        ),
+        "blocks": {
+            "prose": {"min": 2, "max": 3},
+            "code_project": {"min": 1, "max": 1},
+            "quote": {"min": 1, "max": 1, "position": "last"},
+        },
+    },
+    "deep-dive": {
+        "skin": "boxed-callout",
+        "description": (
+            "The full treatment: thorough, systematic, covers the technique from multiple angles. "
+            "1-2 diagrams. Longest prose. A boxed 'how I use this' callout near the end, before the "
+            "example projects, which come last with full code + output."
+        ),
+        "blocks": {
+            "prose": {"min": 3, "max": 5},
+            "diagram": {"min": 1, "max": 2},
+            "callout": {"min": 1, "max": 1, "position": "late"},
+            "code_project": {"min": 1, "max": 3},
+        },
+    },
+    "contrarian-take": {
+        "skin": "quote-early",
+        "description": (
+            "Open with a blunt, opinionated claim that pushes back on how most people talk about "
+            "this technique. No diagram, no code. The callout is a big pull-quote placed EARLY "
+            "(right after the opening), not at the end — it IS the thesis, not a summary of it."
+        ),
+        "blocks": {
+            "callout": {"min": 1, "max": 1, "position": "early"},
+            "prose": {"min": 2, "max": 3},
+        },
+    },
+    "how-to": {
+        "skin": "checklist",
+        "description": (
+            "Practical and procedural. Open briefly, then a diagram near the top showing the flow, "
+            "then one or two checklist-style 'list' blocks (concrete steps or rules of thumb). "
+            "Short prose throughout — this archetype shows, it doesn't explain at length."
+        ),
+        "blocks": {
+            "prose": {"min": 1, "max": 2},
+            "diagram": {"min": 1, "max": 1, "position": "early"},
+            "list": {"min": 1, "max": 2},
+            "code_project": {"min": 0, "max": 1},
+        },
+    },
+    "quick-hit": {
+        "skin": "minimal",
+        "description": (
+            "Short and direct. 2-3 tight paragraphs and exactly one code example. No diagram, no "
+            "callout box, no quote. Respect the reader's time — say the one thing that matters "
+            "and stop."
+        ),
+        "blocks": {
+            "prose": {"min": 2, "max": 3},
+            "code_project": {"min": 1, "max": 1},
+        },
+    },
+    "comparison": {
+        "skin": "side-by-side",
+        "description": (
+            "For a technique that's really a trade-off between two approaches (e.g. 'X vs Y'). "
+            "Two code_project blocks with contrasting prose in between — write it as a genuine "
+            "back-and-forth, not two separate reviews stapled together. A 'compare' diagram "
+            "(table, not a flow) is optional if it clarifies the trade-off."
+        ),
+        "blocks": {
+            "prose": {"min": 2, "max": 3},
+            "code_project": {"min": 2, "max": 2},
+            "diagram": {"min": 0, "max": 1},
+        },
+    },
+}
+ARTICLE_ARCHETYPE_NAMES = list(ARTICLE_ARCHETYPES.keys())
+
 BANNED_WORDS = [
     "game-changer", "revolutionary", "unlock", "empower", "leverage", "synergy",
     "groundbreaking", "orchestration layer", "control loop", "paradigm", "delve", "transformative",

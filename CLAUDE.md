@@ -5,10 +5,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Overview
 
 Two automated pipelines powered by Claude:
-1. **The AI Architect blog** (`site_pipeline.py`) — an append-only personal blog. Each run writes one original article about a specific AI technique (from `AI_ARCHITECT_TECHNIQUES` in `config.py`), in an "AI Architect" practitioner voice, paired with curated real example GitHub projects. Articles are never overwritten — each gets a permanent page under `site/posts/`, and `site/articles.json` only ever grows.
+1. **The AI Architect blog** (`site_pipeline.py`) — an append-only personal blog. Each run writes one original article about a specific AI technique (from `AI_ARCHITECT_TECHNIQUES` in `config.py`), in an "AI Architect" practitioner voice, structured according to one of 6 rotating editorial archetypes (`ARTICLE_ARCHETYPES`) so no two articles share the same shape, paired with curated real example GitHub projects. Articles are never overwritten — each gets a permanent page under `site/posts/`, and `site/articles.json` only ever grows.
 2. **Weekly LinkedIn post** (`main.py`) — picks a blog article not yet promoted on LinkedIn, writes a post with Claude Sonnet, critiques it with Claude Haiku, sends a Telegram preview with inline approval buttons, and publishes to LinkedIn (linking back to the blog article) only after human confirmation.
 
-Entry points: `site_pipeline.py` (blog) and `main.py` (LinkedIn). All constants, the technique list, and curated example projects live in `config.py`.
+Entry points: `site_pipeline.py` (blog) and `main.py` (LinkedIn). All constants, the technique list, article archetypes, and curated example projects live in `config.py`.
 
 ## Environment Setup
 
@@ -55,13 +55,14 @@ The scripts require these environment variables (defined in `.env` locally, or a
 
 ### Blog pipeline (`site_pipeline.py`)
 
-1. `utils/articles.py` — `load_articles()`/`save_articles()` (atomic, append-only), `covered_techniques()` for rotation, slug helpers
-2. Picks the least-recently-covered technique from `AI_ARCHITECT_TECHNIQUES`
+1. `utils/articles.py` — `load_articles()`/`save_articles()` (atomic, append-only), `next_technique()`/`next_archetype()` for rotation (least-recently-used, never "order of first appearance" — that variant silently freezes on one value forever once every option has appeared once), slug helpers
+2. Picks the least-recently-used technique from `AI_ARCHITECT_TECHNIQUES` AND, independently, the least-recently-used editorial archetype from `ARTICLE_ARCHETYPES` — the archetype is a hard constraint on which content blocks the article uses, roughly how many, and roughly where, so structure varies across articles deterministically instead of depending on the model's own judgment
 3. **`agents/feed_agent.py`** — optionally fetches RSS feeds looking for a recent item related to the chosen technique, used only as inspiration context (never summarized as the article itself)
-4. **`agents/site_writer_agent.py`** — Claude Sonnet writes the article (`title`, `dek`, `body_html`, 1-2 `diagrams`, `how_i_use_it`, `tags`), plus, for each curated example project, a `usage_note` + `code_example` + `example_output` (`project_examples`)
-5. Curated example projects (name/url/note) come from `TECHNIQUE_EXAMPLE_PROJECTS` in `config.py` — never LLM-generated, to avoid inventing repo URLs; only the usage code/output/note around them is written by Claude
-6. **`utils/diagram_renderer.py`** — renders each diagram to a PNG under `site/posts/images/`: real HTML/CSS + inline SVG icons, screenshotted with headless Chromium via Playwright (`render_flow_diagram()`). Best-effort — a failed render just drops that diagram. Bundled Liberation Sans font under `assets/fonts/` keeps typography consistent across machines.
-7. **`utils/site_builder.py`** — `build_post_page()` renders the new permalink page (diagrams as `<img>`); `build_home_page()` rebuilds the archive index from the full article list
+4. **`agents/site_writer_agent.py`** — Claude Sonnet writes the article as an ordered `blocks` list (`prose`/`callout`/`quote`/`diagram`/`code_project`/`list`), constrained by the assigned archetype, plus `title`/`dek`/`tags`. Also ports anti-template prose guidance (vary the opening move, uneven rhythm, take a side) from `writer_agent.py`'s LinkedIn prompt.
+5. `site_pipeline.py` retries generation once if `agents/writer_agent.check_human_voice_longform()` scores the prose as AI-sounding, or if the block-type sequence exactly matches the immediately preceding article's
+6. Curated example projects (name/url/note) come from `TECHNIQUE_EXAMPLE_PROJECTS` in `config.py` — never LLM-generated, to avoid inventing repo URLs; only the usage code/output/note around them (in `code_project` blocks) is written by Claude
+7. **`utils/diagram_renderer.py`** — renders each `diagram`-type block to a PNG under `site/posts/images/`: real HTML/CSS + inline SVG icons, screenshotted with headless Chromium via Playwright (`render_flow_diagram()` for a linear flow, `render_compare_table()` for the `comparison` archetype's optional trade-off table). A random theme is picked per render (`random_theme()`) — deliberately not tied to the technique, or every article on the same topic would render the same color. Best-effort — a failed render just drops that diagram block. Bundled Liberation Sans font under `assets/fonts/` keeps typography consistent across machines.
+8. **`utils/site_builder.py`** — `build_post_page()` renders the new permalink page from its `blocks` list via a `_render_block()` type-dispatcher (raises on an unrecognized type rather than silently dropping content on a page that's never re-rendered); `build_home_page()` rebuilds the archive index from the full article list (reads only fields common to old and new article schemas, so needs no schema branching)
 
 ### LinkedIn pipeline (`main.py` orchestrates `agents/` and `utils/`)
 
@@ -87,11 +88,12 @@ The scripts require these environment variables (defined in `.env` locally, or a
 - **Protocol**: REST.li 2.0.0
 - **Post ID**: Returned in `x-restli-id` response header
 
-## Blog Techniques & Example Projects
+## Blog Techniques, Archetypes & Example Projects
 
 Defined in `config.py`:
 - `AI_ARCHITECT_TECHNIQUES` — the rotating list of techniques the blog covers (agentic orchestration, RAG, prompt caching, structured outputs, MCP, evals, guardrails, observability, red-teaming, context engineering, vector search, agent memory, prompt engineering, fine-tuning vs. prompting)
-- `TECHNIQUE_EXAMPLE_PROJECTS` — hand-curated, verified GitHub repos per technique, attached to each article
+- `ARTICLE_ARCHETYPES` — 6 editorial archetypes (`field-note`, `deep-dive`, `contrarian-take`, `how-to`, `quick-hit`, `comparison`), each fixing which content blocks are allowed, roughly how many, and roughly where, plus a `skin` key selecting its hand-built visual treatment in `utils/site_builder.py`. Rotated the same least-recently-used way as techniques.
+- `TECHNIQUE_EXAMPLE_PROJECTS` — hand-curated, verified GitHub repos per technique, attached to `code_project` blocks
 - `RSS_FEEDS` — ~20 AI blogger/practitioner feeds, used only as optional inspiration context for blog articles
 
 ## Error Handling
@@ -105,7 +107,8 @@ Defined in `config.py`:
 
 ## LLM Integration
 
-- **Blog writing** (`site_writer_agent.py`): `claude-sonnet-4-6`, max_tokens=3000, temperature=0.7 — original technique article, diagram content (headings/labels/icons), "how I use it" section, and per-project code examples
+- **Blog writing** (`site_writer_agent.py`): `claude-sonnet-4-6`, max_tokens=3500, temperature=0.8 — original technique article as archetype-constrained content blocks
+- **Blog humanness check** (`writer_agent.py`, `check_human_voice_longform`): `claude-haiku-4-5-20251001`, max_tokens=200, temperature=0 — same idea as the LinkedIn humanness check, calibrated for multi-paragraph article prose instead of a 6-line post
 - **LinkedIn writing** (`writer_agent.py`): `claude-sonnet-4-6`, max_tokens=400, temperature=0.7 — creative post generation
 - **LinkedIn critique** (`writer_agent.py`): `claude-haiku-4-5-20251001`, max_tokens=150, temperature=0 — post quality check
 - **Humanness check** (`writer_agent.py`, `check_human_voice`): `claude-haiku-4-5-20251001`, max_tokens=200, temperature=0 — flags AI-sounding tells (uniform rhythm, hedge-everything tone, visible template, generic conclusions) and scores the post 0-10 on how human it reads; `main.py` retries the write if `human_score < 6`

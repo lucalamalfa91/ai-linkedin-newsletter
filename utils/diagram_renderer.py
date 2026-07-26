@@ -10,6 +10,7 @@ GitHub Actions runner may not have the same fonts as a local dev machine.
 
 import logging
 import math
+import random
 from pathlib import Path
 
 from config import FONT_BOLD_PATH, FONT_REGULAR_PATH
@@ -28,9 +29,12 @@ THEMES = {
 THEME_NAMES = list(THEMES.keys())
 
 
-def theme_for(key: str) -> str:
-    """Deterministic theme pick so the same technique always renders the same color."""
-    return THEME_NAMES[hash(key) % len(THEME_NAMES)]
+def random_theme() -> str:
+    """Pick a random theme per render (mirrors carousel_agent.py's _PALETTES rotation) so
+    consecutive articles — even on the same technique — don't always render the same color.
+    Deliberately not a deterministic hash of the technique name: tying color to technique
+    would make every article on the same topic look identical, the opposite of the goal."""
+    return random.choice(THEME_NAMES)
 
 
 def _gear_inner() -> str:
@@ -157,18 +161,49 @@ def _build_html(heading: str, badge: str, theme: str, nodes: list[dict]) -> str:
     )
 
 
-def render_flow_diagram(heading: str, badge: str, theme: str, nodes: list[dict], output_path: str | Path) -> bool:
-    """Render one flow diagram to a PNG. Returns True on success, False on any failure
-    (best-effort — a failed render just means that article ships without this image)."""
-    if not nodes:
-        return False
+def _build_table_html(heading: str, badge: str, theme: str, headers: list[str], rows: list[list[str]]) -> str:
+    accent = THEMES.get(theme, THEMES[THEME_NAMES[0]])
+    header_html = "".join(f"<th>{h}</th>" for h in headers)
+    row_html = []
+    for row in rows:
+        cells = "".join(
+            f'<td class="{"row-label" if i == 0 else ""}">{cell}</td>'
+            for i, cell in enumerate(row)
+        )
+        row_html.append(f"<tr>{cells}</tr>")
+
+    table_css = f"""
+.compare-table {{ width: 100%; border-collapse: collapse; }}
+.compare-table th {{
+  background: {accent}; color: #FFFFFF; font-size: 13px; font-weight: 700;
+  padding: 12px 16px; text-align: center;
+}}
+.compare-table th:first-child {{ border-radius: 8px 0 0 0; text-align: left; }}
+.compare-table th:last-child {{ border-radius: 0 8px 0 0; }}
+.compare-table td {{
+  font-size: 13px; color: #1E293B; padding: 11px 16px; text-align: center;
+  border-bottom: 1px solid #E5E7EB;
+}}
+.compare-table td.row-label {{ font-weight: 700; text-align: left; color: #0F172A; }}
+.compare-table tr:nth-child(even) td {{ background: #F8FAFC; }}
+"""
+    css = _CSS_TEMPLATE.format(reg=FONT_REGULAR_PATH, bold=FONT_BOLD_PATH, accent=accent) + table_css
+    return (
+        f'<!DOCTYPE html><html><head><meta charset="utf-8"><style>{css}</style></head>'
+        f'<body><div id="card"><span class="badge">{badge}</span><h1>{heading}</h1>'
+        f'<table class="compare-table"><thead><tr>{header_html}</tr></thead>'
+        f'<tbody>{"".join(row_html)}</tbody></table>'
+        f'<div class="footer">The AI Architect &middot; Luca La Malfa</div></div></body></html>'
+    )
+
+
+def _screenshot_card(html: str, output_path: str | Path, context_label: str) -> bool:
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
         log.warning("playwright not installed — skipping diagram render")
         return False
 
-    html = _build_html(heading, badge, theme, nodes)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     html_tmp = output_path.with_suffix(".html")
@@ -184,7 +219,28 @@ def render_flow_diagram(heading: str, badge: str, theme: str, nodes: list[dict],
         log.info("Rendered diagram: %s", output_path)
         return True
     except Exception as exc:
-        log.warning("Diagram render failed for '%s': %s", heading, exc)
+        log.warning("Diagram render failed for '%s': %s", context_label, exc)
         return False
     finally:
         html_tmp.unlink(missing_ok=True)
+
+
+def render_flow_diagram(heading: str, badge: str, theme: str, nodes: list[dict], output_path: str | Path) -> bool:
+    """Render one flow diagram to a PNG. Returns True on success, False on any failure
+    (best-effort — a failed render just means that article ships without this image)."""
+    if not nodes:
+        return False
+    html = _build_html(heading, badge, theme, nodes)
+    return _screenshot_card(html, output_path, heading)
+
+
+def render_compare_table(
+    heading: str, badge: str, theme: str, headers: list[str], rows: list[list[str]], output_path: str | Path
+) -> bool:
+    """Render a comparison table (e.g. "Prompting vs. Fine-Tuning") to a PNG, for the
+    "comparison" article archetype — an alternative to the linear flow diagram when the
+    content is a trade-off between options rather than a sequence of steps."""
+    if not headers or not rows:
+        return False
+    html = _build_table_html(heading, badge, theme, headers, rows)
+    return _screenshot_card(html, output_path, heading)

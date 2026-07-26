@@ -106,8 +106,12 @@
       color: var(--text-muted);
     }
 
-    .article-body { font-size: 1rem; color: var(--text); }
-    .article-body p { margin-bottom: 1.1rem; }
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
 
     /* ── DIAGRAMS ───────────────────────────────────────── */
     .diagram-figure {
@@ -121,7 +125,8 @@
       display: block;
     }
 
-    .how-i-use-it {
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
       background: var(--take-bg);
       border-left: 3px solid var(--take-border);
       border-radius: 0 8px 8px 0;
@@ -129,7 +134,7 @@
       margin: 1.5rem 0;
     }
 
-    .how-i-use-it-label {
+    .callout-label {
       font-size: 0.62rem;
       font-weight: 700;
       letter-spacing: 0.12em;
@@ -138,31 +143,103 @@
       margin-bottom: 0.5rem;
     }
 
-    .how-i-use-it p { margin: 0; }
+    .callout-box p { margin: 0; }
 
-    .example-projects {
-      margin: 1.75rem 0;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--border);
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
     }
 
-    .example-projects h2 {
-      font-size: 0.85rem;
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-muted);
-      margin-bottom: 0.75rem;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
     }
 
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
     .project-block {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
       padding: 1.1rem 1.25rem 1.3rem;
-      margin-bottom: 1.25rem;
+      margin: 1.5rem 0;
     }
 
-    .project-block:last-child { margin-bottom: 0; }
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
 
     .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
     .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
@@ -273,21 +350,7 @@
       <p class="article-date">{{ DATE }}</p>
     </div>
 
-    <div class="article-body">
-{{ BODY_HTML }}
-    </div>
-
-{{ DIAGRAMS_HTML }}
-
-    <div class="how-i-use-it">
-      <p class="how-i-use-it-label">How I use this every day</p>
-{{ HOW_I_USE_IT }}
-    </div>
-
-    <div class="example-projects">
-      <h2>Example projects</h2>
-{{ EXAMPLE_PROJECTS_HTML }}
-    </div>
+{{ BLOCKS_HTML }}
 
 {{ INSPIRED_BY_HTML }}
 
