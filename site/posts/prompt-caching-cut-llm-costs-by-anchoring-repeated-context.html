@@ -8,6 +8,21 @@
   <meta property="og:title" content="Prompt Caching: Cut LLM Costs by Anchoring Repeated Context">
   <meta property="og:description" content="Learn how to structure prompts so repeated context is cached and billed once, not on every call.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-cut-llm-costs-by-anchoring-repeated-context-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Prompt Caching: Cut LLM Costs by Anchoring Repeated Context">
+  <meta name="twitter:description" content="Learn how to structure prompts so repeated context is cached and billed once, not on every call.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-cut-llm-costs-by-anchoring-repeated-context-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Prompt Caching: Cut LLM Costs by Anchoring Repeated Context", "description": "Learn how to structure prompts so repeated context is cached and billed once, not on every call.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-cut-llm-costs-by-anchoring-repeated-context-hero.png", "datePublished": "2026-07-21T22:49:28.921919+00:00", "dateModified": "2026-07-21T22:49:28.921919+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "prompt-caching, cost-optimization, llm-infrastructure, anthropic, rag"}</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -285,6 +300,7 @@
       color: var(--source-text);
       padding: 0.18rem 0.6rem;
       border-radius: 20px;
+      text-decoration: none;
     }
 
     .site-footer {
@@ -296,6 +312,19 @@
       color: var(--text-muted);
       text-align: center;
     }
+  
+    .tag-chip:hover { color: var(--accent); }
+    .share-row { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+    .share-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-right: 0.3rem; }
+    .share-link { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-decoration: none; background: var(--source-bg); padding: 0.3rem 0.75rem; border-radius: 20px; }
+    .share-link:hover { text-decoration: underline; }
+    .related-section { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .related-heading { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.9rem; }
+    .related-card { display: block; padding: 0.75rem 0; text-decoration: none; border-bottom: 1px solid var(--border); }
+    .related-card:last-child { border-bottom: none; }
+    .related-technique { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .related-title { display: block; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .related-card:hover .related-title { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -403,12 +432,36 @@ Employees are entitled to 10 sick days per calendar year with full pay.</pre>
     <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Jul/20/cheap-reverse-engineering/#atom-everything" target="_blank" rel="noopener noreferrer">Reverse-engineering is cheap now</a> (Simon Willison)</p>
 
     <div class="tag-row">
-      <span class="tag-chip">prompt-caching</span>
-      <span class="tag-chip">cost-optimization</span>
-      <span class="tag-chip">llm-infrastructure</span>
-      <span class="tag-chip">anthropic</span>
-      <span class="tag-chip">rag</span>
+      <a class="tag-chip" href="../tags/prompt-caching.html">prompt-caching</a>
+      <a class="tag-chip" href="../tags/cost-optimization.html">cost-optimization</a>
+      <a class="tag-chip" href="../tags/llm-infrastructure.html">llm-infrastructure</a>
+      <a class="tag-chip" href="../tags/anthropic.html">anthropic</a>
+      <a class="tag-chip" href="../tags/rag.html">rag</a>
     </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Prompt%20Caching%3A%20Cut%20LLM%20Costs%20by%20Anchoring%20Repeated%20Context&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html&amp;t=Prompt%20Caching%3A%20Cut%20LLM%20Costs%20by%20Anchoring%20Repeated%20Context" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Prompt%20Caching%3A%20Cut%20LLM%20Costs%20by%20Anchoring%20Repeated%20Context&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates.html">
+        <span class="related-technique">LLM Evaluation &amp; Testing</span>
+        <span class="related-title">Systematic LLM Evaluation: From Vibe Checks to Measurable Quality Gates</span>
+      </a>
+      <a class="related-card" href="../posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html">
+        <span class="related-technique">Retrieval-Augmented Generation (RAG)</span>
+        <span class="related-title">RAG Is a Data Architecture Decision, Not Just a Prompt Trick</span>
+      </a>
+      <a class="related-card" href="../posts/more-context-is-not-the-answer-to-your-context-problem.html">
+        <span class="related-technique">Context Engineering &amp; Long-Context Management</span>
+        <span class="related-title">More Context Is Not the Answer to Your Context Problem</span>
+      </a>
+    </section>
   </div>
 
   <footer class="site-footer">

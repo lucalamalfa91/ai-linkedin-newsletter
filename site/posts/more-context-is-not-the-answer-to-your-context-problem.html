@@ -8,6 +8,21 @@
   <meta property="og:title" content="More Context Is Not the Answer to Your Context Problem">
   <meta property="og:description" content="Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-answer-to-your-context-problem-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="More Context Is Not the Answer to Your Context Problem">
+  <meta name="twitter:description" content="Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-answer-to-your-context-problem-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "More Context Is Not the Answer to Your Context Problem", "description": "Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-answer-to-your-context-problem-hero.png", "datePublished": "2026-07-28T07:40:01.112305+00:00", "dateModified": "2026-07-28T07:40:01.112305+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "context-engineering, long-context, prompt-design, architecture"}</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -323,7 +338,84 @@
       color: var(--source-text);
       padding: 0.18rem 0.6rem;
       border-radius: 20px;
+      text-decoration: none;
     }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
 
     .site-footer {
       max-width: 660px;
@@ -367,11 +459,35 @@
 
 
     <div class="tag-row">
-      <span class="tag-chip">context-engineering</span>
-      <span class="tag-chip">long-context</span>
-      <span class="tag-chip">prompt-design</span>
-      <span class="tag-chip">architecture</span>
+      <a class="tag-chip" href="../tags/context-engineering.html">context-engineering</a>
+      <a class="tag-chip" href="../tags/long-context.html">long-context</a>
+      <a class="tag-chip" href="../tags/prompt-design.html">prompt-design</a>
+      <a class="tag-chip" href="../tags/architecture.html">architecture</a>
     </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=More%20Context%20Is%20Not%20the%20Answer%20to%20Your%20Context%20Problem&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html&amp;t=More%20Context%20Is%20Not%20the%20Answer%20to%20Your%20Context%20Problem" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=More%20Context%20Is%20Not%20the%20Answer%20to%20Your%20Context%20Problem&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html">
+        <span class="related-technique">Red-Teaming &amp; Adversarial Testing</span>
+        <span class="related-title">Red-Teaming Your AI Before Someone Else Does It For You</span>
+      </a>
+      <a class="related-card" href="../posts/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice.html">
+        <span class="related-technique">LLM Observability &amp; Tracing</span>
+        <span class="related-title">You Can&#x27;t Debug What You Can&#x27;t See: LLM Tracing in Practice</span>
+      </a>
+      <a class="related-card" href="../posts/guardrails-and-output-validation-for-production-llm-systems.html">
+        <span class="related-technique">Guardrails &amp; Output Validation</span>
+        <span class="related-title">Guardrails and Output Validation for Production LLM Systems</span>
+      </a>
+    </section>
   </div>
 
   <footer class="site-footer">

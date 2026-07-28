@@ -8,6 +8,21 @@
   <meta property="og:title" content="Guardrails and Output Validation for Production LLM Systems">
   <meta property="og:description" content="How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-for-production-llm-systems-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Guardrails and Output Validation for Production LLM Systems">
+  <meta name="twitter:description" content="How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-for-production-llm-systems-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Guardrails and Output Validation for Production LLM Systems", "description": "How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-for-production-llm-systems-hero.png", "datePublished": "2026-07-25T07:18:12.141202+00:00", "dateModified": "2026-07-25T07:18:12.141202+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "guardrails, output-validation, reliability, structured-outputs, enterprise-ai"}</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -246,6 +261,7 @@
       color: var(--source-text);
       padding: 0.18rem 0.6rem;
       border-radius: 20px;
+      text-decoration: none;
     }
 
     .site-footer {
@@ -257,6 +273,19 @@
       color: var(--text-muted);
       text-align: center;
     }
+  
+    .tag-chip:hover { color: var(--accent); }
+    .share-row { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+    .share-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-right: 0.3rem; }
+    .share-link { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-decoration: none; background: var(--source-bg); padding: 0.3rem 0.75rem; border-radius: 20px; }
+    .share-link:hover { text-decoration: underline; }
+    .related-section { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .related-heading { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.9rem; }
+    .related-card { display: block; padding: 0.75rem 0; text-decoration: none; border-bottom: 1px solid var(--border); }
+    .related-card:last-child { border-bottom: none; }
+    .related-technique { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .related-title { display: block; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .related-card:hover .related-title { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -335,12 +364,36 @@ print(result.validated_output)</code></pre>
 
 
     <div class="tag-row">
-      <span class="tag-chip">guardrails</span>
-      <span class="tag-chip">output-validation</span>
-      <span class="tag-chip">reliability</span>
-      <span class="tag-chip">structured-outputs</span>
-      <span class="tag-chip">enterprise-ai</span>
+      <a class="tag-chip" href="../tags/guardrails.html">guardrails</a>
+      <a class="tag-chip" href="../tags/output-validation.html">output-validation</a>
+      <a class="tag-chip" href="../tags/reliability.html">reliability</a>
+      <a class="tag-chip" href="../tags/structured-outputs.html">structured-outputs</a>
+      <a class="tag-chip" href="../tags/enterprise-ai.html">enterprise-ai</a>
     </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Guardrails%20and%20Output%20Validation%20for%20Production%20LLM%20Systems&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html&amp;t=Guardrails%20and%20Output%20Validation%20for%20Production%20LLM%20Systems" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Guardrails%20and%20Output%20Validation%20for%20Production%20LLM%20Systems&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html">
+        <span class="related-technique">Structured Outputs &amp; Tool Use</span>
+        <span class="related-title">Structured Outputs and Tool Use: Making LLMs Behave Like APIs</span>
+      </a>
+      <a class="related-card" href="../posts/how-multi-agent-orchestration-actually-works-in-production.html">
+        <span class="related-technique">Agentic Workflows &amp; Multi-Agent Orchestration</span>
+        <span class="related-title">How Multi-Agent Orchestration Actually Works in Production</span>
+      </a>
+      <a class="related-card" href="../posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html">
+        <span class="related-technique">Red-Teaming &amp; Adversarial Testing</span>
+        <span class="related-title">Red-Teaming Your AI Before Someone Else Does It For You</span>
+      </a>
+    </section>
   </div>
 
   <footer class="site-footer">

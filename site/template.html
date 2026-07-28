@@ -8,6 +8,21 @@
   <meta property="og:title" content="The AI Architect — Luca La Malfa">
   <meta property="og:description" content="Practical AI architecture, one technique at a time.">
   <meta property="og:type" content="website">
+  <link rel="canonical" href="{{ CANONICAL_URL }}">
+  <meta property="og:url" content="{{ CANONICAL_URL }}">
+  <meta property="og:image" content="{{ OG_IMAGE_URL }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="The AI Architect — Luca La Malfa">
+  <meta name="twitter:description" content="Practical AI architecture, one technique at a time.">
+  <meta name="twitter:image" content="{{ OG_IMAGE_URL }}">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  {{ JSONLD_HTML }}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -129,6 +144,9 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.08);
       border-color: #C8C7C3;
     }
+
+    .card-thumb { width: 100%; aspect-ratio: 1200 / 630; overflow: hidden; }
+    .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .card-body { padding: 1.4rem 1.5rem 1.3rem; }
 

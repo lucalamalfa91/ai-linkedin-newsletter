@@ -8,6 +8,21 @@
   <meta property="og:title" content="Model Context Protocol: Structured Tool Access for Enterprise AI Systems">
   <meta property="og:description" content="MCP standardizes how language models discover and call external tools — here is what that means in practice.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Model Context Protocol: Structured Tool Access for Enterprise AI Systems">
+  <meta name="twitter:description" content="MCP standardizes how language models discover and call external tools — here is what that means in practice.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Model Context Protocol: Structured Tool Access for Enterprise AI Systems", "description": "MCP standardizes how language models discover and call external tools — here is what that means in practice.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png", "datePublished": "2026-07-23T07:33:53.903869+00:00", "dateModified": "2026-07-23T07:33:53.903869+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "mcp, agents, tool-use, enterprise-architecture, agentic-workflows"}</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -246,6 +261,7 @@
       color: var(--source-text);
       padding: 0.18rem 0.6rem;
       border-radius: 20px;
+      text-decoration: none;
     }
 
     .site-footer {
@@ -257,6 +273,19 @@
       color: var(--text-muted);
       text-align: center;
     }
+  
+    .tag-chip:hover { color: var(--accent); }
+    .share-row { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+    .share-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-right: 0.3rem; }
+    .share-link { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-decoration: none; background: var(--source-bg); padding: 0.3rem 0.75rem; border-radius: 20px; }
+    .share-link:hover { text-decoration: underline; }
+    .related-section { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .related-heading { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.9rem; }
+    .related-card { display: block; padding: 0.75rem 0; text-decoration: none; border-bottom: 1px solid var(--border); }
+    .related-card:last-child { border-bottom: none; }
+    .related-technique { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .related-title { display: block; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .related-card:hover .related-title { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -335,12 +364,36 @@ Awaiting initialize request from host...
     <p class="inspired-by">Inspired by <a href="https://www.latent.space/p/poolside" target="_blank" rel="noopener noreferrer">Inside the Model Factory — Eiso Kant, Poolside AI</a> (Latent Space)</p>
 
     <div class="tag-row">
-      <span class="tag-chip">mcp</span>
-      <span class="tag-chip">agents</span>
-      <span class="tag-chip">tool-use</span>
-      <span class="tag-chip">enterprise-architecture</span>
-      <span class="tag-chip">agentic-workflows</span>
+      <a class="tag-chip" href="../tags/mcp.html">mcp</a>
+      <a class="tag-chip" href="../tags/agents.html">agents</a>
+      <a class="tag-chip" href="../tags/tool-use.html">tool-use</a>
+      <a class="tag-chip" href="../tags/enterprise-architecture.html">enterprise-architecture</a>
+      <a class="tag-chip" href="../tags/agentic-workflows.html">agentic-workflows</a>
     </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Model%20Context%20Protocol%3A%20Structured%20Tool%20Access%20for%20Enterprise%20AI%20Systems&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html&amp;t=Model%20Context%20Protocol%3A%20Structured%20Tool%20Access%20for%20Enterprise%20AI%20Systems" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Model%20Context%20Protocol%3A%20Structured%20Tool%20Access%20for%20Enterprise%20AI%20Systems&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html">
+        <span class="related-technique">Structured Outputs &amp; Tool Use</span>
+        <span class="related-title">Structured Outputs and Tool Use: Making LLMs Behave Like APIs</span>
+      </a>
+      <a class="related-card" href="../posts/how-multi-agent-orchestration-actually-works-in-production.html">
+        <span class="related-technique">Agentic Workflows &amp; Multi-Agent Orchestration</span>
+        <span class="related-title">How Multi-Agent Orchestration Actually Works in Production</span>
+      </a>
+      <a class="related-card" href="../posts/more-context-is-not-the-answer-to-your-context-problem.html">
+        <span class="related-technique">Context Engineering &amp; Long-Context Management</span>
+        <span class="related-title">More Context Is Not the Answer to Your Context Problem</span>
+      </a>
+    </section>
   </div>
 
   <footer class="site-footer">

@@ -28,7 +28,7 @@
       }
     ],
     "inspired_by": null,
-    "og_image": null
+    "og_image": "how-multi-agent-orchestration-actually-works-in-production-hero.png"
   },
   {
     "slug": "rag-is-a-data-architecture-decision-not-just-a-prompt-trick",
@@ -63,7 +63,7 @@
       "url": "https://www.latent.space/p/xaira",
       "source": "Latent Space"
     },
-    "og_image": null
+    "og_image": "rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png"
   },
   {
     "slug": "prompt-caching-cut-llm-costs-by-anchoring-repeated-context",
@@ -122,7 +122,7 @@
       "url": "https://simonwillison.net/2026/Jul/20/cheap-reverse-engineering/#atom-everything",
       "source": "Simon Willison"
     },
-    "og_image": null
+    "og_image": "prompt-caching-cut-llm-costs-by-anchoring-repeated-context-hero.png"
   },
   {
     "slug": "structured-outputs-and-tool-use-making-llms-behave-like-apis",
@@ -193,7 +193,7 @@
       "url": "https://simonwillison.net/2026/Jul/21/cat-and-thariq/#atom-everything",
       "source": "Simon Willison"
     },
-    "og_image": null
+    "og_image": "structured-outputs-and-tool-use-making-llms-behave-like-apis-hero.png"
   },
   {
     "slug": "model-context-protocol-structured-tool-access-for-enterprise-ai-systems",
@@ -241,7 +241,7 @@
       "url": "https://www.latent.space/p/poolside",
       "source": "Latent Space"
     },
-    "og_image": null
+    "og_image": "model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png"
   },
   {
     "slug": "systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates",
@@ -296,7 +296,7 @@
       }
     ],
     "inspired_by": null,
-    "og_image": null
+    "og_image": "systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates-hero.png"
   },
   {
     "slug": "guardrails-and-output-validation-for-production-llm-systems",
@@ -340,7 +340,7 @@
       }
     ],
     "inspired_by": null,
-    "og_image": null
+    "og_image": "guardrails-and-output-validation-for-production-llm-systems-hero.png"
   },
   {
     "slug": "you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice",
@@ -393,7 +393,7 @@
       "quote"
     ],
     "inspired_by": null,
-    "og_image": null
+    "og_image": "you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice-hero.png"
   },
   {
     "slug": "red-teaming-your-ai-before-someone-else-does-it-for-you",
@@ -464,7 +464,7 @@
       "code_project"
     ],
     "inspired_by": null,
-    "og_image": null
+    "og_image": "red-teaming-your-ai-before-someone-else-does-it-for-you-hero.png"
   },
   {
     "slug": "more-context-is-not-the-answer-to-your-context-problem",
@@ -507,6 +507,6 @@
       "prose"
     ],
     "inspired_by": null,
-    "og_image": null
+    "og_image": "more-context-is-not-the-answer-to-your-context-problem-hero.png"
   }
 ]

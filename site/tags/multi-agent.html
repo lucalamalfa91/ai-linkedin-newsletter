@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>multi-agent — The AI Architect</title>
+  <meta name="description" content="Articles tagged multi-agent on The AI Architect — by Luca La Malfa.">
+  <meta property="og:title" content="multi-agent — The AI Architect">
+  <meta property="og:description" content="Articles tagged multi-agent on The AI Architect.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/tags/multi-agent.html">
+  <meta name="robots" content="noindex, follow">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/tags/multi-agent.html">
+  <meta property="og:image" content="/og-default.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="multi-agent — The AI Architect">
+  <meta name="twitter:description" content="Articles tagged multi-agent on The AI Architect.">
+  <meta name="twitter:image" content="/og-default.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --header-sub:    rgba(255,255,255,0.45);
+      --header-strong: rgba(255,255,255,0.85);
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --header-sub:    rgba(255,255,255,0.35);
+        --header-strong: rgba(255,255,255,0.85);
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    /* ── MASTHEAD ───────────────────────────────────────── */
+    .masthead {
+      background: var(--header-bg);
+      padding: 3rem 1.25rem 2.5rem;
+      text-align: center;
+    }
+
+    .masthead-inner { max-width: 640px; margin: 0 auto; }
+
+    .masthead-eyebrow {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--header-sub);
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .masthead h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #FFFFFF;
+      margin-bottom: 0.6rem;
+      line-height: 1.1;
+    }
+
+    .masthead-sub {
+      font-size: 0.875rem;
+      color: var(--header-sub);
+    }
+
+    .masthead-sub strong { color: var(--header-strong); }
+
+    .masthead-sub a { color: var(--header-strong); }
+
+    .masthead-divider {
+      width: 40px;
+      height: 2px;
+      background: rgba(255,255,255,0.12);
+      margin: 1.25rem auto 0;
+      border-radius: 2px;
+    }
+
+    /* ── LAYOUT ─────────────────────────────────────────── */
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.25rem 1.25rem 1rem;
+    }
+
+    .feed-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ── STORY CARD ─────────────────────────────────────── */
+    .story-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1.25rem;
+      transition: box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+
+    .story-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      border-color: #C8C7C3;
+    }
+
+    .card-thumb { width: 100%; aspect-ratio: 1200 / 630; overflow: hidden; }
+    .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .card-body { padding: 1.4rem 1.5rem 1.3rem; }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-bottom: 0.8rem;
+      flex-wrap: wrap;
+    }
+
+    .source-chip {
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.65rem;
+      border-radius: 20px;
+    }
+
+    /* Title */
+    .story-title {
+      font-size: 1.08rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      margin-bottom: 0.3rem;
+    }
+
+    .story-title a { color: var(--text); text-decoration: none; }
+    .story-title a:hover { color: var(--accent); }
+
+    /* Date */
+    .story-date {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    /* Summary */
+    .story-summary {
+      font-size: 0.9rem;
+      color: var(--text-sub);
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    /* Read link */
+    .read-link {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .read-link:hover { text-decoration: underline; }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    .site-footer {
+      max-width: 660px;
+      margin: 1rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      line-height: 1.9;
+    }
+
+    .site-footer a { color: var(--text-muted); }
+
+    /* ── MOBILE ─────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .masthead h1     { font-size: 1.55rem; }
+      .card-body       { padding: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <div class="masthead-inner">
+      <span class="masthead-eyebrow">The AI Architect</span>
+      <h1>multi-agent</h1>
+      <p class="masthead-sub">
+        <strong>1</strong> articles tagged multi-agent &middot; <a href="../index.html">&larr; Back to the archive</a>
+      </p>
+      <div class="masthead-divider"></div>
+    </div>
+  </header>
+
+  <div class="container">
+    <p class="feed-label">Tag: multi-agent</p>
+    <main>
+    <article class="story-card">
+    <div class="card-thumb"><img src="../posts/images/how-multi-agent-orchestration-actually-works-in-production-hero.png" alt="" loading="lazy"></div>
+    <div class="card-body">
+      <div class="card-top">
+        <span class="source-chip">Agentic Workflows &amp; Multi-Agent Orchestration</span>
+      </div>
+      <h2 class="story-title"><a href="../posts/how-multi-agent-orchestration-actually-works-in-production.html">How Multi-Agent Orchestration Actually Works in Production</a></h2>
+      <p class="story-date">July 21, 2026</p>
+      <p class="story-summary">Breaking down agentic workflows beyond the demos so you can design systems that hold together under real enterprise load.</p>
+      <a class="read-link" href="../posts/how-multi-agent-orchestration-actually-works-in-production.html">Read full article &#8594;</a>
+    </div>
+    </article>
+    </main>
+  </div>
+
+  <footer class="site-footer">
+    Every article stays online, permanently &middot; Written by Luca, with Claude &middot; Last updated: 2026-07-28 12:04 UTC
+  </footer>
+
+</body>
+</html>

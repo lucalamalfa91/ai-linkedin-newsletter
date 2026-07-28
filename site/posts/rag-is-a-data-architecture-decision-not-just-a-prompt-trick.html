@@ -8,6 +8,21 @@
   <meta property="og:title" content="RAG Is a Data Architecture Decision, Not Just a Prompt Trick">
   <meta property="og:description" content="How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RAG Is a Data Architecture Decision, Not Just a Prompt Trick">
+  <meta name="twitter:description" content="How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "RAG Is a Data Architecture Decision, Not Just a Prompt Trick", "description": "How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png", "datePublished": "2026-07-21T22:35:49.309229+00:00", "dateModified": "2026-07-21T22:35:49.309229+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "rag, retrieval, enterprise-ai, vector-search, knowledge-management"}</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -164,6 +179,7 @@
       color: var(--source-text);
       padding: 0.18rem 0.6rem;
       border-radius: 20px;
+      text-decoration: none;
     }
 
     .site-footer {
@@ -175,6 +191,19 @@
       color: var(--text-muted);
       text-align: center;
     }
+  
+    .tag-chip:hover { color: var(--accent); }
+    .share-row { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+    .share-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-right: 0.3rem; }
+    .share-link { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-decoration: none; background: var(--source-bg); padding: 0.3rem 0.75rem; border-radius: 20px; }
+    .share-link:hover { text-decoration: underline; }
+    .related-section { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .related-heading { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.9rem; }
+    .related-card { display: block; padding: 0.75rem 0; text-decoration: none; border-bottom: 1px solid var(--border); }
+    .related-card:last-child { border-bottom: none; }
+    .related-technique { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .related-title { display: block; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .related-card:hover .related-title { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -211,12 +240,36 @@
     <p class="inspired-by">Inspired by <a href="https://www.latent.space/p/xaira" target="_blank" rel="noopener noreferrer">🔬Causal Models Need Causal Data - Xaira’s X-Cell model for Drug Discovery (Bo Wang & Ci Chu, Chief Discovery Officer & Chief AI Scientist)</a> (Latent Space)</p>
 
     <div class="tag-row">
-      <span class="tag-chip">rag</span>
-      <span class="tag-chip">retrieval</span>
-      <span class="tag-chip">enterprise-ai</span>
-      <span class="tag-chip">vector-search</span>
-      <span class="tag-chip">knowledge-management</span>
+      <a class="tag-chip" href="../tags/rag.html">rag</a>
+      <a class="tag-chip" href="../tags/retrieval.html">retrieval</a>
+      <a class="tag-chip" href="../tags/enterprise-ai.html">enterprise-ai</a>
+      <a class="tag-chip" href="../tags/vector-search.html">vector-search</a>
+      <a class="tag-chip" href="../tags/knowledge-management.html">knowledge-management</a>
     </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=RAG%20Is%20a%20Data%20Architecture%20Decision%2C%20Not%20Just%20a%20Prompt%20Trick&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html&amp;t=RAG%20Is%20a%20Data%20Architecture%20Decision%2C%20Not%20Just%20a%20Prompt%20Trick" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=RAG%20Is%20a%20Data%20Architecture%20Decision%2C%20Not%20Just%20a%20Prompt%20Trick&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/guardrails-and-output-validation-for-production-llm-systems.html">
+        <span class="related-technique">Guardrails &amp; Output Validation</span>
+        <span class="related-title">Guardrails and Output Validation for Production LLM Systems</span>
+      </a>
+      <a class="related-card" href="../posts/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates.html">
+        <span class="related-technique">LLM Evaluation &amp; Testing</span>
+        <span class="related-title">Systematic LLM Evaluation: From Vibe Checks to Measurable Quality Gates</span>
+      </a>
+      <a class="related-card" href="../posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html">
+        <span class="related-technique">Prompt Caching &amp; Cost Optimization</span>
+        <span class="related-title">Prompt Caching: Cut LLM Costs by Anchoring Repeated Context</span>
+      </a>
+    </section>
   </div>
 
   <footer class="site-footer">

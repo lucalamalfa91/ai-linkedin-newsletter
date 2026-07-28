@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"><channel>
+  <title>The AI Architect</title>
+  <link>https://ai-linkedin-newsletter.vercel.app/</link>
+  <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
+  <item>
+    <title>More Context Is Not the Answer to Your Context Problem</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html</guid>
+    <pubDate>Tue, 28 Jul 2026 07:40:01 +0000</pubDate>
+    <description>Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-answer-to-your-context-problem-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>Red-Teaming Your AI Before Someone Else Does It For You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html</guid>
+    <pubDate>Mon, 27 Jul 2026 08:32:05 +0000</pubDate>
+    <description>How to systematically break your own LLM systems and fix them before they reach production.</description>
+    <category>red-teaming</category><category>adversarial-testing</category><category>safety</category><category>evaluation</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-ai-before-someone-else-does-it-for-you-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>You Can't Debug What You Can't See: LLM Tracing in Practice</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice.html</guid>
+    <pubDate>Sun, 26 Jul 2026 11:28:09 +0000</pubDate>
+    <description>How adding proper observability to an LLM pipeline changed the way I diagnose and fix production issues.</description>
+    <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>Guardrails and Output Validation for Production LLM Systems</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html</guid>
+    <pubDate>Sat, 25 Jul 2026 07:18:12 +0000</pubDate>
+    <description>How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>structured-outputs</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-for-production-llm-systems-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>Systematic LLM Evaluation: From Vibe Checks to Measurable Quality Gates</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates.html</guid>
+    <pubDate>Fri, 24 Jul 2026 07:32:20 +0000</pubDate>
+    <description>How to replace gut-feel LLM testing with repeatable, metric-driven evaluation pipelines that actually catch regressions.</description>
+    <category>evaluation</category><category>testing</category><category>rag</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>Model Context Protocol: Structured Tool Access for Enterprise AI Systems</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html</guid>
+    <pubDate>Thu, 23 Jul 2026 07:33:53 +0000</pubDate>
+    <description>MCP standardizes how language models discover and call external tools — here is what that means in practice.</description>
+    <category>mcp</category><category>agents</category><category>tool-use</category><category>enterprise-architecture</category><category>agentic-workflows</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>Structured Outputs and Tool Use: Making LLMs Behave Like APIs</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html</guid>
+    <pubDate>Wed, 22 Jul 2026 07:34:48 +0000</pubDate>
+    <description>How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.</description>
+    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>schema-design</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-and-tool-use-making-llms-behave-like-apis-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>Prompt Caching: Cut LLM Costs by Anchoring Repeated Context</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html</guid>
+    <pubDate>Tue, 21 Jul 2026 22:49:28 +0000</pubDate>
+    <description>Learn how to structure prompts so repeated context is cached and billed once, not on every call.</description>
+    <category>prompt-caching</category><category>cost-optimization</category><category>llm-infrastructure</category><category>anthropic</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-cut-llm-costs-by-anchoring-repeated-context-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>RAG Is a Data Architecture Decision, Not Just a Prompt Trick</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html</guid>
+    <pubDate>Tue, 21 Jul 2026 22:35:49 +0000</pubDate>
+    <description>How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.</description>
+    <category>rag</category><category>retrieval</category><category>enterprise-ai</category><category>vector-search</category><category>knowledge-management</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png" type="image/png"/>
+  </item>
+  <item>
+    <title>How Multi-Agent Orchestration Actually Works in Production</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-multi-agent-orchestration-actually-works-in-production.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-multi-agent-orchestration-actually-works-in-production.html</guid>
+    <pubDate>Tue, 21 Jul 2026 22:29:39 +0000</pubDate>
+    <description>Breaking down agentic workflows beyond the demos so you can design systems that hold together under real enterprise load.</description>
+    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>reliability</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-multi-agent-orchestration-actually-works-in-production-hero.png" type="image/png"/>
+  </item>
+</channel></rss>

@@ -247,6 +247,35 @@ POST_IMAGES_DIR = POSTS_DIR / "images"
 FONT_REGULAR_PATH = _ROOT / "assets" / "fonts" / "LiberationSans-Regular.ttf"
 FONT_BOLD_PATH = _ROOT / "assets" / "fonts" / "LiberationSans-Bold.ttf"
 
+# --- SEO / static site metadata ---
+
+# Canonical absolute base URL for the static site. Every absolute URL the pipeline emits
+# (canonical link, og:url, og:image, sitemap.xml, RSS feed, JSON-LD) is built from this
+# constant, so pointing the site at a real custom domain later is a one-line change here.
+# Aliases NEWSLETTER_URL (same domain, also used by main.py for LinkedIn post links)
+# rather than duplicating the literal string — un-alias if the two ever diverge.
+SITE_URL = NEWSLETTER_URL
+
+SITEMAP_PATH = _ROOT / "site" / "sitemap.xml"
+ROBOTS_PATH = _ROOT / "site" / "robots.txt"
+RSS_PATH = _ROOT / "site" / "feed.xml"
+TAGS_DIR = _ROOT / "site" / "tags"
+TAG_TEMPLATE_PATH = _ROOT / "site" / "tag_template.html"
+
+# A tag page with fewer articles than this is thin/near-duplicate content — still built and
+# linked from posts for navigation, but excluded from sitemap.xml and marked noindex so it
+# isn't submitted to search engines as if it were a substantial archive page.
+TAG_PAGE_MIN_ARTICLES_FOR_SEO = 2
+
+# RSS is conventionally capped to the most recent items (unlike sitemap.xml, which must
+# list every URL) — keeps feed.xml bounded as the archive grows over years.
+RSS_MAX_ITEMS = 30
+
+# Fixed OG/Twitter "large image" card size for the branded hero image
+# (utils/diagram_renderer.render_hero_image) — the widely-supported 1200x630 convention.
+HERO_IMAGE_WIDTH = 1200
+HERO_IMAGE_HEIGHT = 630
+
 # Fallback og:image per source — used when the article/changelog URL returns no image.
 CHANGELOG_SOURCE_HOMEPAGES = {
     "Claude Code":        "https://www.anthropic.com",

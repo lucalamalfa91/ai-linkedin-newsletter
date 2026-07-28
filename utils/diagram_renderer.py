@@ -8,12 +8,13 @@ regardless of what fonts are installed on the machine running this — a
 GitHub Actions runner may not have the same fonts as a local dev machine.
 """
 
+import html
 import logging
 import math
 import random
 from pathlib import Path
 
-from config import FONT_BOLD_PATH, FONT_REGULAR_PATH
+from config import FONT_BOLD_PATH, FONT_REGULAR_PATH, HERO_IMAGE_HEIGHT, HERO_IMAGE_WIDTH
 
 log = logging.getLogger(__name__)
 
@@ -244,3 +245,82 @@ def render_compare_table(
         return False
     html = _build_table_html(heading, badge, theme, headers, rows)
     return _screenshot_card(html, output_path, heading)
+
+
+_HERO_CSS_TEMPLATE = """
+@font-face {{ font-family: 'Card'; src: url('file://{reg}') format('truetype'); font-weight: 400; }}
+@font-face {{ font-family: 'Card'; src: url('file://{bold}') format('truetype'); font-weight: 700; }}
+* {{ box-sizing: border-box; margin: 0; padding: 0; }}
+body {{ font-family: 'Card', sans-serif; }}
+#card {{
+  width: {width}px; height: {height}px;
+  background: #0F172A; position: relative; overflow: hidden;
+  padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between;
+}}
+.hero-icon {{ position: absolute; top: -60px; right: -60px; opacity: 0.14; }}
+.hero-badge {{
+  align-self: flex-start; font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: #FFFFFF; background: {accent};
+  padding: 7px 16px; border-radius: 6px; max-width: 560px;
+}}
+.hero-title {{
+  font-size: 46px; font-weight: 700; line-height: 1.18; letter-spacing: -0.01em;
+  color: #FFFFFF; margin-top: 28px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; text-overflow: ellipsis;
+}}
+.hero-footer {{ font-size: 15px; color: rgba(255,255,255,0.55); }}
+.hero-footer strong {{ color: rgba(255,255,255,0.85); }}
+"""
+
+
+def _build_hero_html(heading: str, badge: str, theme: str) -> str:
+    accent = THEMES.get(theme, THEMES[THEME_NAMES[0]])
+    # Fixed decorative icon (not per-article) — every hero image shares the same "family"
+    # look, distinguished only by the rotating accent color, like a magazine template
+    # varying its cover color while keeping its logo mark in the same place.
+    icon_svg = _icon_svg("network", accent, size=340)
+    css = _HERO_CSS_TEMPLATE.format(
+        reg=FONT_REGULAR_PATH, bold=FONT_BOLD_PATH, accent=accent,
+        width=HERO_IMAGE_WIDTH, height=HERO_IMAGE_HEIGHT,
+    )
+    # heading/badge are LLM-authored text; escape defensively so a stray "&" or "<" can't
+    # break this throwaway screenshot markup (it's rasterized, never published as HTML).
+    heading_safe = html.escape(heading or "")
+    badge_safe = html.escape(badge or "")
+    return (
+        f'<!DOCTYPE html><html><head><meta charset="utf-8"><style>{css}</style></head>'
+        f'<body><div id="card">'
+        f'<div class="hero-icon">{icon_svg}</div>'
+        f'<span class="hero-badge">{badge_safe}</span>'
+        f'<h1 class="hero-title">{heading_safe}</h1>'
+        f'<div class="hero-footer">The AI Architect &middot; <strong>Luca La Malfa</strong></div>'
+        f'</div></body></html>'
+    )
+
+
+def render_hero_image(heading: str, badge: str, theme: str, output_path: str | Path) -> bool:
+    """Render a 1200x630 branded cover image, generated for EVERY article regardless of
+    archetype or whether it has any inline diagram blocks (unlike render_flow_diagram /
+    render_compare_table, which only fire for `diagram`-type blocks). Used as the article's
+    homepage thumbnail and as its Open Graph / Twitter Card / RSS enclosure image. Reuses
+    THEMES + _screenshot_card exactly like the sibling renderers. Best-effort: returns False
+    on any failure — a failed hero render must never abort the article publish (mirrors the
+    existing diagram contract)."""
+    if not heading:
+        return False
+    html_doc = _build_hero_html(heading, badge, theme)
+    ok = _screenshot_card(html_doc, output_path, heading)
+    if ok:
+        # _screenshot_card renders at device_scale_factor=2 for crisp text, so the raw PNG
+        # is 2x HERO_IMAGE_WIDTH/HEIGHT — downsample to the exact declared og:image:width/
+        # height so social crawlers that trust those meta tags aren't fed a mismatched file.
+        try:
+            from PIL import Image
+
+            with Image.open(output_path) as img:
+                img = img.convert("RGB").resize((HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT), Image.LANCZOS)
+                img.save(output_path)
+        except Exception as exc:
+            log.warning("Hero image downscale failed for '%s': %s", heading, exc)
+    return ok
