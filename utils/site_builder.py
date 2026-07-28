@@ -6,7 +6,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import quote
 
-from config import SITE_URL
+from config import SITE_URL, TAG_PAGE_MIN_ARTICLES_FOR_SEO
 from utils.articles import slugify
 
 log = logging.getLogger(__name__)
@@ -184,6 +184,14 @@ def build_tag_pages(articles: list[dict], tag_template_path: str | Path, output_
         tag_slug = slugify(tag)
         canonical_url = f"{SITE_URL}/tags/{tag_slug}.html"
 
+        # A tag with too few articles is thin/near-duplicate content — still built and
+        # linked from posts for navigation, but not worth submitting to search engines
+        # (see build_sitemap, which excludes these same tags from sitemap.xml).
+        robots_meta = (
+            "" if len(ordered) >= TAG_PAGE_MIN_ARTICLES_FOR_SEO
+            else '  <meta name="robots" content="noindex, follow">\n'
+        )
+
         html_out = (
             template
             .replace("{{ TAG_NAME }}", _escape(tag))
@@ -191,6 +199,7 @@ def build_tag_pages(articles: list[dict], tag_template_path: str | Path, output_
             .replace("{{ ARTICLE_COUNT }}", str(len(ordered)))
             .replace("{{ GENERATED_AT }}", generated_at_display)
             .replace("{{ CANONICAL_URL }}", canonical_url)
+            .replace("{{ ROBOTS_META }}", robots_meta)
         )
         (out_dir / f"{tag_slug}.html").write_text(html_out, encoding="utf-8")
     log.info("Built %d tag pages", len(by_tag))
@@ -324,10 +333,10 @@ def _render_share_row(title: str, url: str) -> str:
     t = quote(title)
     u = quote(url)
     links = [
-        ("X / Twitter", f"https://twitter.com/intent/tweet?text={t}&url={u}"),
+        ("X / Twitter", f"https://twitter.com/intent/tweet?text={t}&amp;url={u}"),
         ("LinkedIn", f"https://www.linkedin.com/sharing/share-offsite/?url={u}"),
-        ("Hacker News", f"https://news.ycombinator.com/submitlink?u={u}&t={t}"),
-        ("Email", f"mailto:?subject={t}&body={u}"),
+        ("Hacker News", f"https://news.ycombinator.com/submitlink?u={u}&amp;t={t}"),
+        ("Email", f"mailto:?subject={t}&amp;body={u}"),
     ]
     items = "\n".join(
         f'      <a class="share-link" href="{href}" target="_blank" rel="noopener noreferrer">{label}</a>'

@@ -266,7 +266,8 @@ body {{ font-family: 'Card', sans-serif; }}
 .hero-title {{
   font-size: 46px; font-weight: 700; line-height: 1.18; letter-spacing: -0.01em;
   color: #FFFFFF; margin-top: 28px;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; text-overflow: ellipsis;
 }}
 .hero-footer {{ font-size: 15px; color: rgba(255,255,255,0.55); }}
 .hero-footer strong {{ color: rgba(255,255,255,0.85); }}

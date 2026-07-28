@@ -262,6 +262,11 @@ RSS_PATH = _ROOT / "site" / "feed.xml"
 TAGS_DIR = _ROOT / "site" / "tags"
 TAG_TEMPLATE_PATH = _ROOT / "site" / "tag_template.html"
 
+# A tag page with fewer articles than this is thin/near-duplicate content — still built and
+# linked from posts for navigation, but excluded from sitemap.xml and marked noindex so it
+# isn't submitted to search engines as if it were a substantial archive page.
+TAG_PAGE_MIN_ARTICLES_FOR_SEO = 2
+
 # RSS is conventionally capped to the most recent items (unlike sitemap.xml, which must
 # list every URL) — keeps feed.xml bounded as the archive grows over years.
 RSS_MAX_ITEMS = 30
