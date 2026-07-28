@@ -363,11 +363,13 @@ THEME_PALETTES = {
 def _image_style_suffix(theme: str) -> str:
     palette = THEME_PALETTES.get(theme, THEME_PALETTES[THEME_NAMES[0]])
     return (
-        f"flat minimal editorial illustration, {palette} background, hand-drawn black ink "
-        "line art with slightly imperfect organic linework, simple bold cutout shapes, "
-        "subtle halftone dot texture accents, clean sophisticated professional design, the "
-        "main subject large, clear, and instantly recognizable, no gradients, no 3D "
-        "rendering, no photorealism, no text, no logos, no realistic human figures or faces"
+        f"highly stylized flat editorial icon illustration, {palette} background, reduced "
+        "to a few bold simplified geometric shapes, thick imperfect hand-drawn black ink "
+        "outlines, graphic and iconic rather than realistic or detailed, minimal fine "
+        "detail or texture, subtle halftone dot accents, clean sophisticated professional "
+        "design, the main subject large, clear, and instantly recognizable at a glance, no "
+        "gradients, no 3D rendering, no photorealism, no intricate detail, no text, no "
+        "logos, no realistic human figures or faces"
     )
 
 
