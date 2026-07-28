@@ -242,36 +242,49 @@ def _clean_diagram_block(b: dict) -> dict | None:
 
 
 _IMAGE_PROMPT_SYSTEM = """\
-You describe the SUBJECT of a cover illustration for one article on Luca's "AI Architect" \
-blog. Reply with ONLY the subject description — one sentence, max 20 words, no preamble, \
-no quotes.
+You describe the SUBJECT of a striking cover illustration for one article on Luca's \
+"AI Architect" blog. Reply with ONLY the subject description — one vivid sentence, max 25 \
+words, no preamble, no quotes.
 
-Describe abstract shapes, objects, or a scene (never literal screenshots, UI mockups, or \
-readable text/code) that visually evokes the SPECIFIC idea of this article, not just its \
-general technique category — e.g. differentiate "cutting through noise to find one signal" \
-from "many parallel threads converging" even though both could nominally illustrate the same \
-technique. No people, no logos, no brand names, no charts with axes.
+Pick the single most specific, concrete keyword this article is actually about — from its \
+tags, title, and technique — and build a memorable visual metaphor directly around THAT \
+keyword, not a generic composition that could apply to any AI article. Prefer concrete \
+objects, materials, or environments over vague abstract shapes when they make the metaphor \
+clearer and more beautiful (e.g. rows of illuminated data servers for retrieval, a 3D-printer \
+head repeating an identical shape for caching, a glass tower stress-tested with focused \
+impact points for security testing, a glowing fiber-optic strand through a tangle of cables \
+for tracing). Keep the setting modern and contemporary — no castles, fortresses, ancient \
+scrolls, wax seals, treasure chests, or other medieval/mythological imagery. Never literal \
+screenshots, UI mockups, readable text/code, or charts with axes. No people, no human \
+figures or silhouettes, no hands, no logos, no brand names.
 
-Do NOT mention colors, art style, medium, or lighting — that is fixed separately and applied \
-to every article for visual consistency across the blog. Describe only the subject/composition.
+Do NOT mention colors, art style, medium, or lighting — that is fixed separately per article \
+and applied automatically. Describe only the subject/scene/composition.
 """
 
 
-def generate_image_prompt(title: str, technique: str, dek: str, client: anthropic.Anthropic) -> str:
+def generate_image_prompt(
+    title: str, technique: str, dek: str, tags: list[str], client: anthropic.Anthropic,
+) -> str:
     """Ask Claude for this article's cover-image SUBJECT only — utils.diagram_renderer's
-    IMAGE_STYLE_SUFFIX supplies the fixed style half of the final prompt sent to the image
-    generator, so this only ever needs to describe the scene. Best-effort: a fixed, generic
-    fallback subject on any failure — this must never block publishing the article."""
-    fallback = f"abstract shapes representing {technique}"
+    _image_style_suffix() supplies the fixed style half of the final prompt sent to the image
+    generator, so this only ever needs to describe the scene. `tags` (the article's own short
+    keyword labels) ground the subject in something concrete and specific to this article,
+    rather than a generic composition for the technique category. Best-effort: a fixed,
+    generic fallback subject on any failure — this must never block publishing the article."""
+    fallback = f"a striking scene representing {technique}"
     try:
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=60,
+            max_tokens=70,
             temperature=0.9,
             system=_IMAGE_PROMPT_SYSTEM,
             messages=[{
                 "role": "user",
-                "content": f"Technique: {technique}\nArticle title: {title}\nSummary: {dek}",
+                "content": (
+                    f"Technique: {technique}\nArticle title: {title}\nSummary: {dek}\n"
+                    f"Keywords/tags: {', '.join(tags) if tags else technique}"
+                ),
             }],
         )
         text = msg.content[0].text.strip().strip('"')
