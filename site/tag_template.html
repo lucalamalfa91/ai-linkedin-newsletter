@@ -3,26 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The AI Architect — Luca La Malfa</title>
-  <meta name="description" content="Practical AI architecture, one technique at a time — by Luca La Malfa.">
-  <meta property="og:title" content="The AI Architect — Luca La Malfa">
-  <meta property="og:description" content="Practical AI architecture, one technique at a time.">
+  <title>{{ TAG_NAME }} — The AI Architect</title>
+  <meta name="description" content="Articles tagged {{ TAG_NAME }} on The AI Architect — by Luca La Malfa.">
+  <meta property="og:title" content="{{ TAG_NAME }} — The AI Architect">
+  <meta property="og:description" content="Articles tagged {{ TAG_NAME }} on The AI Architect.">
   <meta property="og:type" content="website">
   <link rel="canonical" href="{{ CANONICAL_URL }}">
   <meta property="og:url" content="{{ CANONICAL_URL }}">
-  <meta property="og:image" content="{{ OG_IMAGE_URL }}">
+  <meta property="og:image" content="/og-default.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="The AI Architect">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="The AI Architect — Luca La Malfa">
-  <meta name="twitter:description" content="Practical AI architecture, one technique at a time.">
-  <meta name="twitter:image" content="{{ OG_IMAGE_URL }}">
+  <meta name="twitter:title" content="{{ TAG_NAME }} — The AI Architect">
+  <meta name="twitter:description" content="Articles tagged {{ TAG_NAME }} on The AI Architect.">
+  <meta name="twitter:image" content="/og-default.png">
   <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-  {{ JSONLD_HTML }}
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -103,6 +102,8 @@
     }
 
     .masthead-sub strong { color: var(--header-strong); }
+
+    .masthead-sub a { color: var(--header-strong); }
 
     .masthead-divider {
       width: 40px;
@@ -219,6 +220,8 @@
       line-height: 1.9;
     }
 
+    .site-footer a { color: var(--text-muted); }
+
     /* ── MOBILE ─────────────────────────────────────────── */
     @media (max-width: 480px) {
       .masthead h1     { font-size: 1.55rem; }
@@ -231,16 +234,16 @@
   <header class="masthead">
     <div class="masthead-inner">
       <span class="masthead-eyebrow">The AI Architect</span>
-      <h1>Luca La Malfa</h1>
+      <h1>{{ TAG_NAME }}</h1>
       <p class="masthead-sub">
-        Practical AI architecture, one technique at a time — <strong>{{ ARTICLE_COUNT }}</strong> articles and counting
+        <strong>{{ ARTICLE_COUNT }}</strong> articles tagged {{ TAG_NAME }} &middot; <a href="../index.html">&larr; Back to the archive</a>
       </p>
       <div class="masthead-divider"></div>
     </div>
   </header>
 
   <div class="container">
-    <p class="feed-label">Archive</p>
+    <p class="feed-label">Tag: {{ TAG_NAME }}</p>
     <main>
 {{ STORIES_HTML }}
     </main>

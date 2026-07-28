@@ -21,11 +21,15 @@ Flow:
      minimum block counts — keep whichever of the two attempts is best; abort the run rather
      than publish if neither attempt meets the minimums.
   5. Render each diagram-type block to a real PNG (utils/diagram_renderer.py — HTML/SVG
-     screenshotted with headless Chromium), dropping any that fail to render.
+     screenshotted with headless Chromium), dropping any that fail to render. Also render one
+     branded cover/hero image per article (render_hero_image), used as its homepage thumbnail
+     and as its Open Graph / Twitter Card / RSS image — best-effort, like the diagrams.
   6. Append the new article to site/articles.json, build its permalink page
-     (site/posts/<slug>.html), and rebuild the home/archive page (site/index.html) from the
-     full archive. Diagram PNGs live under site/posts/images/ and are reused as-is for the
-     LinkedIn carousel (see agents/carousel_agent.py).
+     (site/posts/<slug>.html), rebuild the home/archive page (site/index.html) from the full
+     archive, rebuild the per-tag archive pages (site/tags/<tag>.html), and regenerate
+     sitemap.xml / robots.txt / feed.xml (utils/seo.py) from the full archive. Diagram PNGs
+     live under site/posts/images/ and are reused as-is for the LinkedIn carousel (see
+     agents/carousel_agent.py).
   7. Commit + push → Vercel auto-deploys.
 """
 
@@ -49,7 +53,12 @@ from config import (
     POST_IMAGES_DIR,
     POST_TEMPLATE_PATH,
     POSTS_DIR,
+    ROBOTS_PATH,
+    RSS_PATH,
     SITE_OUTPUT_PATH,
+    SITEMAP_PATH,
+    TAG_TEMPLATE_PATH,
+    TAGS_DIR,
     TECHNIQUE_EXAMPLE_PROJECTS,
     TEMPLATE_PATH,
 )
@@ -61,8 +70,9 @@ from utils.articles import (
     slugify,
     unique_slug,
 )
-from utils.diagram_renderer import random_theme, render_compare_table, render_flow_diagram
-from utils.site_builder import build_home_page, build_post_page
+from utils.diagram_renderer import random_theme, render_compare_table, render_flow_diagram, render_hero_image
+from utils.seo import build_robots_txt, build_rss_feed, build_sitemap
+from utils.site_builder import build_home_page, build_post_page, build_tag_pages
 
 logging.basicConfig(
     level=logging.INFO,
@@ -348,7 +358,8 @@ def _commit_and_push() -> None:
     cmds = [
         ["git", "config", "user.email", "actions@github.com"],
         ["git", "config", "user.name", "GitHub Actions"],
-        ["git", "add", "site/articles.json", "site/index.html", "site/posts"],
+        ["git", "add", "site/articles.json", "site/index.html", "site/posts", "site/tags",
+         "site/sitemap.xml", "site/robots.txt", "site/feed.xml"],
     ]
     for cmd in cmds:
         subprocess.run(cmd, check=True)
@@ -423,6 +434,12 @@ def main() -> None:
 
     blocks = _render_diagram_blocks(slug, written.get("blocks", []))
 
+    hero_filename = f"{slug}-hero.png"
+    hero_ok = render_hero_image(written["title"], technique, random_theme(), POST_IMAGES_DIR / hero_filename)
+    if not hero_ok:
+        log.warning("Hero image render failed for '%s' — publishing without a thumbnail", written["title"])
+    og_image = hero_filename if hero_ok else None
+
     article = {
         "slug": slug,
         "title": written["title"],
@@ -444,15 +461,19 @@ def main() -> None:
             if inspiration
             else None
         ),
-        "og_image": None,
+        "og_image": og_image,
     }
 
     # Append-only: never overwrite or drop previously published articles.
     articles.append(article)
     save_articles(articles)
 
-    build_post_page(article, POST_TEMPLATE_PATH, POSTS_DIR)
+    build_post_page(article, articles, POST_TEMPLATE_PATH, POSTS_DIR)
     build_home_page(articles, TEMPLATE_PATH, SITE_OUTPUT_PATH)
+    build_tag_pages(articles, TAG_TEMPLATE_PATH, TAGS_DIR)
+    build_sitemap(articles, SITEMAP_PATH)
+    build_robots_txt(ROBOTS_PATH)
+    build_rss_feed(articles, RSS_PATH)
 
     _commit_and_push()
 
