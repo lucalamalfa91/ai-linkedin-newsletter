@@ -242,27 +242,24 @@ def _clean_diagram_block(b: dict) -> dict | None:
 
 
 _IMAGE_PROMPT_SYSTEM = """\
-You describe the SUBJECT of a striking cover illustration for one article on Luca's \
-"AI Architect" blog. Reply with ONLY the subject description — one vivid sentence, max 25 \
-words, no preamble, no quotes.
+You describe the SUBJECT of a simple icon-style cover illustration for one article on \
+Luca's "AI Architect" blog. Reply with ONLY the subject description — one short sentence, \
+max 15 words, no preamble, no quotes.
 
-Pick the single most specific, concrete keyword this article is actually about — from its \
-tags, title, and technique — and describe ONE clear, unmistakable object, action, or small \
-scene that directly depicts that keyword, large and filling most of the frame. A reader \
-should immediately recognize what the image is about at a glance, without reading the \
-article — this is not a mood board or an atmospheric backdrop, it is a literal depiction of \
-the keyword (e.g. rows of labeled books being searched for retrieval, a rubber stamp \
-printing the identical mark twice for caching, a single cracked support beam under a load \
-for reliability, a tangle of wires with one strand traced and highlighted for tracing). \
-Prefer everyday concrete objects/materials over vague abstract shapes or purely atmospheric \
-scenes that could obscure the subject. Keep the setting modern and contemporary — no \
-castles, fortresses, ancient scrolls, wax seals, treasure chests, or other \
-medieval/mythological imagery. Never literal screenshots, UI mockups, readable text/code, or \
-charts with axes. No people, no human figures or silhouettes, no hands, no logos, no brand \
-names.
+Pick the single most specific keyword this article is actually about — from its tags, \
+title, and technique — and describe the single most LITERAL, obvious, everyday object or \
+tiny scene that keyword brings to mind. Not a clever indirect metaphor: the simplest, most \
+direct reading of the word itself (e.g. for "guardrails" literally draw guardrails on a \
+road; for "retrieval"/"RAG" literally draw a book; for "caching" literally draw a stamp; \
+for "gears"/"orchestration" literally draw gears meshing). Describe ONE simple object or a \
+very small simple scene — not a complex composition, not multiple unrelated elements. Keep \
+the setting modern and contemporary — no castles, ancient scrolls, wax seals, treasure \
+chests, or medieval/mythological imagery. Never literal screenshots, UI mockups, readable \
+text/code, or charts with axes. No people, no human figures or silhouettes, no hands, no \
+logos, no brand names.
 
 Do NOT mention colors, art style, medium, or lighting — that is fixed separately per article \
-and applied automatically. Describe only the subject/scene/composition.
+and applied automatically. Describe only the subject.
 """
 
 
