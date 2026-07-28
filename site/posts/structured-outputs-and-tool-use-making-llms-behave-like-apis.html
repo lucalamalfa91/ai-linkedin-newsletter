@@ -8,6 +8,21 @@
   <meta property="og:title" content="Structured Outputs and Tool Use: Making LLMs Behave Like APIs">
   <meta property="og:description" content="How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.">
   <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-and-tool-use-making-llms-behave-like-apis-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Structured Outputs and Tool Use: Making LLMs Behave Like APIs">
+  <meta name="twitter:description" content="How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-and-tool-use-making-llms-behave-like-apis-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Structured Outputs and Tool Use: Making LLMs Behave Like APIs", "description": "How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-and-tool-use-making-llms-behave-like-apis-hero.png", "datePublished": "2026-07-22T07:34:48.839963+00:00", "dateModified": "2026-07-22T07:34:48.839963+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "structured-outputs, tool-use, agents, schema-design, reliability"}</script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -296,6 +311,20 @@
       color: var(--text-muted);
       text-align: center;
     }
+  
+    .tag-chip { text-decoration: none; }
+    .tag-chip:hover { color: var(--accent); }
+    .share-row { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+    .share-label { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-right: 0.3rem; }
+    .share-link { font-size: 0.75rem; font-weight: 600; color: var(--accent); text-decoration: none; background: var(--source-bg); padding: 0.3rem 0.75rem; border-radius: 20px; }
+    .share-link:hover { text-decoration: underline; }
+    .related-section { margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    .related-heading { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.9rem; }
+    .related-card { display: block; padding: 0.75rem 0; text-decoration: none; border-bottom: 1px solid var(--border); }
+    .related-card:last-child { border-bottom: none; }
+    .related-technique { display: block; font-size: 0.68rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.2rem; }
+    .related-title { display: block; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .related-card:hover .related-title { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -459,12 +488,36 @@ Tool registered: search_contracts</pre>
     <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Jul/21/cat-and-thariq/#atom-everything" target="_blank" rel="noopener noreferrer">A Fireside Chat with Cat and Thariq from the Claude Code team</a> (Simon Willison)</p>
 
     <div class="tag-row">
-      <span class="tag-chip">structured-outputs</span>
-      <span class="tag-chip">tool-use</span>
-      <span class="tag-chip">agents</span>
-      <span class="tag-chip">schema-design</span>
-      <span class="tag-chip">reliability</span>
+      <a class="tag-chip" href="../tags/structured-outputs.html">structured-outputs</a>
+      <a class="tag-chip" href="../tags/tool-use.html">tool-use</a>
+      <a class="tag-chip" href="../tags/agents.html">agents</a>
+      <a class="tag-chip" href="../tags/schema-design.html">schema-design</a>
+      <a class="tag-chip" href="../tags/reliability.html">reliability</a>
     </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Structured%20Outputs%20and%20Tool%20Use%3A%20Making%20LLMs%20Behave%20Like%20APIs&url=https%3A//ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html&t=Structured%20Outputs%20and%20Tool%20Use%3A%20Making%20LLMs%20Behave%20Like%20APIs" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Structured%20Outputs%20and%20Tool%20Use%3A%20Making%20LLMs%20Behave%20Like%20APIs&body=https%3A//ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/guardrails-and-output-validation-for-production-llm-systems.html">
+        <span class="related-technique">Guardrails &amp; Output Validation</span>
+        <span class="related-title">Guardrails and Output Validation for Production LLM Systems</span>
+      </a>
+      <a class="related-card" href="../posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html">
+        <span class="related-technique">Model Context Protocol (MCP)</span>
+        <span class="related-title">Model Context Protocol: Structured Tool Access for Enterprise AI Systems</span>
+      </a>
+      <a class="related-card" href="../posts/how-multi-agent-orchestration-actually-works-in-production.html">
+        <span class="related-technique">Agentic Workflows &amp; Multi-Agent Orchestration</span>
+        <span class="related-title">How Multi-Agent Orchestration Actually Works in Production</span>
+      </a>
+    </section>
   </div>
 
   <footer class="site-footer">
