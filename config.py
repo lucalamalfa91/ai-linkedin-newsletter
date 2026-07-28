@@ -271,6 +271,13 @@ TAG_PAGE_MIN_ARTICLES_FOR_SEO = 2
 # list every URL) — keeps feed.xml bounded as the archive grows over years.
 RSS_MAX_ITEMS = 30
 
+# Free, keyless AI image generation used for each article's hero/cover image
+# (utils/diagram_renderer.render_hero_image) — no account, no API key, no per-image cost.
+# No SLA: a failed/slow request falls back to the branded flat-color card, never blocks
+# publishing (see render_hero_image's docstring).
+AI_IMAGE_API_URL = "https://image.pollinations.ai/prompt"
+AI_IMAGE_TIMEOUT_SECONDS = 45
+
 # Fixed OG/Twitter "large image" card size for the branded hero image
 # (utils/diagram_renderer.render_hero_image) — the widely-supported 1200x630 convention.
 HERO_IMAGE_WIDTH = 1200

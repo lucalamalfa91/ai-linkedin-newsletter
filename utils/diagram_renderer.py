@@ -13,8 +13,14 @@ import logging
 import math
 import random
 from pathlib import Path
+from urllib.parse import quote
 
-from config import FONT_BOLD_PATH, FONT_REGULAR_PATH, HERO_IMAGE_HEIGHT, HERO_IMAGE_WIDTH
+import requests
+
+from config import (
+    AI_IMAGE_API_URL, AI_IMAGE_TIMEOUT_SECONDS, FONT_BOLD_PATH, FONT_REGULAR_PATH,
+    HERO_IMAGE_HEIGHT, HERO_IMAGE_WIDTH,
+)
 
 log = logging.getLogger(__name__)
 
@@ -341,16 +347,75 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     )
 
 
-def render_hero_image(heading: str, badge: str, theme: str, output_path: str | Path) -> bool:
-    """Render a 1200x630 branded cover image, generated for EVERY article regardless of
-    archetype or whether it has any inline diagram blocks (unlike render_flow_diagram /
+# Fixed rendering style appended to every article's Claude-written subject description
+# (agents.site_writer_agent.generate_image_prompt supplies the subject half) — keeps every
+# hero image visually consistent with the blog's own clean, minimal design system
+# (site/template.html's --bg/--header-bg/--accent) regardless of what specific scene each
+# article calls for, the same way THEMES fixes the diagram renderer's palette instead of
+# leaving color choice to the model's judgment.
+IMAGE_STYLE_SUFFIX = (
+    "flat minimalist vector illustration, simple clean geometric shapes with thin outlines, "
+    "generous off-white negative space, restricted color palette of deep navy blue and a "
+    "single indigo-blue accent only, soft and calm, professional editorial tech-blog cover "
+    "art style, no gradients, no 3D rendering, no photorealism, no dramatic lighting or "
+    "shadows, no text, no logos, no people"
+)
+
+
+def _fetch_ai_image(subject_prompt: str, width: int, height: int) -> bytes | None:
+    """Best-effort fetch from a free, keyless AI image generation service. Returns the raw
+    image bytes on success, None on any failure (network error, timeout, non-2xx, or a
+    non-image response) — the caller falls back to the branded flat-color card."""
+    if not subject_prompt:
+        return None
+    full_prompt = f"{subject_prompt}, {IMAGE_STYLE_SUFFIX}"
+    url = f"{AI_IMAGE_API_URL}/{quote(full_prompt)}?width={width}&height={height}&nologo=true"
+    try:
+        resp = requests.get(url, timeout=AI_IMAGE_TIMEOUT_SECONDS)
+        if resp.ok and resp.headers.get("Content-Type", "").startswith("image/"):
+            return resp.content
+        log.warning("AI image fetch returned %s / %s", resp.status_code, resp.headers.get("Content-Type"))
+    except Exception as exc:
+        log.warning("AI image fetch failed: %s", exc)
+    return None
+
+
+def render_hero_image(
+    heading: str, badge: str, theme: str, output_path: str | Path, image_prompt: str | None = None,
+) -> bool:
+    """Render a 1200x630 cover image for an article, generated for EVERY article regardless
+    of archetype or whether it has any inline diagram blocks (unlike render_flow_diagram /
     render_compare_table, which only fire for `diagram`-type blocks). Used as the article's
-    homepage thumbnail and as its Open Graph / Twitter Card / RSS enclosure image. Reuses
-    THEMES + _screenshot_card exactly like the sibling renderers. Best-effort: returns False
-    on any failure — a failed hero render must never abort the article publish (mirrors the
-    existing diagram contract)."""
+    homepage thumbnail and as its Open Graph / Twitter Card / RSS enclosure image.
+
+    If `image_prompt` is given (see agents.site_writer_agent.generate_image_prompt), tries a
+    real AI-generated illustration first (_fetch_ai_image); on any failure — or if no prompt
+    is given at all, e.g. for the site-wide og-default.png fallback — renders the branded
+    flat-color card instead. Best-effort throughout: returns False only if BOTH paths fail —
+    a bad hero render must never abort the article publish (mirrors the diagram contract)."""
     if not heading:
         return False
+
+    if image_prompt:
+        img_bytes = _fetch_ai_image(image_prompt, HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT)
+        if img_bytes:
+            try:
+                import io
+
+                from PIL import Image, ImageOps
+
+                with Image.open(io.BytesIO(img_bytes)) as img:
+                    img = ImageOps.exif_transpose(img).convert("RGB")
+                    img = ImageOps.fit(img, (HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT), Image.LANCZOS)
+                    out = Path(output_path)
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    img.save(out)
+                log.info("Rendered AI hero image: %s", output_path)
+                return True
+            except Exception as exc:
+                log.warning("Failed to process AI image for '%s': %s", heading, exc)
+        log.warning("AI image generation failed for '%s' — falling back to branded card", heading)
+
     html_doc = _build_hero_html(heading, badge, theme)
     ok = _screenshot_card(html_doc, output_path, heading)
     if ok:

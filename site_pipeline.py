@@ -44,7 +44,7 @@ from pathlib import Path
 import anthropic
 
 from agents.feed_agent import fetch_feeds
-from agents.site_writer_agent import write_technique_article
+from agents.site_writer_agent import generate_image_prompt, write_technique_article
 from agents.writer_agent import check_human_voice_longform
 from config import (
     AI_ARCHITECT_TECHNIQUES,
@@ -435,7 +435,11 @@ def main() -> None:
     blocks = _render_diagram_blocks(slug, written.get("blocks", []))
 
     hero_filename = f"{slug}-hero.png"
-    hero_ok = render_hero_image(written["title"], technique, random_theme(), POST_IMAGES_DIR / hero_filename)
+    image_prompt = generate_image_prompt(written["title"], technique, written["dek"], client)
+    hero_ok = render_hero_image(
+        written["title"], technique, random_theme(), POST_IMAGES_DIR / hero_filename,
+        image_prompt=image_prompt,
+    )
     if not hero_ok:
         log.warning("Hero image render failed for '%s' — publishing without a thumbnail", written["title"])
     og_image = hero_filename if hero_ok else None
