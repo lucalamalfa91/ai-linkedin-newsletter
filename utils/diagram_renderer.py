@@ -347,26 +347,27 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     )
 
 
-# Warm, muted, Claude-brand-like color story per theme — rotated the same way as
-# HERO_BACKGROUNDS/THEMES — so hero images vary in tone across articles while all staying
-# within one soft, warm, organic family (terracotta/cream, not cold neon/cinematic tech
-# blues). Combined with the Claude-written subject (see
+# Flat solid background color per theme — rotated the same way as HERO_BACKGROUNDS/THEMES —
+# matching Anthropic's own editorial illustration style (a single flat muted color block,
+# not a gradient or photographic backdrop). Combined with the Claude-written subject (see
 # agents.site_writer_agent.generate_image_prompt) via _image_style_suffix().
 THEME_PALETTES = {
-    "indigo": "warm muted terracotta and soft cream tones",
-    "teal":   "warm sage green and soft cream tones",
-    "amber":  "warm golden sand and soft clay tones",
-    "rose":   "dusty rose and warm blush tones",
-    "slate":  "warm taupe and soft stone-gray tones",
+    "indigo": "solid flat muted terracotta orange",
+    "teal":   "solid flat muted sage green",
+    "amber":  "solid flat muted warm ochre yellow",
+    "rose":   "solid flat muted dusty rose pink",
+    "slate":  "solid flat muted blue-gray",
 }
 
 
 def _image_style_suffix(theme: str) -> str:
     palette = THEME_PALETTES.get(theme, THEME_PALETTES[THEME_NAMES[0]])
     return (
-        f"warm minimalist illustration in {palette}, soft organic shapes, gentle diffused "
-        "lighting, clean uncluttered composition, sophisticated editorial style, the main "
-        "subject large, clear, and instantly recognizable, no text, no logos, no people"
+        f"flat minimal editorial illustration, {palette} background, hand-drawn black ink "
+        "line art with slightly imperfect organic linework, simple bold cutout shapes, "
+        "subtle halftone dot texture accents, clean sophisticated professional design, the "
+        "main subject large, clear, and instantly recognizable, no gradients, no 3D "
+        "rendering, no photorealism, no text, no logos, no realistic human figures or faces"
     )
 
 
