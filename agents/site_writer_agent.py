@@ -239,3 +239,40 @@ def _clean_diagram_block(b: dict) -> dict | None:
     if nodes:
         return {"type": "diagram", "diagram_type": "flow", "heading": heading, "badge": badge, "nodes": nodes}
     return None
+
+
+_IMAGE_PROMPT_SYSTEM = """\
+You write short visual descriptions for an AI image generator, to create each article's \
+cover image on Luca's "AI Architect" blog. Reply with ONLY the image description — one \
+sentence, max 30 words, no preamble, no quotes.
+
+Describe an abstract or conceptual illustration (shapes, networks, flows, light, texture — \
+never literal screenshots, UI mockups, or readable text/code) that visually evokes the \
+SPECIFIC idea of this article, not just its general technique category — e.g. differentiate \
+"cutting through noise to find one signal" from "many parallel threads converging" even \
+though both could nominally illustrate the same technique. No people, no logos, no brand \
+names, no charts with axes.
+"""
+
+
+def generate_image_prompt(title: str, technique: str, dek: str, client: anthropic.Anthropic) -> str:
+    """Ask Claude for a short visual-generation prompt for this article's AI-generated cover
+    image (see utils/diagram_renderer.render_hero_image). Best-effort: a fixed, generic
+    fallback prompt on any failure — this must never block publishing the article."""
+    fallback = f"abstract conceptual illustration representing {technique}, modern minimal tech style"
+    try:
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=80,
+            temperature=0.9,
+            system=_IMAGE_PROMPT_SYSTEM,
+            messages=[{
+                "role": "user",
+                "content": f"Technique: {technique}\nArticle title: {title}\nSummary: {dek}",
+            }],
+        )
+        text = msg.content[0].text.strip().strip('"')
+        return text or fallback
+    except Exception as exc:
+        log.warning("Image prompt generation failed for '%s': %s", title, exc)
+        return fallback

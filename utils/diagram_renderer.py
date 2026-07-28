@@ -247,6 +247,38 @@ def render_compare_table(
     return _screenshot_card(html, output_path, heading)
 
 
+# Dark, theme-tinted background per hero card — a genuinely distinct color per theme
+# (not a fixed near-black for every article), so the random theme choice actually reads
+# as different cover art instead of "same black box, different badge color".
+HERO_BACKGROUNDS = {
+    "indigo": "#1E1B4B",
+    "teal":   "#042F2E",
+    "amber":  "#431407",
+    "rose":   "#4C0519",
+    "slate":  "#0C1E3D",
+}
+
+# Maps each technique (config.AI_ARCHITECT_TECHNIQUES) to one of ICON_NAMES so the hero
+# image's icon actually reflects what the article is about, instead of always the same
+# generic decoration. Unrecognized/future techniques fall back to _DEFAULT_ICON.
+TECHNIQUE_ICONS = {
+    "Agentic Workflows & Multi-Agent Orchestration": "bot",
+    "Retrieval-Augmented Generation (RAG)": "search",
+    "Prompt Caching & Cost Optimization": "bolt",
+    "Structured Outputs & Tool Use": "chip",
+    "Model Context Protocol (MCP)": "network",
+    "LLM Evaluation & Testing": "check",
+    "Guardrails & Output Validation": "shield",
+    "LLM Observability & Tracing": "output",
+    "Red-Teaming & Adversarial Testing": "lock",
+    "Context Engineering & Long-Context Management": "layers",
+    "Vector Search & Embeddings": "database",
+    "Agent Memory & State Management": "document",
+    "Prompt Engineering & Optimization": "chat",
+    "Fine-Tuning vs. Prompting": "gear",
+}
+
+
 _HERO_CSS_TEMPLATE = """
 @font-face {{ font-family: 'Card'; src: url('file://{reg}') format('truetype'); font-weight: 400; }}
 @font-face {{ font-family: 'Card'; src: url('file://{bold}') format('truetype'); font-weight: 700; }}
@@ -254,14 +286,18 @@ _HERO_CSS_TEMPLATE = """
 body {{ font-family: 'Card', sans-serif; }}
 #card {{
   width: {width}px; height: {height}px;
-  background: #0F172A; position: relative; overflow: hidden;
+  background: {bg}; position: relative; overflow: hidden;
   padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between;
 }}
-.hero-icon {{ position: absolute; top: -60px; right: -60px; opacity: 0.14; }}
+.hero-icon-bg {{ position: absolute; bottom: -70px; right: -70px; opacity: 0.12; }}
+.hero-top {{ display: flex; align-items: center; gap: 16px; }}
+.hero-icon-chip {{
+  width: 56px; height: 56px; border-radius: 14px; background: {accent};
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}}
 .hero-badge {{
-  align-self: flex-start; font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: #FFFFFF; background: {accent};
-  padding: 7px 16px; border-radius: 6px; max-width: 560px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: rgba(255,255,255,0.85); max-width: 500px;
 }}
 .hero-title {{
   font-size: 46px; font-weight: 700; line-height: 1.18; letter-spacing: -0.01em;
@@ -276,12 +312,15 @@ body {{ font-family: 'Card', sans-serif; }}
 
 def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     accent = THEMES.get(theme, THEMES[THEME_NAMES[0]])
-    # Fixed decorative icon (not per-article) — every hero image shares the same "family"
-    # look, distinguished only by the rotating accent color, like a magazine template
-    # varying its cover color while keeping its logo mark in the same place.
-    icon_svg = _icon_svg("network", accent, size=340)
+    bg = HERO_BACKGROUNDS.get(theme, HERO_BACKGROUNDS[THEME_NAMES[0]])
+    # Icon tied to the technique (passed in as `badge`, see site_pipeline.py's call site),
+    # not a fixed decoration — shown both as a small chip icon and as a large faint
+    # background watermark, so the card visually references what the article is about.
+    icon_name = TECHNIQUE_ICONS.get(badge, _DEFAULT_ICON)
+    chip_icon_svg = _icon_svg(icon_name, "#FFFFFF", size=30)
+    bg_icon_svg = _icon_svg(icon_name, accent, size=320)
     css = _HERO_CSS_TEMPLATE.format(
-        reg=FONT_REGULAR_PATH, bold=FONT_BOLD_PATH, accent=accent,
+        reg=FONT_REGULAR_PATH, bold=FONT_BOLD_PATH, accent=accent, bg=bg,
         width=HERO_IMAGE_WIDTH, height=HERO_IMAGE_HEIGHT,
     )
     # heading/badge are LLM-authored text; escape defensively so a stray "&" or "<" can't
@@ -291,8 +330,11 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     return (
         f'<!DOCTYPE html><html><head><meta charset="utf-8"><style>{css}</style></head>'
         f'<body><div id="card">'
-        f'<div class="hero-icon">{icon_svg}</div>'
+        f'<div class="hero-icon-bg">{bg_icon_svg}</div>'
+        f'<div class="hero-top">'
+        f'<div class="hero-icon-chip">{chip_icon_svg}</div>'
         f'<span class="hero-badge">{badge_safe}</span>'
+        f'</div>'
         f'<h1 class="hero-title">{heading_safe}</h1>'
         f'<div class="hero-footer">The AI Architect &middot; <strong>Luca La Malfa</strong></div>'
         f'</div></body></html>'
