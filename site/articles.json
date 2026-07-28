@@ -465,5 +465,48 @@
     ],
     "inspired_by": null,
     "og_image": null
+  },
+  {
+    "slug": "more-context-is-not-the-answer-to-your-context-problem",
+    "title": "More Context Is Not the Answer to Your Context Problem",
+    "dek": "Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.",
+    "date": "2026-07-28",
+    "published_at": "2026-07-28T07:40:01.112305+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>The 128k, 200k, one-million-token context window has made people lazy in a very specific way. The reasoning goes: the model can fit it all, so put it all in. Retrieval? Too complicated. Summarization? Too lossy. Chunking strategy? Too much work. Just dump the documents and let the model figure it out. I see this in enterprise after enterprise, and the output quality is almost always worse than a leaner, more deliberate design — not better.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>A larger context window is a hardware constraint lifted, not a design strategy granted. What you put in, how you order it, and what you leave out still determines whether the model reasons well or just pattern-matches against noise.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Context engineering is the deliberate work of deciding what information a model needs at each step of a task, in what form, and in what position within the prompt. Position matters more than most people expect — models attend differently to material at the start, middle, and end of a long context, and the infamous \"lost in the middle\" failure mode is real and reproducible. Stuffing thirty PDFs into a single prompt does not give the model thirty sources to reason over; it gives it thirty sources to get confused by, with the relevant passage buried somewhere in the middle third where attention is weakest.</p><p>The techniques that actually work are more deliberate. Hierarchical summarization before injection. Retrieval that surfaces the two or three passages that matter rather than the whole corpus. Sub-agent patterns where a specialized call handles document extraction and passes a clean, structured result upstream. Explicit ordering — put the task instruction last, not first, when the context is long, because recency bias is real. None of this is exotic. It is just treating the context window as a scarce resource even when it technically is not scarce anymore.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The trade-off nobody talks about honestly: the longer your context, the slower and more expensive your call, and latency compounds badly in agentic loops where you are making dozens of calls. A 180k-token prompt that could have been a 12k-token prompt with a retrieval step is not a simpler architecture — it is a more expensive one that is also harder to debug, because you cannot easily inspect what the model actually attended to. When something goes wrong, and it will, you are staring at a wall of text trying to figure out which part of it poisoned the answer.</p><p>I am not arguing against long contexts. I use them, and there are genuine cases — legal contract analysis across an entire agreement, codebase-level refactoring, multi-document synthesis — where a large window is the right tool and retrieval would lose too much. But those cases are rarer than the industry's marketing suggests. Most of the time, the right move is to be ruthless about what earns a place in the prompt, structure what does get in, and treat context management as a first-class architectural decision rather than something you settle by default because the token limit is high enough to not crash."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": null
   }
 ]
