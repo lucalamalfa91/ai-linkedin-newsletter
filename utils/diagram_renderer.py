@@ -347,25 +347,31 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     )
 
 
-# Rich, distinct color story per theme — rotated the same way as HERO_BACKGROUNDS/THEMES —
-# so hero images vary in mood/palette across articles instead of every one converging on the
-# same flat navy-on-off-white look. Combined with the Claude-written subject (see
+# Flat solid background color per theme — rotated the same way as HERO_BACKGROUNDS/THEMES —
+# matching Anthropic's own editorial illustration style (a single flat muted color block,
+# not a gradient or photographic backdrop). Combined with the Claude-written subject (see
 # agents.site_writer_agent.generate_image_prompt) via _image_style_suffix().
 THEME_PALETTES = {
-    "indigo": "rich indigo, violet, and electric blue tones",
-    "teal":   "deep teal, emerald, and aqua tones",
-    "amber":  "warm amber, copper, and golden tones",
-    "rose":   "deep rose, crimson, and magenta tones",
-    "slate":  "cool steel blue, slate gray, and silver tones",
+    "indigo": "solid flat muted terracotta orange",
+    "teal":   "solid flat muted sage green",
+    "amber":  "solid flat muted warm ochre yellow",
+    "rose":   "solid flat muted dusty rose pink",
+    "slate":  "solid flat muted blue-gray",
 }
 
 
 def _image_style_suffix(theme: str) -> str:
     palette = THEME_PALETTES.get(theme, THEME_PALETTES[THEME_NAMES[0]])
     return (
-        f"stunning professional digital illustration, {palette}, dramatic atmospheric "
-        "lighting, rich depth and texture, elegant modern composition, high production "
-        "quality, no text, no logos, no people"
+        f"flat vector graphic design illustration, corporate modern tech-editorial style, "
+        f"{palette} solid flat background with zero gradient, the subject built from a "
+        "handful of simple flat-filled shapes (circles, bars, dots, thick uniform lines) "
+        "like a minimalist infographic icon, thick even-width black outline strokes with "
+        "no shading inside the shapes, tiny subtle halftone dot pattern used only as a "
+        "sparse accent, abstract and iconic rather than a literal detailed scene, generous "
+        "empty negative space, absolutely no cross-hatching, no pencil or ink shading, no "
+        "gradients, no 3D rendering, no photorealism, no fine linework detail or texture, "
+        "no text, no logos, no realistic human figures or faces"
     )
 
 
