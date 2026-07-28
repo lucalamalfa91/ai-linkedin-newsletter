@@ -22,13 +22,17 @@ SITE = ROOT / "site"
 
 
 def main() -> None:
-    # 1. og-default.png — fixed brand theme (not random), represents the whole site
+    # 1. og-default.png — fixed subject/theme (not per-article), represents the whole site
     # rather than one article, so it shouldn't vary run to run like a per-article hero.
     render_hero_image(
         "The AI Architect — Luca La Malfa",
         "Practical AI Architecture",
         "indigo",
         SITE / "og-default.png",
+        image_prompt=(
+            "many distinct interlocking architectural shapes of different sizes assembling "
+            "together into one single coherent structure"
+        ),
     )
     print("og-default.png done")
 

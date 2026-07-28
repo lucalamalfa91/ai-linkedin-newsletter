@@ -20,6 +20,7 @@ needs to run again if a future schema migration leaves more articles without a h
 Requires `playwright install chromium` (see README.md / CLAUDE.md environment setup).
 """
 
+import os
 import re
 import sys
 from pathlib import Path
@@ -27,10 +28,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import anthropic
+
+from agents.site_writer_agent import generate_image_prompt
 from config import (
     POST_IMAGES_DIR, POST_TEMPLATE_PATH, POSTS_DIR, ROBOTS_PATH, RSS_PATH,
     SITE_OUTPUT_PATH, SITEMAP_PATH, TAG_TEMPLATE_PATH, TAGS_DIR, TEMPLATE_PATH,
 )
+from site_pipeline import _load_env, _require_env
 from utils.articles import load_articles, save_articles, slugify
 from utils.diagram_renderer import random_theme, render_hero_image
 from utils.seo import build_robots_txt, build_rss_feed, build_sitemap
@@ -132,6 +137,10 @@ def patch_legacy_post_page(article: dict, all_articles: list[dict]) -> None:
 
 
 def main() -> None:
+    _load_env()
+    _require_env("ANTHROPIC_API_KEY")
+    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+
     articles = load_articles()
     backfill_slugs = {a["slug"] for a in articles if not a.get("og_image")}
     print(f"{len(backfill_slugs)} articles need a hero image")
@@ -141,9 +150,12 @@ def main() -> None:
             continue
         slug = article["slug"]
         hero_filename = f"{slug}-hero.png"
+        image_prompt = generate_image_prompt(
+            article.get("title", ""), article.get("technique", ""), article.get("dek", ""), client,
+        )
         ok = render_hero_image(
             article.get("title", ""), article.get("technique", ""), random_theme(),
-            POST_IMAGES_DIR / hero_filename,
+            POST_IMAGES_DIR / hero_filename, image_prompt=image_prompt,
         )
         if ok:
             article["og_image"] = hero_filename

@@ -13,8 +13,14 @@ import logging
 import math
 import random
 from pathlib import Path
+from urllib.parse import quote
 
-from config import FONT_BOLD_PATH, FONT_REGULAR_PATH, HERO_IMAGE_HEIGHT, HERO_IMAGE_WIDTH
+import requests
+
+from config import (
+    AI_IMAGE_API_URL, AI_IMAGE_TIMEOUT_SECONDS, FONT_BOLD_PATH, FONT_REGULAR_PATH,
+    HERO_IMAGE_HEIGHT, HERO_IMAGE_WIDTH,
+)
 
 log = logging.getLogger(__name__)
 
@@ -247,6 +253,38 @@ def render_compare_table(
     return _screenshot_card(html, output_path, heading)
 
 
+# Dark, theme-tinted background per hero card — a genuinely distinct color per theme
+# (not a fixed near-black for every article), so the random theme choice actually reads
+# as different cover art instead of "same black box, different badge color".
+HERO_BACKGROUNDS = {
+    "indigo": "#1E1B4B",
+    "teal":   "#042F2E",
+    "amber":  "#431407",
+    "rose":   "#4C0519",
+    "slate":  "#0C1E3D",
+}
+
+# Maps each technique (config.AI_ARCHITECT_TECHNIQUES) to one of ICON_NAMES so the hero
+# image's icon actually reflects what the article is about, instead of always the same
+# generic decoration. Unrecognized/future techniques fall back to _DEFAULT_ICON.
+TECHNIQUE_ICONS = {
+    "Agentic Workflows & Multi-Agent Orchestration": "bot",
+    "Retrieval-Augmented Generation (RAG)": "search",
+    "Prompt Caching & Cost Optimization": "bolt",
+    "Structured Outputs & Tool Use": "chip",
+    "Model Context Protocol (MCP)": "network",
+    "LLM Evaluation & Testing": "check",
+    "Guardrails & Output Validation": "shield",
+    "LLM Observability & Tracing": "output",
+    "Red-Teaming & Adversarial Testing": "lock",
+    "Context Engineering & Long-Context Management": "layers",
+    "Vector Search & Embeddings": "database",
+    "Agent Memory & State Management": "document",
+    "Prompt Engineering & Optimization": "chat",
+    "Fine-Tuning vs. Prompting": "gear",
+}
+
+
 _HERO_CSS_TEMPLATE = """
 @font-face {{ font-family: 'Card'; src: url('file://{reg}') format('truetype'); font-weight: 400; }}
 @font-face {{ font-family: 'Card'; src: url('file://{bold}') format('truetype'); font-weight: 700; }}
@@ -254,14 +292,18 @@ _HERO_CSS_TEMPLATE = """
 body {{ font-family: 'Card', sans-serif; }}
 #card {{
   width: {width}px; height: {height}px;
-  background: #0F172A; position: relative; overflow: hidden;
+  background: {bg}; position: relative; overflow: hidden;
   padding: 56px 64px; display: flex; flex-direction: column; justify-content: space-between;
 }}
-.hero-icon {{ position: absolute; top: -60px; right: -60px; opacity: 0.14; }}
+.hero-icon-bg {{ position: absolute; bottom: -70px; right: -70px; opacity: 0.12; }}
+.hero-top {{ display: flex; align-items: center; gap: 16px; }}
+.hero-icon-chip {{
+  width: 56px; height: 56px; border-radius: 14px; background: {accent};
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}}
 .hero-badge {{
-  align-self: flex-start; font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: #FFFFFF; background: {accent};
-  padding: 7px 16px; border-radius: 6px; max-width: 560px;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: rgba(255,255,255,0.85); max-width: 500px;
 }}
 .hero-title {{
   font-size: 46px; font-weight: 700; line-height: 1.18; letter-spacing: -0.01em;
@@ -276,12 +318,15 @@ body {{ font-family: 'Card', sans-serif; }}
 
 def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     accent = THEMES.get(theme, THEMES[THEME_NAMES[0]])
-    # Fixed decorative icon (not per-article) — every hero image shares the same "family"
-    # look, distinguished only by the rotating accent color, like a magazine template
-    # varying its cover color while keeping its logo mark in the same place.
-    icon_svg = _icon_svg("network", accent, size=340)
+    bg = HERO_BACKGROUNDS.get(theme, HERO_BACKGROUNDS[THEME_NAMES[0]])
+    # Icon tied to the technique (passed in as `badge`, see site_pipeline.py's call site),
+    # not a fixed decoration — shown both as a small chip icon and as a large faint
+    # background watermark, so the card visually references what the article is about.
+    icon_name = TECHNIQUE_ICONS.get(badge, _DEFAULT_ICON)
+    chip_icon_svg = _icon_svg(icon_name, "#FFFFFF", size=30)
+    bg_icon_svg = _icon_svg(icon_name, accent, size=320)
     css = _HERO_CSS_TEMPLATE.format(
-        reg=FONT_REGULAR_PATH, bold=FONT_BOLD_PATH, accent=accent,
+        reg=FONT_REGULAR_PATH, bold=FONT_BOLD_PATH, accent=accent, bg=bg,
         width=HERO_IMAGE_WIDTH, height=HERO_IMAGE_HEIGHT,
     )
     # heading/badge are LLM-authored text; escape defensively so a stray "&" or "<" can't
@@ -291,24 +336,86 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     return (
         f'<!DOCTYPE html><html><head><meta charset="utf-8"><style>{css}</style></head>'
         f'<body><div id="card">'
-        f'<div class="hero-icon">{icon_svg}</div>'
+        f'<div class="hero-icon-bg">{bg_icon_svg}</div>'
+        f'<div class="hero-top">'
+        f'<div class="hero-icon-chip">{chip_icon_svg}</div>'
         f'<span class="hero-badge">{badge_safe}</span>'
+        f'</div>'
         f'<h1 class="hero-title">{heading_safe}</h1>'
         f'<div class="hero-footer">The AI Architect &middot; <strong>Luca La Malfa</strong></div>'
         f'</div></body></html>'
     )
 
 
-def render_hero_image(heading: str, badge: str, theme: str, output_path: str | Path) -> bool:
-    """Render a 1200x630 branded cover image, generated for EVERY article regardless of
-    archetype or whether it has any inline diagram blocks (unlike render_flow_diagram /
+# Fixed rendering style appended to every article's Claude-written subject description
+# (agents.site_writer_agent.generate_image_prompt supplies the subject half) — keeps every
+# hero image visually consistent with the blog's own clean, minimal design system
+# (site/template.html's --bg/--header-bg/--accent) regardless of what specific scene each
+# article calls for, the same way THEMES fixes the diagram renderer's palette instead of
+# leaving color choice to the model's judgment.
+IMAGE_STYLE_SUFFIX = (
+    "flat minimalist vector illustration, simple clean geometric shapes with thin outlines, "
+    "generous off-white negative space, restricted color palette of deep navy blue and a "
+    "single indigo-blue accent only, soft and calm, professional editorial tech-blog cover "
+    "art style, no gradients, no 3D rendering, no photorealism, no dramatic lighting or "
+    "shadows, no text, no logos, no people"
+)
+
+
+def _fetch_ai_image(subject_prompt: str, width: int, height: int) -> bytes | None:
+    """Best-effort fetch from a free, keyless AI image generation service. Returns the raw
+    image bytes on success, None on any failure (network error, timeout, non-2xx, or a
+    non-image response) — the caller falls back to the branded flat-color card."""
+    if not subject_prompt:
+        return None
+    full_prompt = f"{subject_prompt}, {IMAGE_STYLE_SUFFIX}"
+    url = f"{AI_IMAGE_API_URL}/{quote(full_prompt)}?width={width}&height={height}&nologo=true"
+    try:
+        resp = requests.get(url, timeout=AI_IMAGE_TIMEOUT_SECONDS)
+        if resp.ok and resp.headers.get("Content-Type", "").startswith("image/"):
+            return resp.content
+        log.warning("AI image fetch returned %s / %s", resp.status_code, resp.headers.get("Content-Type"))
+    except Exception as exc:
+        log.warning("AI image fetch failed: %s", exc)
+    return None
+
+
+def render_hero_image(
+    heading: str, badge: str, theme: str, output_path: str | Path, image_prompt: str | None = None,
+) -> bool:
+    """Render a 1200x630 cover image for an article, generated for EVERY article regardless
+    of archetype or whether it has any inline diagram blocks (unlike render_flow_diagram /
     render_compare_table, which only fire for `diagram`-type blocks). Used as the article's
-    homepage thumbnail and as its Open Graph / Twitter Card / RSS enclosure image. Reuses
-    THEMES + _screenshot_card exactly like the sibling renderers. Best-effort: returns False
-    on any failure — a failed hero render must never abort the article publish (mirrors the
-    existing diagram contract)."""
+    homepage thumbnail and as its Open Graph / Twitter Card / RSS enclosure image.
+
+    If `image_prompt` is given (see agents.site_writer_agent.generate_image_prompt), tries a
+    real AI-generated illustration first (_fetch_ai_image); on any failure — or if no prompt
+    is given at all, e.g. for the site-wide og-default.png fallback — renders the branded
+    flat-color card instead. Best-effort throughout: returns False only if BOTH paths fail —
+    a bad hero render must never abort the article publish (mirrors the diagram contract)."""
     if not heading:
         return False
+
+    if image_prompt:
+        img_bytes = _fetch_ai_image(image_prompt, HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT)
+        if img_bytes:
+            try:
+                import io
+
+                from PIL import Image, ImageOps
+
+                with Image.open(io.BytesIO(img_bytes)) as img:
+                    img = ImageOps.exif_transpose(img).convert("RGB")
+                    img = ImageOps.fit(img, (HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT), Image.LANCZOS)
+                    out = Path(output_path)
+                    out.parent.mkdir(parents=True, exist_ok=True)
+                    img.save(out)
+                log.info("Rendered AI hero image: %s", output_path)
+                return True
+            except Exception as exc:
+                log.warning("Failed to process AI image for '%s': %s", heading, exc)
+        log.warning("AI image generation failed for '%s' — falling back to branded card", heading)
+
     html_doc = _build_hero_html(heading, badge, theme)
     ok = _screenshot_card(html_doc, output_path, heading)
     if ok:

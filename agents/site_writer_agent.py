@@ -239,3 +239,43 @@ def _clean_diagram_block(b: dict) -> dict | None:
     if nodes:
         return {"type": "diagram", "diagram_type": "flow", "heading": heading, "badge": badge, "nodes": nodes}
     return None
+
+
+_IMAGE_PROMPT_SYSTEM = """\
+You describe the SUBJECT of a cover illustration for one article on Luca's "AI Architect" \
+blog. Reply with ONLY the subject description — one sentence, max 20 words, no preamble, \
+no quotes.
+
+Describe abstract shapes, objects, or a scene (never literal screenshots, UI mockups, or \
+readable text/code) that visually evokes the SPECIFIC idea of this article, not just its \
+general technique category — e.g. differentiate "cutting through noise to find one signal" \
+from "many parallel threads converging" even though both could nominally illustrate the same \
+technique. No people, no logos, no brand names, no charts with axes.
+
+Do NOT mention colors, art style, medium, or lighting — that is fixed separately and applied \
+to every article for visual consistency across the blog. Describe only the subject/composition.
+"""
+
+
+def generate_image_prompt(title: str, technique: str, dek: str, client: anthropic.Anthropic) -> str:
+    """Ask Claude for this article's cover-image SUBJECT only — utils.diagram_renderer's
+    IMAGE_STYLE_SUFFIX supplies the fixed style half of the final prompt sent to the image
+    generator, so this only ever needs to describe the scene. Best-effort: a fixed, generic
+    fallback subject on any failure — this must never block publishing the article."""
+    fallback = f"abstract shapes representing {technique}"
+    try:
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=60,
+            temperature=0.9,
+            system=_IMAGE_PROMPT_SYSTEM,
+            messages=[{
+                "role": "user",
+                "content": f"Technique: {technique}\nArticle title: {title}\nSummary: {dek}",
+            }],
+        )
+        text = msg.content[0].text.strip().strip('"')
+        return text or fallback
+    except Exception as exc:
+        log.warning("Image prompt generation failed for '%s': %s", title, exc)
+        return fallback
