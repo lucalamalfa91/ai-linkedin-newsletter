@@ -247,16 +247,19 @@ You describe the SUBJECT of a striking cover illustration for one article on Luc
 words, no preamble, no quotes.
 
 Pick the single most specific, concrete keyword this article is actually about — from its \
-tags, title, and technique — and build a memorable visual metaphor directly around THAT \
-keyword, not a generic composition that could apply to any AI article. Prefer concrete \
-objects, materials, or environments over vague abstract shapes when they make the metaphor \
-clearer and more beautiful (e.g. rows of illuminated data servers for retrieval, a 3D-printer \
-head repeating an identical shape for caching, a glass tower stress-tested with focused \
-impact points for security testing, a glowing fiber-optic strand through a tangle of cables \
-for tracing). Keep the setting modern and contemporary — no castles, fortresses, ancient \
-scrolls, wax seals, treasure chests, or other medieval/mythological imagery. Never literal \
-screenshots, UI mockups, readable text/code, or charts with axes. No people, no human \
-figures or silhouettes, no hands, no logos, no brand names.
+tags, title, and technique — and describe ONE clear, unmistakable object, action, or small \
+scene that directly depicts that keyword, large and filling most of the frame. A reader \
+should immediately recognize what the image is about at a glance, without reading the \
+article — this is not a mood board or an atmospheric backdrop, it is a literal depiction of \
+the keyword (e.g. rows of labeled books being searched for retrieval, a rubber stamp \
+printing the identical mark twice for caching, a single cracked support beam under a load \
+for reliability, a tangle of wires with one strand traced and highlighted for tracing). \
+Prefer everyday concrete objects/materials over vague abstract shapes or purely atmospheric \
+scenes that could obscure the subject. Keep the setting modern and contemporary — no \
+castles, fortresses, ancient scrolls, wax seals, treasure chests, or other \
+medieval/mythological imagery. Never literal screenshots, UI mockups, readable text/code, or \
+charts with axes. No people, no human figures or silhouettes, no hands, no logos, no brand \
+names.
 
 Do NOT mention colors, art style, medium, or lighting — that is fixed separately per article \
 and applied automatically. Describe only the subject/scene/composition.

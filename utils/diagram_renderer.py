@@ -347,25 +347,26 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     )
 
 
-# Rich, distinct color story per theme — rotated the same way as HERO_BACKGROUNDS/THEMES —
-# so hero images vary in mood/palette across articles instead of every one converging on the
-# same flat navy-on-off-white look. Combined with the Claude-written subject (see
+# Warm, muted, Claude-brand-like color story per theme — rotated the same way as
+# HERO_BACKGROUNDS/THEMES — so hero images vary in tone across articles while all staying
+# within one soft, warm, organic family (terracotta/cream, not cold neon/cinematic tech
+# blues). Combined with the Claude-written subject (see
 # agents.site_writer_agent.generate_image_prompt) via _image_style_suffix().
 THEME_PALETTES = {
-    "indigo": "rich indigo, violet, and electric blue tones",
-    "teal":   "deep teal, emerald, and aqua tones",
-    "amber":  "warm amber, copper, and golden tones",
-    "rose":   "deep rose, crimson, and magenta tones",
-    "slate":  "cool steel blue, slate gray, and silver tones",
+    "indigo": "warm muted terracotta and soft cream tones",
+    "teal":   "warm sage green and soft cream tones",
+    "amber":  "warm golden sand and soft clay tones",
+    "rose":   "dusty rose and warm blush tones",
+    "slate":  "warm taupe and soft stone-gray tones",
 }
 
 
 def _image_style_suffix(theme: str) -> str:
     palette = THEME_PALETTES.get(theme, THEME_PALETTES[THEME_NAMES[0]])
     return (
-        f"stunning professional digital illustration, {palette}, dramatic atmospheric "
-        "lighting, rich depth and texture, elegant modern composition, high production "
-        "quality, no text, no logos, no people"
+        f"warm minimalist illustration in {palette}, soft organic shapes, gentle diffused "
+        "lighting, clean uncluttered composition, sophisticated editorial style, the main "
+        "subject large, clear, and instantly recognizable, no text, no logos, no people"
     )
 
 
