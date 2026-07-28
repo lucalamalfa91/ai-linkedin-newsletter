@@ -118,6 +118,7 @@ def _load_blog_articles(published_urls: set[str]) -> list[dict]:
         if url in published_urls:
             continue
         body, diagram_images = _extract_article_content(a)
+        og_image = a.get("og_image")
         candidates.append({
             "title": a.get("title", ""),
             "url": url,
@@ -126,6 +127,10 @@ def _load_blog_articles(published_urls: set[str]) -> list[dict]:
             "body": body,
             "technique": a.get("technique", ""),
             "diagram_images": diagram_images,
+            # Blog-generated hero image (utils/diagram_renderer.render_hero_image), if this
+            # article has one — reused as the LinkedIn thumbnail so _build_og() doesn't
+            # scrape the permalink page for an og:image we already rendered ourselves.
+            "og_image": f"{NEWSLETTER_URL}/posts/images/{og_image}" if og_image else None,
         })
 
     log.info("After dedup filter: %d fresh articles", len(candidates))
