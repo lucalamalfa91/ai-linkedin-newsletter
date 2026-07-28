@@ -151,7 +151,8 @@ def main() -> None:
         slug = article["slug"]
         hero_filename = f"{slug}-hero.png"
         image_prompt = generate_image_prompt(
-            article.get("title", ""), article.get("technique", ""), article.get("dek", ""), client,
+            article.get("title", ""), article.get("technique", ""), article.get("dek", ""),
+            article.get("tags", []), client,
         )
         ok = render_hero_image(
             article.get("title", ""), article.get("technique", ""), random_theme(),

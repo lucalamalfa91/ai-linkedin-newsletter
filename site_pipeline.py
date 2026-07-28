@@ -435,7 +435,7 @@ def main() -> None:
     blocks = _render_diagram_blocks(slug, written.get("blocks", []))
 
     hero_filename = f"{slug}-hero.png"
-    image_prompt = generate_image_prompt(written["title"], technique, written["dek"], client)
+    image_prompt = generate_image_prompt(written["title"], technique, written["dek"], written["tags"], client)
     hero_ok = render_hero_image(
         written["title"], technique, random_theme(), POST_IMAGES_DIR / hero_filename,
         image_prompt=image_prompt,

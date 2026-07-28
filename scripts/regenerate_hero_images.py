@@ -36,7 +36,8 @@ def main() -> None:
 
     for article in targets:
         prompt = generate_image_prompt(
-            article["title"], article.get("technique", ""), article.get("dek", ""), client,
+            article["title"], article.get("technique", ""), article.get("dek", ""),
+            article.get("tags", []), client,
         )
         ok = render_hero_image(
             article["title"], article.get("technique", ""), random_theme(),

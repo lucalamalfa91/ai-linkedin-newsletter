@@ -347,28 +347,35 @@ def _build_hero_html(heading: str, badge: str, theme: str) -> str:
     )
 
 
-# Fixed rendering style appended to every article's Claude-written subject description
-# (agents.site_writer_agent.generate_image_prompt supplies the subject half) — keeps every
-# hero image visually consistent with the blog's own clean, minimal design system
-# (site/template.html's --bg/--header-bg/--accent) regardless of what specific scene each
-# article calls for, the same way THEMES fixes the diagram renderer's palette instead of
-# leaving color choice to the model's judgment.
-IMAGE_STYLE_SUFFIX = (
-    "flat minimalist vector illustration, simple clean geometric shapes with thin outlines, "
-    "generous off-white negative space, restricted color palette of deep navy blue and a "
-    "single indigo-blue accent only, soft and calm, professional editorial tech-blog cover "
-    "art style, no gradients, no 3D rendering, no photorealism, no dramatic lighting or "
-    "shadows, no text, no logos, no people"
-)
+# Rich, distinct color story per theme — rotated the same way as HERO_BACKGROUNDS/THEMES —
+# so hero images vary in mood/palette across articles instead of every one converging on the
+# same flat navy-on-off-white look. Combined with the Claude-written subject (see
+# agents.site_writer_agent.generate_image_prompt) via _image_style_suffix().
+THEME_PALETTES = {
+    "indigo": "rich indigo, violet, and electric blue tones",
+    "teal":   "deep teal, emerald, and aqua tones",
+    "amber":  "warm amber, copper, and golden tones",
+    "rose":   "deep rose, crimson, and magenta tones",
+    "slate":  "cool steel blue, slate gray, and silver tones",
+}
 
 
-def _fetch_ai_image(subject_prompt: str, width: int, height: int) -> bytes | None:
+def _image_style_suffix(theme: str) -> str:
+    palette = THEME_PALETTES.get(theme, THEME_PALETTES[THEME_NAMES[0]])
+    return (
+        f"stunning professional digital illustration, {palette}, dramatic atmospheric "
+        "lighting, rich depth and texture, elegant modern composition, high production "
+        "quality, no text, no logos, no people"
+    )
+
+
+def _fetch_ai_image(subject_prompt: str, theme: str, width: int, height: int) -> bytes | None:
     """Best-effort fetch from a free, keyless AI image generation service. Returns the raw
     image bytes on success, None on any failure (network error, timeout, non-2xx, or a
     non-image response) — the caller falls back to the branded flat-color card."""
     if not subject_prompt:
         return None
-    full_prompt = f"{subject_prompt}, {IMAGE_STYLE_SUFFIX}"
+    full_prompt = f"{subject_prompt}, {_image_style_suffix(theme)}"
     url = f"{AI_IMAGE_API_URL}/{quote(full_prompt)}?width={width}&height={height}&nologo=true"
     try:
         resp = requests.get(url, timeout=AI_IMAGE_TIMEOUT_SECONDS)
@@ -397,7 +404,7 @@ def render_hero_image(
         return False
 
     if image_prompt:
-        img_bytes = _fetch_ai_image(image_prompt, HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT)
+        img_bytes = _fetch_ai_image(image_prompt, theme, HERO_IMAGE_WIDTH, HERO_IMAGE_HEIGHT)
         if img_bytes:
             try:
                 import io
