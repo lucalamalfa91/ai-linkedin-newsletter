@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vector Search in Practice: Embeddings That Actually Retrieve Well — The AI Architect</title>
+  <meta name="description" content="A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.">
+  <meta property="og:title" content="Vector Search in Practice: Embeddings That Actually Retrieve Well">
+  <meta property="og:description" content="A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Vector Search in Practice: Embeddings That Actually Retrieve Well">
+  <meta name="twitter:description" content="A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Vector Search in Practice: Embeddings That Actually Retrieve Well", "description": "A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png", "datePublished": "2026-07-29T07:44:37.337586+00:00", "dateModified": "2026-07-29T07:44:37.337586+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "vector-search, embeddings, retrieval, rag"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Vector Search &amp; Embeddings</span>
+      <h1 class="article-title">Vector Search in Practice: Embeddings That Actually Retrieve Well</h1>
+      <p class="article-dek">A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.</p>
+      <p class="article-date">July 29, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>Most vector search failures I see in enterprise projects aren&#x27;t embedding model failures — they&#x27;re pipeline failures. Wrong chunking strategy, no metadata filtering, embeddings generated at query time with a different model than at index time. The retrieval numbers look fine in a notebook and fall apart in production. This is the setup that avoids the common traps.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/vector-search-in-practice-embeddings-that-actually-retrieve-well-diagram-1.png" alt="Chunk Documents → Generate Embeddings → Store in DB → Embed Query → ANN Lookup → Return Results" loading="lazy">
+    </figure>
+    <div class="list-block">
+      <p class="list-heading">Rules I follow before indexing anything</p>
+      <ol class="checklist">
+        <li><span class="list-badge">1</span><div><p class="list-item-title">Fix your chunk size first</p><p class="list-item-detail">For most enterprise docs, 512 tokens with a 64-token overlap is a reasonable starting point. Too small and you lose context; too large and the embedding averages out into noise.</p></div></li>
+        <li><span class="list-badge">2</span><div><p class="list-item-title">Store metadata alongside every vector</p><p class="list-item-detail">Document ID, source, date, section type — at minimum. Without this you can&#x27;t filter, and unfiltered retrieval at scale returns junk.</p></div></li>
+        <li><span class="list-badge">3</span><div><p class="list-item-title">Use the same model at index and query time</p><p class="list-item-detail">Sounds obvious. I&#x27;ve seen it violated more than once when someone swaps the embedding model mid-project and forgets to re-index.</p></div></li>
+        <li><span class="list-badge">4</span><div><p class="list-item-title">Set a similarity threshold, not just top-k</p><p class="list-item-detail">Returning the top 5 results regardless of score means you&#x27;ll surface irrelevant chunks when the query has no good match. A cosine similarity floor of ~0.75 saves a lot of downstream hallucination.</p></div></li>
+      </ol>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/chroma-core/chroma" target="_blank" rel="noopener noreferrer">chroma-core/chroma</a> &mdash; Embedding database and search infrastructure for AI applications.</p>
+    </div>
+    <div class="list-block">
+      <p class="list-heading">Before you call retrieval &#x27;good enough&#x27;</p>
+      <ol class="checklist">
+        <li><span class="list-badge">1</span><div><p class="list-item-title">Run recall@k on a real question set</p><p class="list-item-detail">Write 20-30 domain-specific questions with known answers and check whether the right chunk appears in the top-k results. Eyeballing a few queries is not evaluation.</p></div></li>
+        <li><span class="list-badge">2</span><div><p class="list-item-title">Test with adversarial queries</p><p class="list-item-detail">Short queries, typo-laden queries, queries that use different terminology than your documents. Embeddings handle paraphrase well but break on jargon mismatch.</p></div></li>
+        <li><span class="list-badge">3</span><div><p class="list-item-title">Check your re-ranking step</p><p class="list-item-detail">A cross-encoder re-ranker on the top-20 results before returning top-5 will improve precision noticeably for enterprise use cases. It adds latency — usually worth it.</p></div></li>
+      </ol>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Jul/28/discovering-cryptographic-weaknesses-with-claude/#atom-everything" target="_blank" rel="noopener noreferrer">Discovering cryptographic weaknesses with Claude</a> (Simon Willison)</p>
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/vector-search.html">vector-search</a>
+      <a class="tag-chip" href="../tags/embeddings.html">embeddings</a>
+      <a class="tag-chip" href="../tags/retrieval.html">retrieval</a>
+      <a class="tag-chip" href="../tags/rag.html">rag</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Vector%20Search%20in%20Practice%3A%20Embeddings%20That%20Actually%20Retrieve%20Well&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html&amp;t=Vector%20Search%20in%20Practice%3A%20Embeddings%20That%20Actually%20Retrieve%20Well" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Vector%20Search%20in%20Practice%3A%20Embeddings%20That%20Actually%20Retrieve%20Well&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html">
+        <span class="related-technique">Retrieval-Augmented Generation (RAG)</span>
+        <span class="related-title">RAG Is a Data Architecture Decision, Not Just a Prompt Trick</span>
+      </a>
+      <a class="related-card" href="../posts/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates.html">
+        <span class="related-technique">LLM Evaluation &amp; Testing</span>
+        <span class="related-title">Systematic LLM Evaluation: From Vibe Checks to Measurable Quality Gates</span>
+      </a>
+      <a class="related-card" href="../posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html">
+        <span class="related-technique">Prompt Caching &amp; Cost Optimization</span>
+        <span class="related-title">Prompt Caching: Cut LLM Costs by Anchoring Repeated Context</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+</body>
+</html>

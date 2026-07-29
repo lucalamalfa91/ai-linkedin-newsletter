@@ -508,5 +508,100 @@
     ],
     "inspired_by": null,
     "og_image": "more-context-is-not-the-answer-to-your-context-problem-hero.png"
+  },
+  {
+    "slug": "vector-search-in-practice-embeddings-that-actually-retrieve-well",
+    "title": "Vector Search in Practice: Embeddings That Actually Retrieve Well",
+    "dek": "A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.",
+    "date": "2026-07-29",
+    "published_at": "2026-07-29T07:44:37.337586+00:00",
+    "technique": "Vector Search & Embeddings",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "vector-search",
+      "embeddings",
+      "retrieval",
+      "rag"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most vector search failures I see in enterprise projects aren't embedding model failures — they're pipeline failures. Wrong chunking strategy, no metadata filtering, embeddings generated at query time with a different model than at index time. The retrieval numbers look fine in a notebook and fall apart in production. This is the setup that avoids the common traps.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Vector Search Pipeline",
+        "image": "vector-search-in-practice-embeddings-that-actually-retrieve-well-diagram-1.png",
+        "alt": "Chunk Documents → Generate Embeddings → Store in DB → Embed Query → ANN Lookup → Return Results"
+      },
+      {
+        "type": "list",
+        "heading": "Rules I follow before indexing anything",
+        "items": [
+          {
+            "title": "Fix your chunk size first",
+            "detail": "For most enterprise docs, 512 tokens with a 64-token overlap is a reasonable starting point. Too small and you lose context; too large and the embedding averages out into noise."
+          },
+          {
+            "title": "Store metadata alongside every vector",
+            "detail": "Document ID, source, date, section type — at minimum. Without this you can't filter, and unfiltered retrieval at scale returns junk."
+          },
+          {
+            "title": "Use the same model at index and query time",
+            "detail": "Sounds obvious. I've seen it violated more than once when someone swaps the embedding model mid-project and forgets to re-index."
+          },
+          {
+            "title": "Set a similarity threshold, not just top-k",
+            "detail": "Returning the top 5 results regardless of score means you'll surface irrelevant chunks when the query has no good match. A cosine similarity floor of ~0.75 saves a lot of downstream hallucination."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Embedding database and search infrastructure for AI applications."
+        },
+        "usage_note": "I reach for Chroma when I need a local or self-hosted vector store with zero infrastructure overhead — it runs in-process during development and scales to a persistent server for production.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.PersistentClient(path=\"./chroma_store\")\n\nef = embedding_functions.SentenceTransformerEmbeddingFunction(\n    model_name=\"all-MiniLM-L6-v2\"\n)\n\ncollection = client.get_or_create_collection(\n    name=\"enterprise_docs\",\n    embedding_function=ef,\n    metadata={\"hnsw:space\": \"cosine\"}\n)\n\ncollection.add(\n    documents=[\"Quarterly revenue targets are set in March.\", \"The IT policy forbids personal device use.\"],\n    metadatas=[{\"source\": \"finance\", \"year\": 2024}, {\"source\": \"it-policy\", \"year\": 2023}],\n    ids=[\"doc_001\", \"doc_002\"]\n)\n\nresults = collection.query(\n    query_texts=[\"When are revenue goals decided?\"],\n    n_results=2,\n    where={\"source\": \"finance\"}\n)\n\nprint(results[\"documents\"])"
+        },
+        "example_output": "[['Quarterly revenue targets are set in March.']]\nDistance: 0.11\nSource: finance | Year: 2024"
+      },
+      {
+        "type": "list",
+        "heading": "Before you call retrieval 'good enough'",
+        "items": [
+          {
+            "title": "Run recall@k on a real question set",
+            "detail": "Write 20-30 domain-specific questions with known answers and check whether the right chunk appears in the top-k results. Eyeballing a few queries is not evaluation."
+          },
+          {
+            "title": "Test with adversarial queries",
+            "detail": "Short queries, typo-laden queries, queries that use different terminology than your documents. Embeddings handle paraphrase well but break on jargon mismatch."
+          },
+          {
+            "title": "Check your re-ranking step",
+            "detail": "A cross-encoder re-ranker on the top-20 results before returning top-5 will improve precision noticeably for enterprise use cases. It adds latency — usually worth it."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": {
+      "title": "Discovering cryptographic weaknesses with Claude",
+      "url": "https://simonwillison.net/2026/Jul/28/discovering-cryptographic-weaknesses-with-claude/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png"
   }
 ]
