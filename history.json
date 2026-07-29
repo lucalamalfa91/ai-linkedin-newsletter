@@ -541,7 +541,14 @@
       "#EnterpriseAI",
       "#DigitalTransformation"
     ],
-    "analytics": null
+    "analytics": {
+      "fetched_at": "2026-07-29T08:07:51.915092+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
   },
   "urn:li:ugcPost:7485463644932255744": {
     "post_id": "urn:li:ugcPost:7485463644932255744",
@@ -574,7 +581,14 @@
       "#AIArchitecture",
       "#AIStrategy"
     ],
-    "analytics": null
+    "analytics": {
+      "fetched_at": "2026-07-29T08:07:52.624636+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
   },
   "urn:li:share:7485464952820928512": {
     "post_id": "urn:li:share:7485464952820928512",
@@ -607,7 +621,14 @@
       "#EnterpriseAI",
       "#AIStrategy"
     ],
-    "analytics": null
+    "analytics": {
+      "fetched_at": "2026-07-29T08:07:53.242943+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
   },
   "urn:li:ugcPost:7487030730112495616": {
     "post_id": "urn:li:ugcPost:7487030730112495616",
@@ -639,6 +660,39 @@
       "#AIArchitecture",
       "#EnterpriseAI",
       "#AIStrategy"
+    ],
+    "analytics": null
+  },
+  "urn:li:share:7488143520474562560": {
+    "post_id": "urn:li:share:7488143520474562560",
+    "published_at": "2026-07-29T08:08:58.515985+00:00",
+    "article_url": "https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html",
+    "article_title": "Prompt Caching: Cut LLM Costs by Anchoring Repeated Context",
+    "source": "The AI Architect (my blog)",
+    "score": null,
+    "post_type": "article",
+    "comment_text": "Your RAG pipeline is probably spending 80% of its token budget re-explaining the same 50-page document on every single call.\n\nPrompt caching fixes this. Anthropic charges roughly 10% for cached input tokens, and if your stable context sits at the front of the prompt, byte-for-byte identical across calls, the savings are real. I've watched teams cut input costs by 80-90% on document Q&A workloads just by being intentional about prompt structure.\n\nBut here's where it quietly falls apart: one logging middleware prepending a trace ID to the system prompt, and you're paying full price in production while your staging metrics look beautiful. 🙃\n\n#AIStrategy #EnterpriseAI #AIArchitecture",
+    "topics": [
+      "prompt",
+      "caching",
+      "costs",
+      "anchoring",
+      "repeated",
+      "context",
+      "pipeline",
+      "probably",
+      "spending",
+      "token",
+      "budget",
+      "explaining",
+      "same",
+      "page",
+      "document"
+    ],
+    "hashtags": [
+      "#AIStrategy",
+      "#EnterpriseAI",
+      "#AIArchitecture"
     ],
     "analytics": null
   }
