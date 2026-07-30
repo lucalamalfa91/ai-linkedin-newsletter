@@ -603,5 +603,56 @@
       "source": "Simon Willison"
     },
     "og_image": "vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png"
+  },
+  {
+    "slug": "agent-memory-is-an-architecture-decision-not-an-afterthought",
+    "title": "Agent Memory Is an Architecture Decision, Not an Afterthought",
+    "dek": "How you store and pass state between agent steps determines whether your agent is reliable or just lucky.",
+    "date": "2026-07-30",
+    "published_at": "2026-07-30T07:34:27.579643+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "agents",
+      "state-management",
+      "langgraph",
+      "memory"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most agent failures I debug aren't model failures. They're state failures. The agent loses track of what it already tried, re-fetches data it fetched two steps ago, or — worse — acts on a stale assumption because nothing ever told it the world had changed. People reach for bigger models when the real fix is a cleaner state schema. Picking how your agent stores and passes memory is one of the first architectural decisions you should make, not something you bolt on after the demos stop working.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The core tension is between <strong>in-context state</strong> (everything stuffed into the prompt) and <strong>persistent state</strong> (structured data written and read from a store across steps or sessions). In-context is easy to start with and brittle at scale — you hit token limits, you lose history on restart, and there's no clean way to query it. Persistent state requires you to define a schema upfront, which feels like overhead until the first time your agent survives a crash and picks up exactly where it left off. LangGraph handles this distinction well: your graph state is a typed object, each node reads from it and writes to it explicitly, and a checkpointer can persist that object between invocations without you managing serialization yourself.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Stateful agent graphs with built-in persistence and memory."
+        },
+        "usage_note": "I use LangGraph when an agent needs to carry structured state across multiple tool calls — especially when I need human-in-the-loop pauses or crash recovery without rebuilding context from scratch.",
+        "code_example": {
+          "language": "python",
+          "code": "from typing import TypedDict, Annotated\nfrom langgraph.graph import StateGraph, END\nfrom langgraph.checkpoint.memory import MemorySaver\nimport operator\n\nclass ResearchState(TypedDict):\n    query: str\n    sources_checked: Annotated[list[str], operator.add]\n    findings: str\n    done: bool\n\ndef search_node(state: ResearchState) -> ResearchState:\n    # Simulate a web search step\n    new_source = f\"result_for_{state['query']}\"\n    return {\"sources_checked\": [new_source], \"findings\": \"Found relevant data.\"}\n\ndef conclude_node(state: ResearchState) -> ResearchState:\n    summary = f\"Checked {len(state['sources_checked'])} source(s). {state['findings']}\"\n    return {\"findings\": summary, \"done\": True}\n\ndef should_conclude(state: ResearchState):\n    return END if len(state[\"sources_checked\"]) >= 2 else \"search\"\n\nbuilder = StateGraph(ResearchState)\nbuilder.add_node(\"search\", search_node)\nbuilder.add_node(\"conclude\", conclude_node)\nbuilder.set_entry_point(\"search\")\nbuilder.add_conditional_edges(\"search\", should_conclude, {END: \"conclude\", \"search\": \"search\"})\nbuilder.add_edge(\"conclude\", END)\n\ngraph = builder.compile(checkpointer=MemorySaver())\nconfig = {\"configurable\": {\"thread_id\": \"research-session-1\"}}\n\nresult = graph.invoke({\"query\": \"agent memory patterns\", \"sources_checked\": [], \"findings\": \"\", \"done\": False}, config)\nprint(result[\"findings\"])"
+        },
+        "example_output": "Checked 2 source(s). Found relevant data.\n# On a second invocation with the same thread_id,\n# the checkpointer restores state and sources_checked\n# already contains the previous run's entries —\n# the agent does not start from zero."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Quoting Akshat Bubna",
+      "url": "https://simonwillison.net/2026/Jul/28/akshat-bubna/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "agent-memory-is-an-architecture-decision-not-an-afterthought-hero.png"
   }
 ]

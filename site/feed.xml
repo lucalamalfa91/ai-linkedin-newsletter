@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Agent Memory Is an Architecture Decision, Not an Afterthought</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-an-architecture-decision-not-an-afterthought.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-an-architecture-decision-not-an-afterthought.html</guid>
+    <pubDate>Thu, 30 Jul 2026 07:34:27 +0000</pubDate>
+    <description>How you store and pass state between agent steps determines whether your agent is reliable or just lucky.</description>
+    <category>agents</category><category>state-management</category><category>langgraph</category><category>memory</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-is-an-architecture-decision-not-an-afterthought-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Vector Search in Practice: Embeddings That Actually Retrieve Well</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html</guid>
