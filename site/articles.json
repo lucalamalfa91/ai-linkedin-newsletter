@@ -654,5 +654,61 @@
       "source": "Simon Willison"
     },
     "og_image": "agent-memory-is-an-architecture-decision-not-an-afterthought-hero.png"
+  },
+  {
+    "slug": "the-prompt-that-cost-me-three-days-of-client-trust",
+    "title": "The Prompt That Cost Me Three Days of Client Trust",
+    "dek": "What prompt engineering actually looks like in production — and why wording precision matters more than model choice.",
+    "date": "2026-07-31",
+    "published_at": "2026-07-31T07:51:05.956920+00:00",
+    "technique": "Prompt Engineering & Optimization",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "prompt-engineering",
+      "optimization",
+      "production",
+      "llm"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client in Zurich asked me to review why their document classifier was misfiring on about 15% of inputs. They'd already swapped models twice — first from one provider to another, then to a newer version — and the accuracy barely moved. When I finally sat down with the actual prompt, the problem was obvious within two minutes: the instruction said \"identify the category\" but never told the model what to do when a document fit two categories equally well. The model was improvising. Sometimes it picked one, sometimes it listed both, sometimes it invented a third. Three weeks of model-hopping, and the fix was four words: \"choose the single best category.\"</p><p>This is the thing about prompt engineering that gets lost in the noise around model releases and price cuts — the model is usually not the bottleneck. The prompt is. And optimizing prompts is not about adding more words or being more polite to the AI. It's a discipline with real structure: you form a hypothesis about why the output is wrong, you change one thing, you measure, you iterate. It's closer to debugging than to writing.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>There are a few failure modes I see over and over in enterprise work. The first is ambiguity tolerance — prompts that work fine on easy inputs but fall apart on edge cases because they never specified what \"edge case\" behavior should look like. The second is instruction bleed, where a long prompt has two instructions that technically contradict each other and the model picks whichever one it felt like honoring. The third, and probably the most expensive in terms of wasted time, is over-prompting: adding more and more context and constraints until the prompt becomes a 2,000-word document that no one can maintain or reason about. Shorter, clearer prompts almost always outperform bloated ones — not always, but almost always. When a prompt grows past a page, I treat that as a smell, not a feature.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Worked prompt-design examples across classification, RAG, and summarization."
+        },
+        "usage_note": "When I need to stress-test a new prompt design against real-world variation, I pull from the Claude Cookbooks — they have worked examples with concrete eval setups that I can adapt rather than starting from a blank file.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSYSTEM_PROMPT = \"\"\"You are a document classifier. Given a document excerpt, return ONLY one of these exact labels:\n- CONTRACT\n- INVOICE\n- REPORT\n- CORRESPONDENCE\n\nIf the document fits more than one category, choose the single best category.\nIf you cannot determine the category, return UNKNOWN.\nReturn only the label. No explanation, no punctuation.\"\"\"\n\ntest_cases = [\n    \"Dear Mr. Meier, please find attached our proposal for Q3 services...\",\n    \"Total due: CHF 4,200.00. Payment terms: 30 days net.\",\n    \"This agreement is entered into between Party A and Party B on 1 January 2025...\",\n    \"Executive Summary: Revenue grew 12% year-on-year driven by DACH expansion.\",\n]\n\nresults = []\nfor doc in test_cases:\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=16,\n        system=SYSTEM_PROMPT,\n        messages=[{\"role\": \"user\", \"content\": doc}]\n    )\n    label = response.content[0].text.strip()\n    results.append({\"input\": doc[:60] + \"...\", \"label\": label})\n    print(f\"{label:<16} | {doc[:60]}...\")"
+        },
+        "example_output": "CORRESPONDENCE   | Dear Mr. Meier, please find attached our proposal for Q3...\nINVOICE          | Total due: CHF 4,200.00. Payment terms: 30 days net....\nCONTRACT         | This agreement is entered into between Party A and Party...\nREPORT           | Executive Summary: Revenue grew 12% year-on-year driven b..."
+      },
+      {
+        "type": "quote",
+        "text": "The model is rarely the problem — the prompt is, and fixing it takes rigor, not instinct."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "[AINews] GPT 5.6 price cut by 20%-80%: Cost of GPT 5.4 Intelligence dropped 13x in 4 months due to GPT 5.6 recursive self-optimization",
+      "url": "https://www.latent.space/p/ainews-gpt-56-price-cut-by-20-80",
+      "source": "Latent Space"
+    },
+    "og_image": "the-prompt-that-cost-me-three-days-of-client-trust-hero.png"
   }
 ]

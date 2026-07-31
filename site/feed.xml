@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>The Prompt That Cost Me Three Days of Client Trust</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/the-prompt-that-cost-me-three-days-of-client-trust.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/the-prompt-that-cost-me-three-days-of-client-trust.html</guid>
+    <pubDate>Fri, 31 Jul 2026 07:51:05 +0000</pubDate>
+    <description>What prompt engineering actually looks like in production — and why wording precision matters more than model choice.</description>
+    <category>prompt-engineering</category><category>optimization</category><category>production</category><category>llm</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/the-prompt-that-cost-me-three-days-of-client-trust-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Agent Memory Is an Architecture Decision, Not an Afterthought</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-an-architecture-decision-not-an-afterthought.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-an-architecture-decision-not-an-afterthought.html</guid>
