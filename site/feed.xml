@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Fine-Tuning vs. Prompting: How to Choose Before You Build</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-build.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-build.html</guid>
+    <pubDate>Sat, 01 Aug 2026 07:29:01 +0000</pubDate>
+    <description>Most teams reach for fine-tuning too early. Here is how to think through the decision systematically.</description>
+    <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>llm-strategy</category><category>cost</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-before-you-build-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>The Prompt That Cost Me Three Days of Client Trust</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/the-prompt-that-cost-me-three-days-of-client-trust.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/the-prompt-that-cost-me-three-days-of-client-trust.html</guid>

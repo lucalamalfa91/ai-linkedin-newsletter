@@ -710,5 +710,76 @@
       "source": "Latent Space"
     },
     "og_image": "the-prompt-that-cost-me-three-days-of-client-trust-hero.png"
+  },
+  {
+    "slug": "fine-tuning-vs-prompting-how-to-choose-before-you-build",
+    "title": "Fine-Tuning vs. Prompting: How to Choose Before You Build",
+    "dek": "Most teams reach for fine-tuning too early. Here is how to think through the decision systematically.",
+    "date": "2026-08-01",
+    "published_at": "2026-08-01T07:29:01.008365+00:00",
+    "technique": "Fine-Tuning vs. Prompting",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "fine-tuning",
+      "prompting",
+      "model-selection",
+      "llm-strategy",
+      "cost"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three months ago a client came to me with a model that cost them €40,000 to fine-tune. It answered in the right tone, used their internal taxonomy correctly, and generally behaved the way they wanted. It also couldn't handle questions outside its training distribution, required a full retraining cycle every time their product changed, and was already drifting behind the base model's capability improvements. When I asked why they hadn't tried a well-engineered system prompt first, the answer was: \"We assumed fine-tuning would be more accurate.\" That assumption is the source of a lot of wasted money in enterprise AI right now.</p><p>The prompting-vs-fine-tuning decision is genuinely consequential, and it's not as obvious as either camp makes it sound. Prompting advocates sometimes pretend context windows solve everything. Fine-tuning advocates sometimes treat it as a universal quality lever. Neither is right. The answer depends on what problem you're actually solving, and most teams don't diagnose that carefully enough before picking a path.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Prompting vs. Fine-Tuning: The Real Trade-offs",
+        "image": "fine-tuning-vs-prompting-how-to-choose-before-you-build-diagram-1.png",
+        "alt": "Comparison: Aspect, Prompting, Fine-Tuning"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The clearest signal that prompting is the right first move: your problem is behavioral. You want the model to reason differently, follow a specific persona, apply a rubric, or stay within a topic boundary. All of that lives in the prompt. A well-structured system prompt with a few good examples — what people call few-shot prompting — can close most behavioral gaps between a raw model and what you need. I've replaced fine-tuned models with a 400-token system prompt and a handful of examples more than once, with equivalent or better output quality and a fraction of the maintenance burden.</p><p>Fine-tuning earns its place in a narrower set of situations. The canonical one: you need consistent structured output at scale and the format is complex enough that even with explicit instructions and examples, the base model occasionally breaks it. Another legitimate case is latency — a smaller fine-tuned model can match a larger prompted model on a narrow task while costing significantly less per call. And there's vocabulary: if your domain uses terms, abbreviations, or naming conventions that simply don't appear in the base model's training data, prompting alone won't make them stick. But notice these are all relatively specific, measurable problems — not vague quality concerns.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The failure mode I see most often isn't choosing the wrong option — it's skipping the diagnostic step entirely. Teams observe that the model output isn't quite right, conclude the model \"doesn't understand\" their domain, and immediately reach for fine-tuning as the fix. But \"doesn't understand\" usually means one of three things: the prompt is ambiguous, the examples are poor, or the task is genuinely outside the model's capability regardless of tuning. Fine-tuning fixes none of those. It can memorize your examples, but memorization isn't generalization, and a fine-tuned model that's been trained on ambiguous signal will fail ambiguously at scale.</p><p>There's also a maintenance cost that rarely appears in the initial business case. A fine-tuned model is a snapshot. The base model it was derived from keeps improving; your fine-tune doesn't automatically inherit those improvements. Every major base model release is a potential retraining event. For a team that ships fast and iterates on product, that's a real drag. Prompting ages better because it sits on top of whatever model you're currently using — swap the model, keep the prompt, re-evaluate. That optionality has real value even if it doesn't show up in a spreadsheet.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>My working heuristic: exhaust prompting first, and be genuinely rigorous about it. That means a proper system prompt, representative few-shot examples, and a small eval set you actually run before declaring the approach insufficient. If you've done that and you're still seeing consistent, measurable failure on a well-defined task, then you have a case for fine-tuning. The data requirements alone — typically hundreds to thousands of high-quality labeled examples — are a useful forcing function. If you can't assemble that dataset, you probably don't have the signal clarity that makes fine-tuning worthwhile anyway.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The threshold I set for clients",
+        "html": "<p>Before I recommend fine-tuning to any client, I require them to hit a specific bar: a prompted baseline evaluated on at least 100 representative examples, a documented failure analysis showing where and why it breaks, and a dataset of 500+ clean labeled examples ready to go. If any of those three are missing, we keep prompting and fix the gaps first. Most of the time, fixing the gaps in the eval or the prompt is enough — and the fine-tuning project quietly disappears from the roadmap.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Examples showing when prompting/tool use suffice vs. when they don't."
+        },
+        "usage_note": "I use the Claude cookbooks to show clients a concrete worked example of the prompting-first diagnostic — it's easier to kill a fine-tuning proposal when you can demonstrate that structured prompting with tool use already meets the bar.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\n# Simulate a domain classification task that teams often assume needs fine-tuning.\n# We'll test whether a well-engineered prompt + few-shot examples is sufficient.\n\nSYSTEM_PROMPT = \"\"\"\nYou are a support ticket classifier for a B2B SaaS company.\nClassify each ticket into exactly one of these categories:\n  BILLING, ACCESS, BUG, FEATURE_REQUEST, DOCS\n\nRules:\n- If a ticket mentions payment, invoice, or subscription -> BILLING\n- If a ticket mentions login, permissions, or account access -> ACCESS\n- If a ticket describes unexpected behavior with steps to reproduce -> BUG\n- If a ticket requests new functionality -> FEATURE_REQUEST\n- If a ticket asks how to do something -> DOCS\n\nReturn only valid JSON: {\\\"category\\\": \\\"...\\\", \\\"confidence\\\": 0.0-1.0, \\\"reason\\\": \\\"...\\\"}\n\"\"\"\n\nFEW_SHOT_EXAMPLES = [\n    {\"role\": \"user\", \"content\": \"I was charged twice for my annual plan this month.\"},\n    {\"role\": \"assistant\", \"content\": '{\"category\": \"BILLING\", \"confidence\": 0.97, \"reason\": \"Duplicate charge on subscription\"}'},\n    {\"role\": \"user\", \"content\": \"The export button does nothing when I click it on Firefox.\"},\n    {\"role\": \"assistant\", \"content\": '{\"category\": \"BUG\", \"confidence\": 0.93, \"reason\": \"Reproducible UI failure on specific browser\"}'},\n]\n\ntest_tickets = [\n    \"How do I add a second admin user to our workspace?\",\n    \"Can you add dark mode to the dashboard?\",\n    \"My API key stopped working after I reset my password.\",\n]\n\nfor ticket in test_tickets:\n    messages = FEW_SHOT_EXAMPLES + [{\"role\": \"user\", \"content\": ticket}]\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=150,\n        system=SYSTEM_PROMPT,\n        messages=messages,\n    )\n    result = json.loads(response.content[0].text)\n    print(f\"Ticket : {ticket}\")\n    print(f\"Result : {result}\\n\")"
+        },
+        "example_output": "Ticket : How do I add a second admin user to our workspace?\nResult : {'category': 'DOCS', 'confidence': 0.91, 'reason': 'User asking how to perform an action'}\n\nTicket : Can you add dark mode to the dashboard?\nResult : {'category': 'FEATURE_REQUEST', 'confidence': 0.96, 'reason': 'Request for new UI functionality'}\n\nTicket : My API key stopped working after I reset my password.\nResult : {'category': 'ACCESS', 'confidence': 0.94, 'reason': 'Account access issue following credential change'}"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "prose",
+      "prose",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "fine-tuning-vs-prompting-how-to-choose-before-you-build-hero.png"
   }
 ]
