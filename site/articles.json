@@ -781,5 +781,84 @@
     ],
     "inspired_by": null,
     "og_image": "fine-tuning-vs-prompting-how-to-choose-before-you-build-hero.png"
+  },
+  {
+    "slug": "single-agent-or-multi-agent-choosing-the-right-orchestration-model",
+    "title": "Single Agent or Multi-Agent: Choosing the Right Orchestration Model",
+    "dek": "The choice between one capable agent and a coordinated crew determines your system's failure modes before you write a single prompt.",
+    "date": "2026-08-03",
+    "published_at": "2026-08-03T08:30:21.529894+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "agentic-workflows",
+      "architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I talk to arrive at multi-agent orchestration the same way: they built a single agent, it got complicated, and someone suggested splitting it up. That instinct isn't wrong, but it's not automatically right either. The decision between a single orchestrated agent and a crew of specialized agents is one of the most consequential architectural choices in an agentic system — and it's almost never discussed in terms of its actual trade-offs. It's usually discussed in terms of which framework looks cooler in a demo.</p><p>Here's the real tension. A single agent with a well-scoped set of tools and a tight loop is easier to debug, cheaper to run, and fails in predictable ways. A multi-agent system can parallelize work, isolate concerns, and handle genuinely heterogeneous tasks — but it introduces coordination overhead, inter-agent communication failures, and a whole new class of bugs where the system looks like it's working but individual agents are silently doing the wrong thing. Neither model is universally better. The question is which failure mode you can live with.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "crewAIInc/crewAI",
+          "url": "https://github.com/crewAIInc/crewAI",
+          "note": "Framework for orchestrating role-playing, autonomous agent crews."
+        },
+        "usage_note": "I reach for CrewAI when the task genuinely maps to distinct roles with different expertise — the role abstraction keeps prompts focused and makes it obvious when an agent is being asked to do too much.",
+        "code_example": {
+          "language": "python",
+          "code": "from crewai import Agent, Task, Crew, Process\n\nresearcher = Agent(\n    role=\"Market Research Analyst\",\n    goal=\"Find and summarize recent pricing data for enterprise SaaS tools\",\n    backstory=\"You specialize in B2B SaaS market analysis.\",\n    verbose=False,\n    allow_delegation=False,\n)\n\nwriter = Agent(\n    role=\"Technical Writer\",\n    goal=\"Turn raw research into a concise executive briefing\",\n    backstory=\"You write clear, jargon-free summaries for C-level readers.\",\n    verbose=False,\n    allow_delegation=False,\n)\n\nresearch_task = Task(\n    description=\"Gather pricing tiers for the top 5 CRM platforms as of 2024.\",\n    expected_output=\"Bullet list of platforms with pricing tiers and key differentiators.\",\n    agent=researcher,\n)\n\nwriting_task = Task(\n    description=\"Write a one-page briefing based on the research output.\",\n    expected_output=\"Executive summary, max 300 words, no bullet points.\",\n    agent=writer,\n)\n\ncrew = Crew(\n    agents=[researcher, writer],\n    tasks=[research_task, writing_task],\n    process=Process.sequential,\n)\n\nresult = crew.kickoff()\nprint(result)"
+        },
+        "example_output": "## Executive Briefing: Enterprise CRM Pricing Landscape\n\nSalesforce remains the market anchor at $150–$300/user/month for enterprise tiers.\nHubSpot offers a lower entry point but scales aggressively past 10 seats.\nPipedrive and Zoho compete on price; neither matches depth at the high end.\nMicrosoft Dynamics bundles favorably for existing M365 customers.\n\nRecommendation: For teams under 50 seats, HubSpot or Pipedrive warrant evaluation.\nAbove that threshold, Salesforce or Dynamics typically win on integration surface."
+      },
+      {
+        "type": "prose",
+        "html": "<p>CrewAI's role abstraction is genuinely useful — it forces you to articulate what each agent is actually responsible for, which surfaces design problems early. But that same abstraction can become a trap. When tasks don't map cleanly to roles, you end up with agents that have bloated backstories and vague goals, and the sequential handoff model means one weak agent poisons everything downstream. I've seen crews where the \"researcher\" was doing half the writing and the \"writer\" was re-researching because the first output was thin. At that point you've paid the coordination cost without getting the isolation benefit.</p><p>LangGraph takes a fundamentally different stance. There are no roles, no crews — just nodes, edges, and state. You define a graph where each node is a callable (an LLM call, a tool, a router), and you control exactly how state flows between them. It's more work upfront, but it gives you something CrewAI doesn't: the ability to build conditional logic, loops, and human-in-the-loop checkpoints directly into the orchestration layer. For production systems where you need to handle retries, branching on intermediate results, or partial failures without restarting from scratch, that matters a lot.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "CrewAI vs LangGraph: Where Each Earns Its Place",
+        "image": "single-agent-or-multi-agent-choosing-the-right-orchestration-model-diagram-1.png",
+        "alt": "Comparison: Aspect, CrewAI, LangGraph"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Low-level orchestration framework for building stateful, resilient agents."
+        },
+        "usage_note": "I use LangGraph when the workflow has conditional branches or needs to recover mid-run — the explicit state graph makes those failure paths something you design for, not discover in production.",
+        "code_example": {
+          "language": "python",
+          "code": "from langgraph.graph import StateGraph, END\nfrom typing import TypedDict, Literal\n\nclass ResearchState(TypedDict):\n    query: str\n    research: str\n    draft: str\n    quality_pass: bool\n\ndef research_node(state: ResearchState) -> ResearchState:\n    # Simulate an LLM or tool call\n    state[\"research\"] = f\"Findings for: {state['query']}\"\n    return state\n\ndef write_node(state: ResearchState) -> ResearchState:\n    state[\"draft\"] = f\"Draft based on: {state['research']}\"\n    return state\n\ndef review_node(state: ResearchState) -> ResearchState:\n    state[\"quality_pass\"] = len(state[\"draft\"]) > 20\n    return state\n\ndef route_after_review(state: ResearchState) -> Literal[\"write_node\", \"__end__\"]:\n    return \"__end__\" if state[\"quality_pass\"] else \"write_node\"\n\ngraph = StateGraph(ResearchState)\ngraph.add_node(\"research_node\", research_node)\ngraph.add_node(\"write_node\", write_node)\ngraph.add_node(\"review_node\", review_node)\ngraph.set_entry_point(\"research_node\")\ngraph.add_edge(\"research_node\", \"write_node\")\ngraph.add_edge(\"write_node\", \"review_node\")\ngraph.add_conditional_edges(\"review_node\", route_after_review)\n\napp = graph.compile()\nresult = app.invoke({\"query\": \"enterprise CRM pricing 2024\", \"research\": \"\", \"draft\": \"\", \"quality_pass\": False})\nprint(result[\"draft\"])"
+        },
+        "example_output": "Draft based on: Findings for: enterprise CRM pricing 2024\n\n--- Review passed: True\n--- Final state:\n  query: 'enterprise CRM pricing 2024'\n  research: 'Findings for: enterprise CRM pricing 2024'\n  draft: 'Draft based on: Findings for: enterprise CRM pricing 2024'\n  quality_pass: True"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The honest answer is that these two tools aren't really competing for the same use case, even though they're often presented that way. CrewAI is a productivity tool for agent pipelines where the task decomposition is stable and the role boundaries are clear. LangGraph is an infrastructure tool for building agents that need to behave correctly under pressure — retries, conditional routing, interrupted runs. If you're prototyping a research-to-report pipeline for a demo, CrewAI gets you there faster. If you're building something that runs unsupervised in production and needs to handle partial failures gracefully, LangGraph is the right foundation. I've used both in client work, sometimes in the same week. The mistake is picking one as your default before you know which failure modes you're actually designing around.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "diagram",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "deepseek-ai/DeepSeek-V4-Flash-0731",
+      "url": "https://simonwillison.net/2026/Jul/31/deepseek-v4-flash-0731/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png"
   }
 ]

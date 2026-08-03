@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Single Agent or Multi-Agent: Choosing the Right Orchestration Model</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</guid>
+    <pubDate>Mon, 03 Aug 2026 08:30:21 +0000</pubDate>
+    <description>The choice between one capable agent and a coordinated crew determines your system's failure modes before you write a single prompt.</description>
+    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Fine-Tuning vs. Prompting: How to Choose Before You Build</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-build.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-build.html</guid>

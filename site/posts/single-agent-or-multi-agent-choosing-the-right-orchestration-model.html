@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Single Agent or Multi-Agent: Choosing the Right Orchestration Model — The AI Architect</title>
+  <meta name="description" content="The choice between one capable agent and a coordinated crew determines your system&#x27;s failure modes before you write a single prompt.">
+  <meta property="og:title" content="Single Agent or Multi-Agent: Choosing the Right Orchestration Model">
+  <meta property="og:description" content="The choice between one capable agent and a coordinated crew determines your system&#x27;s failure modes before you write a single prompt.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Single Agent or Multi-Agent: Choosing the Right Orchestration Model">
+  <meta name="twitter:description" content="The choice between one capable agent and a coordinated crew determines your system&#x27;s failure modes before you write a single prompt.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Single Agent or Multi-Agent: Choosing the Right Orchestration Model", "description": "The choice between one capable agent and a coordinated crew determines your system's failure modes before you write a single prompt.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png", "datePublished": "2026-08-03T08:30:21.529894+00:00", "dateModified": "2026-08-03T08:30:21.529894+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "agents, multi-agent, orchestration, agentic-workflows, architecture"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Agentic Workflows &amp; Multi-Agent Orchestration</span>
+      <h1 class="article-title">Single Agent or Multi-Agent: Choosing the Right Orchestration Model</h1>
+      <p class="article-dek">The choice between one capable agent and a coordinated crew determines your system&#x27;s failure modes before you write a single prompt.</p>
+      <p class="article-date">August 3, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>Most teams I talk to arrive at multi-agent orchestration the same way: they built a single agent, it got complicated, and someone suggested splitting it up. That instinct isn&#x27;t wrong, but it&#x27;s not automatically right either. The decision between a single orchestrated agent and a crew of specialized agents is one of the most consequential architectural choices in an agentic system — and it&#x27;s almost never discussed in terms of its actual trade-offs. It&#x27;s usually discussed in terms of which framework looks cooler in a demo.</p><p>Here&#x27;s the real tension. A single agent with a well-scoped set of tools and a tight loop is easier to debug, cheaper to run, and fails in predictable ways. A multi-agent system can parallelize work, isolate concerns, and handle genuinely heterogeneous tasks — but it introduces coordination overhead, inter-agent communication failures, and a whole new class of bugs where the system looks like it&#x27;s working but individual agents are silently doing the wrong thing. Neither model is universally better. The question is which failure mode you can live with.</p>
+    </div>
+    <div class="project-block project-block-comparison">
+      <p class="comparison-label">Option A</p>
+      <p class="project-name"><a href="https://github.com/crewAIInc/crewAI" target="_blank" rel="noopener noreferrer">crewAIInc/crewAI</a> &mdash; Framework for orchestrating role-playing, autonomous agent crews.</p>
+    </div>
+    <div class="prose-block">
+<p>CrewAI&#x27;s role abstraction is genuinely useful — it forces you to articulate what each agent is actually responsible for, which surfaces design problems early. But that same abstraction can become a trap. When tasks don&#x27;t map cleanly to roles, you end up with agents that have bloated backstories and vague goals, and the sequential handoff model means one weak agent poisons everything downstream. I&#x27;ve seen crews where the &quot;researcher&quot; was doing half the writing and the &quot;writer&quot; was re-researching because the first output was thin. At that point you&#x27;ve paid the coordination cost without getting the isolation benefit.</p><p>LangGraph takes a fundamentally different stance. There are no roles, no crews — just nodes, edges, and state. You define a graph where each node is a callable (an LLM call, a tool, a router), and you control exactly how state flows between them. It&#x27;s more work upfront, but it gives you something CrewAI doesn&#x27;t: the ability to build conditional logic, loops, and human-in-the-loop checkpoints directly into the orchestration layer. For production systems where you need to handle retries, branching on intermediate results, or partial failures without restarting from scratch, that matters a lot.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-diagram-1.png" alt="Comparison: Aspect, CrewAI, LangGraph" loading="lazy">
+    </figure>
+    <div class="project-block project-block-comparison">
+      <p class="comparison-label">Option B</p>
+      <p class="project-name"><a href="https://github.com/langchain-ai/langgraph" target="_blank" rel="noopener noreferrer">langchain-ai/langgraph</a> &mdash; Low-level orchestration framework for building stateful, resilient agents.</p>
+    </div>
+    <div class="prose-block">
+<p>The honest answer is that these two tools aren&#x27;t really competing for the same use case, even though they&#x27;re often presented that way. CrewAI is a productivity tool for agent pipelines where the task decomposition is stable and the role boundaries are clear. LangGraph is an infrastructure tool for building agents that need to behave correctly under pressure — retries, conditional routing, interrupted runs. If you&#x27;re prototyping a research-to-report pipeline for a demo, CrewAI gets you there faster. If you&#x27;re building something that runs unsupervised in production and needs to handle partial failures gracefully, LangGraph is the right foundation. I&#x27;ve used both in client work, sometimes in the same week. The mistake is picking one as your default before you know which failure modes you&#x27;re actually designing around.</p>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Jul/31/deepseek-v4-flash-0731/#atom-everything" target="_blank" rel="noopener noreferrer">deepseek-ai/DeepSeek-V4-Flash-0731</a> (Simon Willison)</p>
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/agents.html">agents</a>
+      <a class="tag-chip" href="../tags/multi-agent.html">multi-agent</a>
+      <a class="tag-chip" href="../tags/orchestration.html">orchestration</a>
+      <a class="tag-chip" href="../tags/agentic-workflows.html">agentic-workflows</a>
+      <a class="tag-chip" href="../tags/architecture.html">architecture</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Single%20Agent%20or%20Multi-Agent%3A%20Choosing%20the%20Right%20Orchestration%20Model&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html&amp;t=Single%20Agent%20or%20Multi-Agent%3A%20Choosing%20the%20Right%20Orchestration%20Model" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Single%20Agent%20or%20Multi-Agent%3A%20Choosing%20the%20Right%20Orchestration%20Model&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/how-multi-agent-orchestration-actually-works-in-production.html">
+        <span class="related-technique">Agentic Workflows &amp; Multi-Agent Orchestration</span>
+        <span class="related-title">How Multi-Agent Orchestration Actually Works in Production</span>
+      </a>
+      <a class="related-card" href="../posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html">
+        <span class="related-technique">Model Context Protocol (MCP)</span>
+        <span class="related-title">Model Context Protocol: Structured Tool Access for Enterprise AI Systems</span>
+      </a>
+      <a class="related-card" href="../posts/agent-memory-is-an-architecture-decision-not-an-afterthought.html">
+        <span class="related-technique">Agent Memory &amp; State Management</span>
+        <span class="related-title">Agent Memory Is an Architecture Decision, Not an Afterthought</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+</body>
+</html>
