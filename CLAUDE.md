@@ -66,7 +66,7 @@ The scripts require these environment variables (defined in `.env` locally, or a
 
 ### LinkedIn pipeline (`main.py` orchestrates `agents/` and `utils/`)
 
-1. **`agents/analytics_agent.py`** — Fetches LinkedIn post analytics, computes performance bonuses for adaptive ranking
+1. **`agents/analytics_agent.py`** — Fetches LinkedIn post analytics (reactions/comments/reposts/impressions, 7-21 days after a post goes live), computes performance bonuses for adaptive ranking (`compute_performance_bonuses()` — not yet wired into story selection, which is still random). `main.py` sends a one-off Telegram digest (`_notify_analytics_digest()`) whenever a post's analytics are fetched for the first time this run, since this data would otherwise sit silently in `history.json` forever
 2. `_load_blog_articles()` (in `main.py`) — reads `site/articles.json`, drops articles already promoted on LinkedIn (tracked via `history.json`)
 3. **`agents/writer_agent.py`** — Calls Claude Sonnet to write the post, then Claude Haiku to critique it
 4. **`agents/carousel_agent.py`** — optional post type (`--post-type carousel`): generates a 5-slide PDF carousel + short commentary; reuses the blog article's own rendered diagram PNG as an image slide instead of asking the LLM to hand-draw a separate one
@@ -79,7 +79,11 @@ The scripts require these environment variables (defined in `.env` locally, or a
 - Approve → publish to LinkedIn (linking to the blog article's permalink) + save to `history.json`
 - Reject or timeout → skip publishing, send Telegram notification
 
-**Post format**: Default is a plain LinkedIn article post (link card to the blog permalink); `carousel`/`text` post types are also available via `--post-type` (carousel is currently unreliable). Those two don't get an automatic link card, so `main.py._append_reference_link()` inserts a "Full breakdown on my blog: <url>" line before the hashtags so the post always references the article. All formats speak as "Luca La Malfa, an AI Architect advising enterprises" — direct, practitioner voice, no fake hype, no forced emojis, no em dashes, no banned buzzwords (`BANNED_WORDS` in `config.py`).
+**Post format**: Default is a plain LinkedIn article post (link card to the blog permalink); `carousel`/`text` post types are also available via `--post-type` (carousel is currently unreliable). Those two don't get an automatic link card, so `main.py._append_reference_link()` inserts a "Full breakdown on my blog: <url>" line before the hashtags so the post always references the article. Every blog link sent to LinkedIn is UTM-tagged (`main.py._add_utm_params()`, `utm_source=linkedin&utm_medium=social&utm_campaign=<article-slug>`) so Vercel Analytics can attribute blog traffic to a specific LinkedIn post — applied only to the outbound URL, never to `story["url"]`/`history.json`'s `article_url`, which must stay the clean canonical permalink used for the "already published" dedup check. All formats speak as "Luca La Malfa, an AI Architect advising enterprises" — direct, practitioner voice, no fake hype, no forced emojis, no em dashes, no banned buzzwords (`BANNED_WORDS` in `config.py`).
+
+## Web Analytics
+
+The blog (`site/template.html`, `site/post_template.html`, `site/tag_template.html`) carries a static Vercel Analytics beacon (`<script defer src="/_vercel/insights/script.js">`, identical on every page — no per-page templating needed) right before `</body>`. Requires enabling "Analytics" in the Vercel project dashboard (no API/CLI equivalent) for the beacon to actually record anything.
 
 ## LinkedIn API Details
 

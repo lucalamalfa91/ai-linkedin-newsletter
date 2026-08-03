@@ -17,6 +17,7 @@ import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 
 import anthropic
 
@@ -25,7 +26,9 @@ from agents.carousel_agent import create_carousel
 from agents.notifier_agent import request_approval, send as notify
 from agents.publisher_agent import publish, publish_carousel, publish_text
 from agents.writer_agent import check_human_voice, critique_post, truncate_comment, write_post
-from config import ARTICLES_JSON_PATH, CHANGELOG_SOURCE_HOMEPAGES, NEWSLETTER_URL, POSTS_DIR
+from config import (
+    ARTICLES_JSON_PATH, CHANGELOG_SOURCE_HOMEPAGES, NEWSLETTER_URL, POSTS_DIR, UTM_MEDIUM, UTM_SOURCE,
+)
 from utils.history import commit_history_to_git, extract_hashtags, extract_topics, load_history, save_history
 from utils.og_meta import fetch_og_meta
 from utils.page_scraper import fetch_page_text
@@ -172,6 +175,22 @@ def _build_og(story: dict) -> dict:
     return og
 
 
+def _notify_analytics_digest(records: list[tuple[str, dict]], tg_token: str, tg_chat: str) -> None:
+    """Telegram summary of LinkedIn engagement metrics that just entered history.json this
+    run (agents.analytics_agent.update_analytics only fetches once, 7-21 days after a post
+    goes live) — this data was silently persisted and never shown to a human before."""
+    lines = ["<b>\U0001f4ca LinkedIn Analytics Update</b>\n"]
+    for post_id, rec in records:
+        a = rec["analytics"]
+        lines.append(
+            f"\U0001f4cc <b>{rec.get('article_title', post_id)}</b>\n"
+            f"   \U0001f44d {a['reactions']}  \U0001f4ac {a['comments']}  "
+            f"\U0001f501 {a['reposts']}  \U0001f441 {a['impressions']}  "
+            f"(score: {a['engagement_score']})\n"
+        )
+    notify("\n".join(lines), tg_token, tg_chat)
+
+
 def _build_post(story: dict, client: anthropic.Anthropic) -> str | None:
     """Write post + critique loop. Returns final comment or None on failure."""
     original = {
@@ -225,6 +244,23 @@ def _append_reference_link(comment: str, url: str) -> str:
     return "\n".join(before + ["", f"{label}: {url}", ""] + after)
 
 
+def _slug_from_url(url: str) -> str:
+    return Path(urlsplit(url).path).stem
+
+
+def _add_utm_params(url: str, campaign: str) -> str:
+    """Tag the outbound LinkedIn link with UTM params so Vercel Analytics can attribute blog
+    traffic to this specific post. Applied ONLY to the URL sent to LinkedIn — never to
+    story["url"]/history.json's article_url, which must stay the clean canonical permalink
+    used for the "already published" dedup check in _load_blog_articles()."""
+    if not url:
+        return url
+    parts = urlsplit(url)
+    query = dict(parse_qsl(parts.query))
+    query.update({"utm_source": UTM_SOURCE, "utm_medium": UTM_MEDIUM, "utm_campaign": campaign})
+    return urlunsplit(parts._replace(query=urlencode(query)))
+
+
 def _publish_by_type(
     post_type: str,
     comment: str,
@@ -235,9 +271,12 @@ def _publish_by_type(
 ) -> str | None:
     """Route to the correct LinkedIn publish function. Returns post_id or None on failure."""
     url = story.get("url", "")
+    # Only tag our own blog links — _run_url_pipeline()'s direct "--topic <external-url>" mode
+    # posts about a third-party URL we don't own, where UTM params wouldn't make sense.
+    tagged_url = _add_utm_params(url, _slug_from_url(url)) if url.startswith(NEWSLETTER_URL) else url
 
     if post_type == "text":
-        return publish_text(_append_reference_link(comment, url), person_id, token)
+        return publish_text(_append_reference_link(comment, tagged_url), person_id, token)
 
     if post_type == "carousel":
         carousel_result = create_carousel(story, client, person_id, token)
@@ -245,11 +284,11 @@ def _publish_by_type(
             log.error("Carousel creation failed — aborting publish")
             return None
         document_urn, carousel_comment = carousel_result
-        carousel_comment = _append_reference_link(carousel_comment, url)
+        carousel_comment = _append_reference_link(carousel_comment, tagged_url)
         return publish_carousel(carousel_comment, document_urn, story["title"], person_id, token)
 
     # Default: "article" — links to the specific blog permalink, not just the site root
-    return publish(comment, url or NEWSLETTER_URL, story["title"], person_id, token, og=story.get("og"))
+    return publish(comment, tagged_url or NEWSLETTER_URL, story["title"], person_id, token, og=story.get("og"))
 
 
 def _run_url_pipeline(
@@ -369,8 +408,15 @@ def main() -> None:
 
     # Analytics update (best-effort)
     history = load_history()
+    ids_before = {pid for pid, rec in history.items() if rec.get("analytics") is not None}
     history = update_analytics(history, token)
     save_history(history)
+    newly_analyzed = [
+        (pid, rec) for pid, rec in history.items()
+        if rec.get("analytics") is not None and pid not in ids_before
+    ]
+    if newly_analyzed:
+        _notify_analytics_digest(newly_analyzed, tg_token, tg_chat)
 
     # Direct URL mode: bypass feed/ranking entirely
     topic = args.topic.strip() or os.environ.get("TOPIC", "").strip()
