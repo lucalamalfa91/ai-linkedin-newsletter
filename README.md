@@ -366,6 +366,7 @@ Both workflows have `permissions: contents: write` to commit `site/articles.json
 3. Build command: none
 4. Output directory: `site`
 5. Every push to `main` auto-deploys the static site
+6. Enable **Analytics** in the Vercel project dashboard (Project → Analytics → Enable) — the blog pages already carry the tracking beacon, but it records nothing until this is turned on. No API/CLI equivalent for a project with no build step.
 
 ---
 
@@ -381,7 +382,7 @@ Both workflows have `permissions: contents: write` to commit `site/articles.json
 
 **`No thumbnail — skipping`** — The selected article's `og:image` could not be fetched live. The pipeline continues without a thumbnail.
 
-**Analytics silently skipped** — `r_member_social` scope not granted. The pipeline continues without adaptive bonuses.
+**Analytics silently skipped** — `r_member_social` scope not granted. The pipeline continues without adaptive bonuses, and the Telegram analytics digest never has anything to report.
 
 **`history.json` push conflict** — Two workflow runs overlapped. Re-run the failed workflow; it will pick up the latest `history.json` via fresh checkout.
 

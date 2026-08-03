@@ -223,6 +223,12 @@ MIN_SCORE = 6
 
 NEWSLETTER_URL = "https://ai-linkedin-newsletter.vercel.app"
 
+# UTM params stamped onto the blog URL sent to LinkedIn (main.py._add_utm_params) so Vercel
+# Analytics can attribute blog traffic to a LinkedIn post specifically — never applied to
+# story["url"]/history.json's article_url, which must stay the clean canonical permalink.
+UTM_SOURCE = "linkedin"
+UTM_MEDIUM = "social"
+
 LINKEDIN_API = "https://api.linkedin.com/rest/posts"
 LINKEDIN_IMAGES_API = "https://api.linkedin.com/rest/images?action=initializeUpload"
 LINKEDIN_DOCUMENTS_API = "https://api.linkedin.com/rest/documents?action=initializeUpload"
