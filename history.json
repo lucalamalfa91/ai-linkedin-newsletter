@@ -661,7 +661,14 @@
       "#EnterpriseAI",
       "#AIStrategy"
     ],
-    "analytics": null
+    "analytics": {
+      "fetched_at": "2026-08-04T09:37:44.120110+00:00",
+      "reactions": 0,
+      "comments": 0,
+      "reposts": 0,
+      "impressions": 0,
+      "engagement_score": 0
+    }
   },
   "urn:li:share:7488143520474562560": {
     "post_id": "urn:li:share:7488143520474562560",
@@ -688,6 +695,39 @@
       "same",
       "page",
       "document"
+    ],
+    "hashtags": [
+      "#AIStrategy",
+      "#EnterpriseAI",
+      "#AIArchitecture"
+    ],
+    "analytics": null
+  },
+  "urn:li:share:7490340382493323264": {
+    "post_id": "urn:li:share:7490340382493323264",
+    "published_at": "2026-08-04T09:38:31.487730+00:00",
+    "article_url": "https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html",
+    "article_title": "More Context Is Not the Answer to Your Context Problem",
+    "source": "The AI Architect (my blog)",
+    "score": null,
+    "post_type": "",
+    "comment_text": "A 1M-token context window is not a design strategy. It's a temptation.\n\nI keep seeing the same move in enterprise projects: skip the retrieval work, skip the summarization, just dump everything in and hope the model sorts it out. It doesn't. The relevant passage ends up buried in the middle third of the prompt, exactly where attention is weakest, and the output quietly degrades while everyone wonders why the demo worked better.\n\nLarger context is a hardware constraint lifted. What you put in, how you order it, and what you leave out still determines whether the model reasons or just pattern-matches against noise 🎯\n\n#AIStrategy #EnterpriseAI #AIArchitecture",
+    "topics": [
+      "context",
+      "answer",
+      "problem",
+      "token",
+      "window",
+      "design",
+      "strategy",
+      "temptation",
+      "keep",
+      "seeing",
+      "same",
+      "move",
+      "enterprise",
+      "projects",
+      "skip"
     ],
     "hashtags": [
       "#AIStrategy",
