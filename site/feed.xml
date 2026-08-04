@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>RAG Is Not a Solution. It's a Retrieval Problem With an LLM Attached.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached.html</guid>
+    <pubDate>Tue, 04 Aug 2026 07:40:42 +0000</pubDate>
+    <description>Most RAG failures happen before the model ever sees a token — here's why that changes everything.</description>
+    <category>rag</category><category>retrieval</category><category>architecture</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Single Agent or Multi-Agent: Choosing the Right Orchestration Model</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</guid>

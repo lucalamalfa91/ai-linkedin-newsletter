@@ -860,5 +860,48 @@
       "source": "Simon Willison"
     },
     "og_image": "single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png"
+  },
+  {
+    "slug": "rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached",
+    "title": "RAG Is Not a Solution. It's a Retrieval Problem With an LLM Attached.",
+    "dek": "Most RAG failures happen before the model ever sees a token — here's why that changes everything.",
+    "date": "2026-08-04",
+    "published_at": "2026-08-04T07:40:42.457025+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "rag",
+      "retrieval",
+      "architecture",
+      "knowledge-bases"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Everyone who has shipped a RAG system in production will tell you the same thing, eventually: the language model is almost never the part that breaks. The retrieval is. Yet the way most teams talk about RAG — and the way most vendors sell it — puts the model front and center. \"Just connect your documents to GPT-4 and ask questions.\" That framing is not just incomplete, it actively misleads teams into optimizing the wrong thing.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>RAG is fundamentally a retrieval engineering problem. The LLM is a formatter. If your chunks are wrong, your embeddings are wrong, or your index is wrong, no model on earth saves you — it just hallucinates more confidently from bad context.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Here is what actually happens when a RAG pipeline fails in the wild. A user asks a question. The embedding model maps it to a vector. The vector store returns the top-k nearest neighbors. Those neighbors are concatenated into a context window and handed to the model. The model does exactly what it is supposed to do: it synthesizes an answer from the provided context. The problem is that the context was wrong. Maybe the chunks were too large and the relevant sentence was buried. Maybe the document was split mid-table and the numbers lost their column headers. Maybe the query was phrased in a way that lands in a different neighborhood of the embedding space than the document that actually answers it. None of those failures have anything to do with the model. They are retrieval failures, and they require retrieval solutions.</p><p>The practical implication is that you should spend the majority of your tuning budget — time, compute, evaluation effort — on the retrieval layer. That means chunk size experiments, overlap strategies, hybrid search (dense plus sparse BM25), metadata filtering, re-ranking with a cross-encoder, and above all: offline evaluation of retrieval quality before you ever measure end-to-end answer quality. If your retrieval recall at k is poor, your answer quality will be poor, and no prompt engineering trick closes that gap.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The one place I will give RAG genuine credit, and where the LLM component does matter more than people expect, is in handling retrieved context that is partially relevant or internally contradictory. A well-instructed model can hedge, surface uncertainty, or explicitly note that the retrieved documents conflict. That is a real capability and worth engineering for. But it is a finishing layer on top of good retrieval — not a substitute for it. Build the retrieval system first, measure it rigorously, and treat the model as the last mile. That inversion of priorities is what separates RAG systems that work from RAG demos that impress in a notebook and fail in production three weeks later.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached-hero.png"
   }
 ]
