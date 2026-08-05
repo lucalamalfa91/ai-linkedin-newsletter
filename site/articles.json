@@ -903,5 +903,104 @@
     ],
     "inspired_by": null,
     "og_image": "rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached-hero.png"
+  },
+  {
+    "slug": "cut-your-claude-api-bill-with-prompt-caching",
+    "title": "Cut Your Claude API Bill with Prompt Caching",
+    "dek": "A practical guide to structuring prompts so repeated context costs you almost nothing.",
+    "date": "2026-08-05",
+    "published_at": "2026-08-05T07:40:07.872742+00:00",
+    "technique": "Prompt Caching & Cost Optimization",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "prompt-caching",
+      "cost-optimization",
+      "claude",
+      "api"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Prompt caching is one of those features that takes twenty minutes to implement and immediately shows up on your invoice. The idea is simple: you mark a large, stable chunk of your prompt — a system prompt, a long document, a set of examples — and Claude stores a processed version of it. Subsequent requests that share that prefix hit the cache instead of reprocessing the full token count. Anthropic charges roughly 10% of the normal input price for cache hits. On a workload that sends the same 10,000-token system prompt thousands of times a day, that math is hard to ignore.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "How Prompt Caching Works End-to-End",
+        "image": "cut-your-claude-api-bill-with-prompt-caching-diagram-1.png",
+        "alt": "Build Stable Prefix → Mark Cache Breakpoint → First Request Writes Cache → Subsequent Hits Read Cache → Pay 10% Token Cost"
+      },
+      {
+        "type": "list",
+        "heading": "Rules for Getting Cache Hits Reliably",
+        "items": [
+          {
+            "title": "Put stable content first",
+            "detail": "The cache key is a prefix match. Anything that changes per-request — user input, timestamps, session IDs — must come after the cached block, never inside it."
+          },
+          {
+            "title": "Mark the right breakpoint",
+            "detail": "Use cache_control with type: ephemeral at the end of the stable block. If you place it too early, you cache less. Too late and you're caching content that changes, which busts the cache every time."
+          },
+          {
+            "title": "Keep the cached block above 1,024 tokens",
+            "detail": "Anthropic only caches blocks that meet a minimum token threshold. A short system prompt won't qualify — pad it with your full instructions, few-shot examples, or reference documents."
+          },
+          {
+            "title": "Reuse the exact same text",
+            "detail": "Even a single character difference creates a new cache entry. If you're dynamically building system prompts, lock the cacheable portion to a constant and append dynamic parts separately."
+          },
+          {
+            "title": "Watch cache write vs. hit ratio",
+            "detail": "The first call always pays full price to write the cache. If your traffic is bursty and infrequent, you may write more than you hit. Cache entries expire after five minutes of inactivity — factor that into your architecture."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Includes worked examples of prompt caching to cut latency and cost."
+        },
+        "usage_note": "I reach for the Claude Cookbooks cache example as a starting point whenever I'm wiring up a new RAG pipeline with a large static context — it shows exactly where to place the breakpoint in a multi-turn setup.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSYSTEM_PROMPT = \"\"\"\nYou are a financial analysis assistant. Your job is to answer questions\nabout the following 10-K filing excerpt. Apply strict factual reasoning\nand cite specific figures when possible.\n\n[... long document content here, must exceed 1024 tokens ...]\n\"\"\"\n\ndef ask(question: str) -> str:\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=1024,\n        system=[\n            {\n                \"type\": \"text\",\n                \"text\": SYSTEM_PROMPT,\n                \"cache_control\": {\"type\": \"ephemeral\"}\n            }\n        ],\n        messages=[\n            {\"role\": \"user\", \"content\": question}\n        ]\n    )\n    usage = response.usage\n    print(f\"Cache write: {usage.cache_creation_input_tokens} | \"\n          f\"Cache read: {usage.cache_read_input_tokens}\")\n    return response.content[0].text\n\nprint(ask(\"What was the revenue in Q3?\"))\nprint(ask(\"How did operating expenses change year-over-year?\"))"
+        },
+        "example_output": "Cache write: 2847 | Cache read: 0\nRevenue in Q3 was $4.2B, up 12% from the prior quarter...\n\nCache write: 0 | Cache read: 2847\nOperating expenses increased by 8% year-over-year, driven primarily by..."
+      },
+      {
+        "type": "list",
+        "heading": "When Caching Doesn't Help (Skip It)",
+        "items": [
+          {
+            "title": "Short, one-off prompts",
+            "detail": "If your system prompt is under a thousand tokens and you're not making repeated calls with the same context, there's nothing meaningful to cache."
+          },
+          {
+            "title": "Highly dynamic system prompts",
+            "detail": "If you're interpolating user-specific data — names, account details, permissions — directly into the stable block, you'll get cache misses on nearly every call. Restructure first."
+          },
+          {
+            "title": "Infrequent batch jobs",
+            "detail": "A nightly batch that runs once and exits will always pay the cache write cost with zero hits to amortize it. Not worth the added complexity."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": {
+      "title": "Don't be a meat proxy",
+      "url": "https://simonwillison.net/2026/Aug/3/dont-be-a-meat-proxy/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "cut-your-claude-api-bill-with-prompt-caching-hero.png"
   }
 ]
