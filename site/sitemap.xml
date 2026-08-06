@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/</loc><lastmod>2026-08-05</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</loc><lastmod>2026-08-06</lastmod></url>
   <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/cut-your-claude-api-bill-with-prompt-caching.html</loc><lastmod>2026-08-05</lastmod></url>
   <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached.html</loc><lastmod>2026-08-04</lastmod></url>
   <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</loc><lastmod>2026-08-03</lastmod></url>
@@ -18,21 +19,21 @@
   <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-cut-llm-costs-by-anchoring-repeated-context.html</loc><lastmod>2026-07-21</lastmod></url>
   <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html</loc><lastmod>2026-07-21</lastmod></url>
   <url><loc>https://ai-linkedin-newsletter.vercel.app/posts/how-multi-agent-orchestration-actually-works-in-production.html</loc><lastmod>2026-07-21</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/agents.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/multi-agent.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/orchestration.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/reliability.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/enterprise-ai.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/rag.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/retrieval.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/vector-search.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/prompt-caching.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/cost-optimization.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/structured-outputs.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/tool-use.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/agentic-workflows.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/evaluation.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/llm-ops.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/production.html</loc><lastmod>2026-08-05</lastmod></url>
-  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/architecture.html</loc><lastmod>2026-08-05</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/agents.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/multi-agent.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/orchestration.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/reliability.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/enterprise-ai.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/rag.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/retrieval.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/vector-search.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/prompt-caching.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/cost-optimization.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/structured-outputs.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/tool-use.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/agentic-workflows.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/evaluation.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/llm-ops.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/production.html</loc><lastmod>2026-08-06</lastmod></url>
+  <url><loc>https://ai-linkedin-newsletter.vercel.app/tags/architecture.html</loc><lastmod>2026-08-06</lastmod></url>
 </urlset>

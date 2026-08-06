@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Stop Parsing Model Output by Hand</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</guid>
+    <pubDate>Thu, 06 Aug 2026 07:40:36 +0000</pubDate>
+    <description>Structured outputs and tool use give you a contract with the model — here is how to actually use it.</description>
+    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-parsing-model-output-by-hand-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Cut Your Claude API Bill with Prompt Caching</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/cut-your-claude-api-bill-with-prompt-caching.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/cut-your-claude-api-bill-with-prompt-caching.html</guid>

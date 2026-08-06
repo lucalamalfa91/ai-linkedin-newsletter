@@ -1002,5 +1002,56 @@
       "source": "Simon Willison"
     },
     "og_image": "cut-your-claude-api-bill-with-prompt-caching-hero.png"
+  },
+  {
+    "slug": "stop-parsing-model-output-by-hand",
+    "title": "Stop Parsing Model Output by Hand",
+    "dek": "Structured outputs and tool use give you a contract with the model — here is how to actually use it.",
+    "date": "2026-08-06",
+    "published_at": "2026-08-06T07:40:36.276372+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "structured-outputs",
+      "tool-use",
+      "agents",
+      "reliability"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most of the fragile glue I see in enterprise AI pipelines comes from the same place: someone wrote a regex to extract a JSON blob from a markdown code fence in a model response. It works in the demo, breaks in week two. Structured outputs and tool use exist precisely to eliminate that class of problem. When you define a tool or a response schema, you are not <em>asking</em> the model to format its output nicely — you are giving it a typed contract it must conform to. The difference matters.</p><p>The practical split is this: use structured outputs when you want the model to return data your code will consume directly (classification labels, extracted fields, a decision object). Use tool use when you want the model to <em>do something</em> — query a database, call an API, run a calculation — and then reason over the result. The two patterns compose naturally into agents, but you do not need an agent to benefit from either one. A single tool call that returns structured data is already a meaningful reliability improvement over prompt-and-parse.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."
+        },
+        "usage_note": "I reach for the Anthropic cookbooks as a starting point when a client needs a working reference — the customer-service agent recipe shows tool use and structured output in the same flow, which is the combination that comes up most in real projects.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\ntools = [\n    {\n        \"name\": \"get_order_status\",\n        \"description\": \"Look up the current status of a customer order by order ID.\",\n        \"input_schema\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"order_id\": {\"type\": \"string\", \"description\": \"The order identifier\"}\n            },\n            \"required\": [\"order_id\"]\n        }\n    }\n]\n\ndef handle_tool_call(name, inputs):\n    # Stub — replace with real DB lookup\n    return {\"order_id\": inputs[\"order_id\"], \"status\": \"shipped\", \"eta\": \"2025-07-18\"}\n\nmessages = [{\"role\": \"user\", \"content\": \"Where is order ORD-9921?\"}]\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    tools=tools,\n    messages=messages\n)\n\nif response.stop_reason == \"tool_use\":\n    tool_block = next(b for b in response.content if b.type == \"tool_use\")\n    result = handle_tool_call(tool_block.name, tool_block.input)\n    messages += [\n        {\"role\": \"assistant\", \"content\": response.content},\n        {\"role\": \"user\", \"content\": [{\"type\": \"tool_result\",\n                                       \"tool_use_id\": tool_block.id,\n                                       \"content\": json.dumps(result)}]}\n    ]\n    final = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=1024,\n        tools=tools,\n        messages=messages\n    )\n    print(final.content[0].text)"
+        },
+        "example_output": "Order ORD-9921 has been shipped and is expected to arrive on July 18, 2025.\nIs there anything else I can help you with regarding this order?"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The MCP servers repository takes the same idea further: instead of embedding tool logic inside your application, you expose it as a standalone server that any MCP-compatible client can call. That separation is worth considering early. When the tool inventory grows — and it always does — having each tool as an independently deployable server means you can version, test, and swap them without touching the model-facing code. The trade-off is operational overhead; for a two-tool prototype, it is overkill. For a production system where five teams each own a different tool, it is the only sane architecture.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Introducing Muse Code and Muse Spark 1.2",
+      "url": "https://simonwillison.net/2026/Aug/5/muse-code-and-muse-spark-12/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "stop-parsing-model-output-by-hand-hero.png"
   }
 ]
