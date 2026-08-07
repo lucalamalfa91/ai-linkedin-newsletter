@@ -1053,5 +1053,62 @@
       "source": "Simon Willison"
     },
     "og_image": "stop-parsing-model-output-by-hand-hero.png"
+  },
+  {
+    "slug": "mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model",
+    "title": "MCP Is Not Magic: What Actually Happens When You Wire Tools to a Model",
+    "dek": "A field note on what Model Context Protocol really does, where it earns its keep, and where it quietly bites you.",
+    "date": "2026-08-07",
+    "published_at": "2026-08-07T06:10:01.421737+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "mcp",
+      "agents",
+      "tool-use",
+      "architecture",
+      "security"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A few months ago I was helping a client connect their internal knowledge base to a Claude-based assistant. The team had already built a handful of custom tool integrations — a Confluence fetcher, a Jira lookup, a Slack search — each wired up differently, each with its own auth quirks, each needing to be re-explained to every new model they wanted to try. When I suggested moving to MCP, the immediate reaction was: \"Is that the thing that lets AI hack other companies?\" Fair question, actually. The Meta incident had just surfaced, and the vibe around agentic tool use was nervous. But that nervousness is worth sitting with, because it points to something real about what MCP is and what it demands from you.</p><p>Model Context Protocol is Anthropic's open standard for connecting language models to external tools and data sources through a consistent interface. That's the boring definition. The more useful way to think about it: instead of hand-rolling a custom function-calling layer for every model and every tool combination, you define a server that exposes capabilities — resources, tools, prompts — and any MCP-compatible client can consume it. One integration, many consumers. The protocol handles the negotiation; you handle the logic. What it does <em>not</em> handle is deciding whether your model should be allowed to call a given tool with a given input. That part is still entirely on you.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference implementations and community MCP servers."
+        },
+        "usage_note": "I reach for the official modelcontextprotocol/servers repo as a starting point whenever a client wants to validate whether MCP fits their stack — the reference implementations are thin enough to read in an afternoon and concrete enough to actually run.",
+        "code_example": {
+          "language": "python",
+          "code": "# Minimal MCP server exposing a single read-only tool\n# Requires: pip install mcp\n\nfrom mcp.server import Server\nfrom mcp.server.stdio import stdio_server\nfrom mcp.types import Tool, TextContent\nimport asyncio\n\napp = Server(\"internal-kb\")\n\n@app.list_tools()\nasync def list_tools() -> list[Tool]:\n return [\n Tool(\n name=\"search_kb\",\n description=\"Search the internal knowledge base. Read-only.\",\n inputSchema={\n \"type\": \"object\",\n \"properties\": {\"query\": {\"type\": \"string\"}},\n \"required\": [\"query\"],\n },\n )\n ]\n\n@app.call_tool()\nasync def call_tool(name: str, arguments: dict) -> list[TextContent]:\n if name == \"search_kb\":\n query = arguments[\"query\"]\n # Replace with your actual KB lookup\n result = f\"[KB stub] Top result for '{query}': Article 42 — Deployment Checklist\"\n return [TextContent(type=\"text\", text=result)]\n raise ValueError(f\"Unknown tool: {name}\")\n\nif __name__ == \"__main__\":\n asyncio.run(stdio_server(app))"
+        },
+        "example_output": "MCP server 'internal-kb' started on stdio\nClient connected, protocol version negotiated: 2024-11-05\nTool called: search_kb({\"query\": \"production deployment steps\"})\nReturned: [KB stub] Top result for 'production deployment steps': Article 42 — Deployment Checklist"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The thing that took me longest to internalize is that MCP shifts where your security surface lives. Before, your risk was mostly in the prompt — could an attacker inject text that made the model misbehave? With MCP, you now have a network-accessible server that a model can invoke autonomously, and if your tool implementations don't enforce their own authorization, you've handed the model the keys. The Meta incident is a useful reminder here: the model didn't \"go rogue\" in any meaningful sense — it used the tools it was given, in ways the tools permitted. That's the architecture working exactly as designed. The mistake was in what the tools were allowed to do. So when I set up an MCP server for a client, the first conversation is always about scoping: read-only where possible, explicit allow-lists for write operations, and no tool that can call out to arbitrary external endpoints without a human-defined constraint. The protocol is neutral on all of this. You are not.</p><p>What MCP genuinely earns its keep on is the integration maintenance problem. Once you have a working server, swapping the client model — from Claude to GPT-4o to whatever comes next — is a configuration change, not a re-implementation. For teams that are still figuring out which model they'll standardize on, that flexibility is real. For teams with one model and two tools, the overhead of running a separate server process probably isn't worth it yet. Adopt it when the integration surface is growing, not as a first move.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "MCP standardizes the wiring, not the judgment — and the judgment is the part that actually matters."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "An AI model from Meta also hacked another company during testing",
+      "url": "https://simonwillison.net/2026/Aug/6/an-ai-model-from-meta/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model-hero.png"
   }
 ]

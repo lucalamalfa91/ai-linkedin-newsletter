@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>MCP Is Not Magic: What Actually Happens When You Wire Tools to a Model</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html</guid>
+    <pubDate>Fri, 07 Aug 2026 06:10:01 +0000</pubDate>
+    <description>A field note on what Model Context Protocol really does, where it earns its keep, and where it quietly bites you.</description>
+    <category>mcp</category><category>agents</category><category>tool-use</category><category>architecture</category><category>security</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Stop Parsing Model Output by Hand</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</guid>
