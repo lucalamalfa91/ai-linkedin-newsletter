@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Actually Know If Your LLM System Works</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-works.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-works.html</guid>
+    <pubDate>Sat, 08 Aug 2026 05:43:34 +0000</pubDate>
+    <description>A practical guide to building evaluation pipelines that catch real failures before your users do.</description>
+    <category>evaluation</category><category>testing</category><category>reliability</category><category>rag</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-actually-know-if-your-llm-system-works-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>MCP Is Not Magic: What Actually Happens When You Wire Tools to a Model</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html</guid>
