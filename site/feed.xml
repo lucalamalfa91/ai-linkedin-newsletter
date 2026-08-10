@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Guardrails Are Not a Safety Net. They Are a Contract.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract.html</guid>
+    <pubDate>Mon, 10 Aug 2026 06:10:50 +0000</pubDate>
+    <description>Most teams bolt on output validation at the end. Here is why that framing produces brittle systems.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-are-not-a-safety-net-they-are-a-contract-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Actually Know If Your LLM System Works</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-works.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-works.html</guid>

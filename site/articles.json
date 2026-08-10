@@ -1207,5 +1207,47 @@
       "source": "Simon Willison"
     },
     "og_image": "how-to-actually-know-if-your-llm-system-works-hero.png"
+  },
+  {
+    "slug": "guardrails-are-not-a-safety-net-they-are-a-contract",
+    "title": "Guardrails Are Not a Safety Net. They Are a Contract.",
+    "dek": "Most teams bolt on output validation at the end. Here is why that framing produces brittle systems.",
+    "date": "2026-08-10",
+    "published_at": "2026-08-10T06:10:50.048394+00:00",
+    "technique": "Guardrails & Output Validation",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "guardrails",
+      "output-validation",
+      "reliability",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "callout",
+        "label": "The framing most teams get wrong",
+        "html": "<p>Treating guardrails as a safety net — something you add after the real work is done — is exactly backwards. A guardrail is a contract between your system and whatever consumes its output. If you design it last, you've already made a dozen architectural decisions that the contract will quietly violate.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The dominant conversation around LLM guardrails goes something like this: you build the pipeline, you get it working, and then you sprinkle in some validation to catch the bad stuff before it hits the user. Jailbreaks, hallucinated field names, off-topic responses — guardrails as a filter layer. That mental model is wrong, and it produces systems that are fragile in ways that are genuinely hard to debug. When validation is an afterthought, it operates on outputs it was never consulted about shaping. You end up writing increasingly baroque regex patterns and schema checks to compensate for a prompt that was never written with machine-readable output in mind.</p><p>The concept Simon Willison recently highlighted — the <em>meat proxy</em>, a person who blindly relays AI output without actually reading it — applies just as well to software systems. A pipeline with no output contract is a meat proxy in code. It copies whatever the model produces and passes it downstream, hoping nothing breaks. Guardrails, designed up front, force you to specify what the system is actually supposed to produce. That is a design activity, not a remediation activity.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Here is what changes when you treat validation as a contract rather than a filter. First, your prompt changes. If you know the output must conform to a specific schema — say, a <code>RiskAssessment</code> object with a required <code>confidence_score</code> between 0 and 1 and a non-empty <code>rationale</code> field — you write the prompt to produce that. You include the schema in the system prompt. You test against it from day one. Second, your retry logic changes. Instead of a generic error handler, you have a validator that can tell you <em>which</em> constraint failed, which means a targeted re-prompt is possible rather than a full restart. Third, and most importantly, your failure modes become visible. A contract violation is a named, logged, observable event. Unvalidated output failures tend to surface as mysterious downstream bugs three hops away from the actual cause.</p><p>The trade-off is real: defining the contract up front takes time, and for genuinely open-ended generative tasks — creative writing, long-form summarisation — a rigid schema is the wrong tool. Not every LLM output needs to be a structured object. But if your output is consumed by another system, another model, or any code at all, you almost certainly need a contract. The failure mode I see most often in enterprise deployments is teams who discover this six months in, after the pipeline has ossified around an implicit and undocumented output format that the model only approximately respects.</p>"
+      }
+    ],
+    "block_signature": [
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Don't be a meat proxy",
+      "url": "https://simonwillison.net/2026/Aug/3/dont-be-a-meat-proxy/#atom-everything",
+      "source": "Simon Willison"
+    },
+    "og_image": "guardrails-are-not-a-safety-net-they-are-a-contract-hero.png"
   }
 ]
