@@ -1249,5 +1249,104 @@
       "source": "Simon Willison"
     },
     "og_image": "guardrails-are-not-a-safety-net-they-are-a-contract-hero.png"
+  },
+  {
+    "slug": "instrument-your-llm-calls-before-you-need-to",
+    "title": "Instrument Your LLM Calls Before You Need To",
+    "dek": "How to add tracing to your LLM application so you can actually debug it when things go wrong.",
+    "date": "2026-08-11",
+    "published_at": "2026-08-11T05:53:57.062164+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "observability",
+      "tracing",
+      "debugging",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams add observability after something breaks in production. That's backwards. Tracing is cheap to set up, and the data it gives you — latency per step, token counts, the exact prompt that caused a bad output — is nearly impossible to reconstruct after the fact. Do it on day one.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "LLM Trace Lifecycle",
+        "image": "instrument-your-llm-calls-before-you-need-to-diagram-1.png",
+        "alt": "Request Received → Trace Opened → LLM Call Logged → Tool Calls Logged → Response Returned → Trace Stored"
+      },
+      {
+        "type": "list",
+        "heading": "What to Capture on Every Trace",
+        "items": [
+          {
+            "title": "Full prompt, not just the template",
+            "detail": "Log the rendered string sent to the model — variables substituted, system prompt included. Templates lie; the rendered call doesn't."
+          },
+          {
+            "title": "Model, version, and parameters",
+            "detail": "Temperature, top-p, max tokens. A silent default change in your client library has broken more things than you'd expect."
+          },
+          {
+            "title": "Latency at each span",
+            "detail": "Break it down: retrieval, LLM call, post-processing. Aggregate latency hides where the time actually goes."
+          },
+          {
+            "title": "Token usage per call",
+            "detail": "Input and output tokens separately. This is your cost signal and your context-window early warning system."
+          },
+          {
+            "title": "User and session identifiers",
+            "detail": "Without these, you can't correlate a complaint to a trace. Add them from the start, even in internal tools."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langfuse/langfuse",
+          "url": "https://github.com/langfuse/langfuse",
+          "note": "Open-source LLM observability platform: tracing, evals, prompt management."
+        },
+        "usage_note": "Langfuse is the first thing I drop into a new LLM project — self-hostable, and the decorator-based tracing keeps instrumentation out of my business logic.",
+        "code_example": {
+          "language": "python",
+          "code": "from langfuse.decorators import observe, langfuse_context\nfrom langfuse.openai import openai  # drop-in patched client\n\n@observe()\ndef retrieve_context(query: str) -> str:\n    # simulate a retrieval step\n    return f\"Relevant doc snippet for: {query}\"\n\n@observe()\ndef answer_question(query: str) -> str:\n    context = retrieve_context(query)\n\n    response = openai.chat.completions.create(\n        model=\"gpt-4o-mini\",\n        messages=[\n            {\"role\": \"system\", \"content\": \"Answer using only the provided context.\"},\n            {\"role\": \"user\", \"content\": f\"Context: {context}\\n\\nQuestion: {query}\"}\n        ]\n    )\n\n    langfuse_context.update_current_trace(\n        user_id=\"user-42\",\n        tags=[\"rag\", \"production\"]\n    )\n\n    return response.choices[0].message.content\n\nprint(answer_question(\"What is the refund policy?\"))"
+        },
+        "example_output": "Trace created: https://cloud.langfuse.com/trace/a3f9c1d2\n  span: retrieve_context  latency=42ms\n  span: answer_question > openai.chat  latency=830ms  tokens_in=214  tokens_out=61\nAnswer: Based on the provided context, refunds are accepted within 30 days of purchase."
+      },
+      {
+        "type": "list",
+        "heading": "Rules for Keeping Traces Useful Long-Term",
+        "items": [
+          {
+            "title": "Name spans after what they do, not what they call",
+            "detail": "\"retrieve_customer_history\" is debuggable six months later. \"step_3\" is not."
+          },
+          {
+            "title": "Sample aggressively only after you understand the failure rate",
+            "detail": "100% tracing is fine at low volume. If you drop to 10% sampling before you know your error patterns, you'll miss the long tail."
+          },
+          {
+            "title": "Set retention to match your eval cadence",
+            "detail": "If you run evals weekly, keep at least two weeks of traces. Shorter retention makes regression analysis guesswork."
+          },
+          {
+            "title": "Treat traces as a dataset, not just logs",
+            "detail": "Export traces periodically to label edge cases and feed your offline evaluation suite. The trace store is where your fine-tuning data comes from."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "instrument-your-llm-calls-before-you-need-to-hero.png"
   }
 ]

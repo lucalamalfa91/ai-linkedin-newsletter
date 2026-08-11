@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Instrument Your LLM Calls Before You Need To</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/instrument-your-llm-calls-before-you-need-to.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/instrument-your-llm-calls-before-you-need-to.html</guid>
+    <pubDate>Tue, 11 Aug 2026 05:53:57 +0000</pubDate>
+    <description>How to add tracing to your LLM application so you can actually debug it when things go wrong.</description>
+    <category>observability</category><category>tracing</category><category>debugging</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/instrument-your-llm-calls-before-you-need-to-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Guardrails Are Not a Safety Net. They Are a Contract.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract.html</guid>
