@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Red-Teaming Your AI System Before Someone Else Does</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-system-before-someone-else-does.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-system-before-someone-else-does.html</guid>
+    <pubDate>Wed, 12 Aug 2026 06:14:51 +0000</pubDate>
+    <description>Adversarial testing isn't a security luxury — here's the minimum you should be running on every AI deployment.</description>
+    <category>red-teaming</category><category>security</category><category>testing</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-ai-system-before-someone-else-does-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Instrument Your LLM Calls Before You Need To</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/instrument-your-llm-calls-before-you-need-to.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/instrument-your-llm-calls-before-you-need-to.html</guid>
