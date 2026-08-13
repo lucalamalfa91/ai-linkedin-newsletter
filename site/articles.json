@@ -1399,5 +1399,61 @@
       "source": "Simon Willison"
     },
     "og_image": "red-teaming-your-ai-system-before-someone-else-does-hero.png"
+  },
+  {
+    "slug": "what-i-learned-filling-180k-tokens-and-getting-garbage-back",
+    "title": "What I Learned Filling 180k Tokens and Getting Garbage Back",
+    "dek": "Long-context windows are not a substitute for thinking carefully about what you actually put in them.",
+    "date": "2026-08-13",
+    "published_at": "2026-08-13T06:17:23.034095+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "agents"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client handed me a folder of 40 supplier contracts and said: \"Just throw them all at Claude, it can handle 200k tokens.\" They weren't wrong about the token limit. They were wrong about what happens when you fill it carelessly. We got answers that were technically grounded in the documents but subtly wrong — the model was averaging across conflicting clauses, losing track of which terms applied to which vendor, and generally doing what any human would do if you handed them a stack of paper and said \"summarize everything.\" The window was full. The output was mush.</p><p>That incident changed how I think about context. The size of the window is not the interesting problem. The interesting problem is <em>what you put in it, in what order, and how you tell the model to navigate it</em>. That's what I now call context engineering — and it's the part most teams skip entirely because they're still amazed the model can read 40 contracts at once.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>A few things I've settled on after enough failures: position matters more than people admit. Instructions buried in the middle of a 100k-token prompt are reliably ignored more often than the same instructions at the top or bottom. Redundant structure helps — if the model needs to know a vendor name to answer correctly, that name should appear near the relevant clause, not just in a header 80k tokens earlier. And when the task is genuinely complex, a single monolithic context is usually the wrong shape. Sub-agents that each hold a smaller, focused slice of information outperform one agent drowning in everything. The quoted excerpt from Florian Herrengt's piece about AI and software bugs points at something related: when a bug is hard to fix repeatedly, often the real problem is that nobody — human or model — has a clean picture of what the code is actually supposed to do. Context rot. The same thing happens in long prompts.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Long-context and context-management patterns (PDF uploads, sub-agents)."
+        },
+        "usage_note": "I reach for the Claude cookbooks repo specifically when I need a tested pattern for structured document intake — it saves me from reinventing the chunking logic every time.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport base64\nfrom pathlib import Path\n\nclient = anthropic.Anthropic()\n\ndef load_pdf_as_base64(path: str) -> str:\n    return base64.standard_b64encode(Path(path).read_bytes()).decode(\"utf-8\")\n\ndef extract_clause(pdf_path: str, vendor_name: str, clause_topic: str) -> str:\n    pdf_data = load_pdf_as_base64(pdf_path)\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=1024,\n        system=(\n            f\"You are reviewing a supplier contract for vendor: {vendor_name}. \"\n            f\"Answer only from this document. If the clause is absent, say so explicitly.\"\n        ),\n        messages=[\n            {\n                \"role\": \"user\",\n                \"content\": [\n                    {\"type\": \"document\",\n                     \"source\": {\"type\": \"base64\", \"media_type\": \"application/pdf\",\n                                \"data\": pdf_data}},\n                    {\"type\": \"text\",\n                     \"text\": f\"Extract and quote the section covering: {clause_topic}\"}\n                ]\n            }\n        ]\n    )\n    return response.content[0].text\n\nresult = extract_clause(\"acme_contract.pdf\", \"Acme GmbH\", \"liability cap\")\nprint(result)"
+        },
+        "example_output": "Vendor: Acme GmbH\nClause topic: liability cap\n\nFound in Section 12.3:\n\"The total aggregate liability of either party shall not exceed\nthe fees paid by Client in the twelve (12) months preceding\nthe claim, regardless of the form of action.\"\n\nNo carve-outs for gross negligence are present in this document."
+      },
+      {
+        "type": "quote",
+        "text": "A 200k-token window gives you rope — context engineering is how you avoid hanging yourself with it."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "Quoting Florian Herrengt",
+      "url": "https://simonwillison.net/2026/Aug/12/florian-herrengt/",
+      "source": "Simon Willison"
+    },
+    "og_image": "what-i-learned-filling-180k-tokens-and-getting-garbage-back-hero.png"
   }
 ]

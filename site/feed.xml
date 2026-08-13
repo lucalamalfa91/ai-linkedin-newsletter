@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>What I Learned Filling 180k Tokens and Getting Garbage Back</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-filling-180k-tokens-and-getting-garbage-back.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-filling-180k-tokens-and-getting-garbage-back.html</guid>
+    <pubDate>Thu, 13 Aug 2026 06:17:23 +0000</pubDate>
+    <description>Long-context windows are not a substitute for thinking carefully about what you actually put in them.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-i-learned-filling-180k-tokens-and-getting-garbage-back-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Red-Teaming Your AI System Before Someone Else Does</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-system-before-someone-else-does.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-system-before-someone-else-does.html</guid>
