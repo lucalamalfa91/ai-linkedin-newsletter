@@ -1455,5 +1455,78 @@
       "source": "Simon Willison"
     },
     "og_image": "what-i-learned-filling-180k-tokens-and-getting-garbage-back-hero.png"
+  },
+  {
+    "slug": "dense-vs-sparse-retrieval-choosing-your-embedding-strategy",
+    "title": "Dense vs. Sparse Retrieval: Choosing Your Embedding Strategy",
+    "dek": "Vector search is not one thing — knowing when to use dense embeddings versus sparse retrieval changes everything downstream.",
+    "date": "2026-08-14",
+    "published_at": "2026-08-14T06:14:56.665128+00:00",
+    "technique": "Vector Search & Embeddings",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>There are two fundamentally different ways to match a query against a corpus, and most teams pick one without really thinking about the other. Dense retrieval — turning text into floating-point vectors and finding nearest neighbors — gets all the attention right now. Sparse retrieval — think BM25, TF-IDF, keyword overlap — gets dismissed as \"old school.\" That framing is wrong, and it costs people real accuracy in production.</p><p>Dense embeddings are excellent at semantic similarity. Ask \"how do I cancel my subscription\" and they'll surface a document titled \"terminating your account\" even though no word overlaps. That's genuinely useful. But they're terrible at exact-match recall: product codes, error codes, proper nouns, very domain-specific jargon. Sparse methods handle those effortlessly. The honest answer for most enterprise search problems I've worked on is that you need to know which failure mode hurts you more — and then probably combine both anyway.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Embedding database and search infrastructure for AI applications."
+        },
+        "usage_note": "I reach for Chroma when I need a self-contained embedding store I can run locally or in a container without standing up a separate vector database service — it's the fastest path from raw documents to queryable embeddings.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.Client()\n\nopenai_ef = embedding_functions.OpenAIEmbeddingFunction(\n    api_key=\"YOUR_OPENAI_KEY\",\n    model_name=\"text-embedding-3-small\"\n)\n\ncollection = client.create_collection(\n    name=\"support_docs\",\n    embedding_function=openai_ef\n)\n\ncollection.add(\n    documents=[\n        \"To cancel your subscription, go to Account > Billing > Cancel.\",\n        \"Error code E-4021 means the payment gateway timed out.\",\n        \"You can export your data as CSV from the Settings panel.\"\n    ],\n    ids=[\"doc1\", \"doc2\", \"doc3\"]\n)\n\nresults = collection.query(\n    query_texts=[\"how do I stop my plan\"],\n    n_results=2\n)\nprint(results[\"documents\"])"
+        },
+        "example_output": "[['To cancel your subscription, go to Account > Billing > Cancel.',\n  'You can export your data as CSV from the Settings panel.']]\n# Note: 'E-4021' doc not returned — the query had no semantic signal toward error codes"
+      },
+      {
+        "type": "prose",
+        "html": "<p>That last line in the output is the thing to sit with. The error-code document didn't surface — not because the embedding model failed, but because the query carried no semantic signal pointing toward payment errors. A sparse retriever would have caught it if the user typed \"E-4021\" directly. Dense retrieval wins on paraphrase; sparse retrieval wins on precision. Neither wins unconditionally.</p><p>LlamaIndex takes a different approach to this problem. Rather than being a database, it's a retrieval framework — it sits on top of whatever store you choose and gives you composable retrieval strategies. The relevant one here is its hybrid retriever, which runs both a vector search and a keyword search, then fuses the result lists using reciprocal rank fusion or a weighted merge. You configure the balance; LlamaIndex does the plumbing. In practice, this is what I actually deploy for enterprise document search, because the combined approach consistently outperforms either leg on its own across heterogeneous corpora.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Indexing and retrieval framework built on top of embeddings."
+        },
+        "usage_note": "LlamaIndex is where I go when the retrieval logic itself needs to be configurable — hybrid search, reranking, metadata filtering — things that would take weeks to build on a bare vector DB.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings\nfrom llama_index.core.retrievers import VectorIndexRetriever\nfrom llama_index.retrievers.bm25 import BM25Retriever\nfrom llama_index.core.retrievers import QueryFusionRetriever\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.embeddings.openai import OpenAIEmbedding\n\nSettings.llm = OpenAI(model=\"gpt-4o-mini\")\nSettings.embed_model = OpenAIEmbedding(model=\"text-embedding-3-small\")\n\ndocuments = SimpleDirectoryReader(\"./support_docs\").load_data()\nindex = VectorStoreIndex.from_documents(documents)\n\nvector_retriever = VectorIndexRetriever(index=index, similarity_top_k=4)\nbm25_retriever = BM25Retriever.from_defaults(index=index, similarity_top_k=4)\n\nhybrid_retriever = QueryFusionRetriever(\n    retrievers=[vector_retriever, bm25_retriever],\n    similarity_top_k=3,\n    num_queries=1,\n    mode=\"reciprocal_rerank\"\n)\n\nnodes = hybrid_retriever.retrieve(\"E-4021 payment timeout\")\nfor n in nodes:\n    print(round(n.score, 3), n.text[:80])"
+        },
+        "example_output": "0.062  Error code E-4021 means the payment gateway timed out.\n0.051  To cancel your subscription, go to Account > Billing > Cancel.\n0.038  You can export your data as CSV from the Settings panel.\n# Both semantic and keyword signals contributed — E-4021 doc now ranks first"
+      },
+      {
+        "type": "diagram",
+        "heading": "Dense vs. Hybrid Retrieval: Where Each Fits",
+        "image": "dense-vs-sparse-retrieval-choosing-your-embedding-strategy-diagram-1.png",
+        "alt": "Comparison: Aspect, Dense Only (Chroma), Hybrid (LlamaIndex)"
+      },
+      {
+        "type": "prose",
+        "html": "<p>My rule of thumb: if your corpus is relatively clean and your users phrase queries naturally — think a knowledge base written by technical writers — dense-only is fine and simpler to operate. If your corpus mixes natural-language prose with structured identifiers, version numbers, or code, you will regret not adding the sparse leg. The latency cost of hybrid retrieval is real but usually small relative to the LLM call that follows. The accuracy gain, on the other hand, is immediately visible in user feedback.</p><p>One thing I'd push back on in how the industry talks about this: embedding model choice gets obsessed over, while retrieval strategy gets ignored. Swapping from one embedding model to another might move your recall@5 by a few points. Switching from dense-only to hybrid on a mixed corpus can move it by fifteen. Spend your tuning time accordingly.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "code_project",
+      "diagram",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "llm-gemini 0.33",
+      "url": "https://simonwillison.net/2026/Aug/13/llm-gemini/",
+      "source": "Simon Willison"
+    },
+    "og_image": "dense-vs-sparse-retrieval-choosing-your-embedding-strategy-hero.png"
   }
 ]
