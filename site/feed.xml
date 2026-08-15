@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Agent Memory and State Management: A Practical Architecture Guide</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-and-state-management-a-practical-architecture-guide.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-and-state-management-a-practical-architecture-guide.html</guid>
+    <pubDate>Sat, 15 Aug 2026 05:25:26 +0000</pubDate>
+    <description>How you model agent state determines whether your system recovers gracefully or fails silently under pressure.</description>
+    <category>agents</category><category>state-management</category><category>memory</category><category>langgraph</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-and-state-management-a-practical-architecture-guide-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Dense vs. Sparse Retrieval: Choosing Your Embedding Strategy</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-vs-sparse-retrieval-choosing-your-embedding-strategy.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-vs-sparse-retrieval-choosing-your-embedding-strategy.html</guid>

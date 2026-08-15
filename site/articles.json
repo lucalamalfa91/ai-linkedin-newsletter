@@ -1528,5 +1528,82 @@
       "source": "Simon Willison"
     },
     "og_image": "dense-vs-sparse-retrieval-choosing-your-embedding-strategy-hero.png"
+  },
+  {
+    "slug": "agent-memory-and-state-management-a-practical-architecture-guide",
+    "title": "Agent Memory and State Management: A Practical Architecture Guide",
+    "dek": "How you model agent state determines whether your system recovers gracefully or fails silently under pressure.",
+    "date": "2026-08-15",
+    "published_at": "2026-08-15T05:25:26.616274+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "agents",
+      "state-management",
+      "memory",
+      "langgraph",
+      "architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most agent failures I debug aren't model failures. The model knew what to do. The system just forgot what had already happened. A tool call succeeded on step three, but by step seven the agent had no reliable way to know that — so it called the tool again, wrote a duplicate record, and the user got billed twice. Memory wasn't a nice-to-have. It was load-bearing infrastructure that nobody designed.</p><p>Agent memory is one of those topics that gets compressed into a single word — \"context\" — as if that settles it. It doesn't. Context is just the immediate token window. Memory is everything else: what happened in previous turns, what the agent learned about the user or task, what intermediate results it produced, and what state the world is in right now. Conflating them is the first mistake most teams make when they move from a single-shot LLM call to a multi-step agent.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Four Memory Scopes and What They're Actually For",
+        "image": "agent-memory-and-state-management-a-practical-architecture-guide-diagram-1.png",
+        "alt": "Comparison: Scope, What It Stores, Typical Medium"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The comparison above isn't theoretical taxonomy — it maps directly to where things break. In-context memory breaks when the window fills and you start truncating without a strategy. Episodic memory breaks when you restart a run after a crash and the agent has no idea where it left off. Semantic memory breaks when stale facts from six months ago override what the user just told you. Procedural memory — tracking actual side effects — breaks when you assume idempotency you never actually guaranteed. Each scope has its own failure mode, and each needs its own design decision.</p><p>The trickiest scope is procedural. Developers spend a lot of energy on what the agent <em>knows</em> and almost none on what the agent has <em>done</em>. But in any agent that takes real-world actions — sending messages, writing to databases, calling external APIs — you need a durable record of completed actions that survives process restarts. Without it, you get the double-execution bug I described above. The fix isn't clever prompting. It's checkpointing: persisting a state snapshot after every meaningful action so that resumption is safe and deterministic.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Stateful Agent Execution Loop",
+        "image": "agent-memory-and-state-management-a-practical-architecture-guide-diagram-2.png",
+        "alt": "Receive Input → Load Checkpoint → Plan & Execute → Call Tools → Persist State → Return Output"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The flow above looks simple, but step two — \"Load Checkpoint\" — is where most implementations are underbuilt. A checkpoint needs to capture not just the message history but the full graph of what nodes have run, what tool calls completed successfully, and what the pending next step is. If your checkpoint is just a list of chat messages, you can reconstruct a conversation but you can't safely resume an interrupted task. Those are different requirements and they need different data models.</p><p>One design decision that comes up constantly in enterprise work: should memory be scoped to the user, the task, or the session? The answer is usually all three, layered. Session state is ephemeral and fast — it lives in memory or Redis and gets discarded when the run ends. Task state needs durability — it has to survive crashes and be queryable after the fact for auditing. User state needs careful governance — in regulated industries you may be legally required to let users inspect or delete what you've stored about them. Building a single monolithic \"memory\" object that serves all three purposes is a shortcut that creates problems you won't see until production.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The rule I enforce on every agent project",
+        "html": "<p>I require a written answer to three questions before any agent goes to staging: What state does it read at the start of each run? What state does it write, and when exactly? What happens if the process dies between those two moments? If the team can't answer all three, the agent isn't ready. Most of the time, this exercise surfaces a missing checkpoint or an implicit assumption about idempotency that would have caused a real incident within a week of launch.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Stateful agent graphs with built-in persistence and memory."
+        },
+        "usage_note": "I reach for LangGraph when an agent needs genuine persistence across runs — it gives me typed state schemas, built-in checkpointers, and a graph model that makes the execution path auditable, not just a chain of function calls I have to trace through logs.",
+        "code_example": {
+          "language": "python",
+          "code": "from langgraph.graph import StateGraph, END\nfrom langgraph.checkpoint.sqlite import SqliteSaver\nfrom typing import TypedDict, Annotated\nimport operator\n\nclass TaskState(TypedDict):\n    messages: Annotated[list, operator.add]\n    completed_steps: Annotated[list, operator.add]\n    user_id: str\n\ndef plan_node(state: TaskState) -> TaskState:\n    last_msg = state[\"messages\"][-1]\n    plan = f\"[Plan for: {last_msg}]\"\n    return {\"messages\": [plan], \"completed_steps\": []}\n\ndef execute_node(state: TaskState) -> TaskState:\n    step_result = f\"Executed step based on: {state['messages'][-1]}\"\n    return {\n        \"messages\": [step_result],\n        \"completed_steps\": [\"execute\"]\n    }\n\ndef should_continue(state: TaskState) -> str:\n    if \"execute\" in state[\"completed_steps\"]:\n        return END\n    return \"execute\"\n\nbuilder = StateGraph(TaskState)\nbuilder.add_node(\"plan\", plan_node)\nbuilder.add_node(\"execute\", execute_node)\nbuilder.set_entry_point(\"plan\")\nbuilder.add_conditional_edges(\"plan\", should_continue, {END: END, \"execute\": \"execute\"})\nbuilder.add_edge(\"execute\", END)\n\nmemory = SqliteSaver.from_conn_string(\":memory:\")\ngraph = builder.compile(checkpointer=memory)\n\nconfig = {\"configurable\": {\"thread_id\": \"user-42-task-001\"}}\nresult = graph.invoke(\n    {\"messages\": [\"Summarise Q2 sales data\"], \"completed_steps\": [], \"user_id\": \"user-42\"},\n    config=config\n)\nprint(result)"
+        },
+        "example_output": "{\n  'messages': [\n    'Summarise Q2 sales data',\n    '[Plan for: Summarise Q2 sales data]',\n    'Executed step based on: [Plan for: Summarise Q2 sales data]'\n  ],\n  'completed_steps': ['execute'],\n  'user_id': 'user-42'\n}"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "prose",
+      "diagram",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Introducing Muse Glimmer",
+      "url": "https://simonwillison.net/2026/Aug/10/introducing-muse-glimmer/",
+      "source": "Simon Willison"
+    },
+    "og_image": "agent-memory-and-state-management-a-practical-architecture-guide-hero.png"
   }
 ]
