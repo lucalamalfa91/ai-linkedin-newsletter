@@ -1605,5 +1605,52 @@
       "source": "Simon Willison"
     },
     "og_image": "agent-memory-and-state-management-a-practical-architecture-guide-hero.png"
+  },
+  {
+    "slug": "prompt-engineering-is-a-skill-not-a-trick",
+    "title": "Prompt Engineering Is a Skill, Not a Trick",
+    "dek": "Most teams treat prompts as an afterthought. Here is why that costs them more than they think.",
+    "date": "2026-08-17",
+    "published_at": "2026-08-17T05:36:06.577014+00:00",
+    "technique": "Prompt Engineering & Optimization",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "prompt-engineering",
+      "llm",
+      "reliability",
+      "production"
+    ],
+    "blocks": [
+      {
+        "type": "callout",
+        "label": "The claim I keep making to clients",
+        "html": "<p>Prompt engineering is not the \"soft\" part of an AI system. It is the specification. If your prompts are vague, your system is vague — and no amount of model upgrades will fix that.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Most teams treat prompt design the way they treat error messages: something you dash off once and never revisit. Then they wonder why the model behaves inconsistently in production, why outputs drift between model versions, why the same feature works in the demo and breaks for real users. The usual response is to blame the model. Swap in a newer one. Add more temperature tuning. What almost never happens is someone sitting down and actually reading the prompt critically — as a specification document — and asking whether it is precise enough to produce a deterministic class of outputs.</p><p>It is not. It almost never is. And that is the real problem.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The framing I use with every client is this: a prompt is a contract between you and the model. The model will honor the letter of that contract, not the spirit you had in mind when you wrote it. If your classification prompt says \"label this as urgent if it seems important,\" you have not written a classifier — you have written a wish. The word \"seems\" is doing no work. \"Important\" is undefined. The model will fill in those blanks with something, and that something will shift depending on context, phrasing of the input, and which version of the model you are running against. Prompt optimization is the discipline of closing that gap: replacing ambiguity with precision, replacing intuition with tested structure.</p><p>This is also where the common advice to \"just iterate until it works\" breaks down. Iteration without measurement is superstition. You tweak a sentence, the output looks better on three examples, you ship it. Two weeks later a user hits the case you never tested and the whole thing falls apart. Real prompt optimization means defining what \"correct\" looks like before you start, building a small but representative eval set, and treating each prompt change like a code change — with a diff, a rationale, and a result.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The failure mode I see most often is not bad prompts — it is invisible prompts. The logic that should be in the prompt has been distributed across the application: some in a system message, some in a user message constructed at runtime, some implied by the few-shot examples, some assumed from the model's training. Nobody has a single document that says what this system is supposed to do. When something breaks, nobody knows where to look. The fix for this is not a better prompting technique — it is discipline about where decisions live. Write the full instruction set in one place. Make the examples explicit and curated, not grabbed at random. Treat the prompt as the source of truth for the model's behavior, because that is exactly what it is.</p>"
+      }
+    ],
+    "block_signature": [
+      "callout",
+      "prose",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Quoting Florian Herrengt",
+      "url": "https://simonwillison.net/2026/Aug/12/florian-herrengt/",
+      "source": "Simon Willison"
+    },
+    "og_image": "prompt-engineering-is-a-skill-not-a-trick-hero.png"
   }
 ]

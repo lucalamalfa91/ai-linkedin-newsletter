@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Engineering Is a Skill, Not a Trick</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-a-skill-not-a-trick.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-a-skill-not-a-trick.html</guid>
+    <pubDate>Mon, 17 Aug 2026 05:36:06 +0000</pubDate>
+    <description>Most teams treat prompts as an afterthought. Here is why that costs them more than they think.</description>
+    <category>prompt-engineering</category><category>llm</category><category>reliability</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-a-skill-not-a-trick-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Agent Memory and State Management: A Practical Architecture Guide</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-and-state-management-a-practical-architecture-guide.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-and-state-management-a-practical-architecture-guide.html</guid>
