@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Fine-Tuning vs. Prompting: How to Choose Before You Commit</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html</guid>
+    <pubDate>Tue, 18 Aug 2026 05:30:51 +0000</pubDate>
+    <description>A practical decision framework so you stop reaching for fine-tuning when a well-crafted prompt would do the job.</description>
+    <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-before-you-commit-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Engineering Is a Skill, Not a Trick</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-a-skill-not-a-trick.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-a-skill-not-a-trick.html</guid>

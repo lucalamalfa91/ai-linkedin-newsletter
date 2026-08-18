@@ -1652,5 +1652,100 @@
       "source": "Simon Willison"
     },
     "og_image": "prompt-engineering-is-a-skill-not-a-trick-hero.png"
+  },
+  {
+    "slug": "fine-tuning-vs-prompting-how-to-choose-before-you-commit",
+    "title": "Fine-Tuning vs. Prompting: How to Choose Before You Commit",
+    "dek": "A practical decision framework so you stop reaching for fine-tuning when a well-crafted prompt would do the job.",
+    "date": "2026-08-18",
+    "published_at": "2026-08-18T05:30:51.795601+00:00",
+    "technique": "Fine-Tuning vs. Prompting",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "fine-tuning",
+      "prompting",
+      "model-selection",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most projects that end up in fine-tuning shouldn't be there. The pattern I see repeatedly: a team gets inconsistent output from a base model, concludes the model needs retraining, spends weeks curating examples and managing a training pipeline — and then discovers that a cleaner system prompt and a few well-chosen examples in context would have solved 90% of the problem. Fine-tuning isn't wrong; it's just expensive to undo once you're committed.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Deciding Between Prompting and Fine-Tuning",
+        "image": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-diagram-1.png",
+        "alt": "Define Target Behavior → Prototype with Prompts → Measure Gap → Gap Solvable? → Ship Prompt Solution → Build Fine-Tune Dataset"
+      },
+      {
+        "type": "list",
+        "heading": "When prompting is enough — check these first",
+        "items": [
+          {
+            "title": "The behavior is describable in words",
+            "detail": "If you can write down the rule clearly, a system prompt can enforce it. Fine-tuning is for patterns too subtle or numerous to enumerate."
+          },
+          {
+            "title": "You need fewer than ~20 consistent output examples in context",
+            "detail": "Few-shot prompting with good examples closes most format and style gaps without any training run."
+          },
+          {
+            "title": "Your use case is still changing",
+            "detail": "Prompts iterate in minutes. Fine-tuned models lock you into a snapshot of requirements you had last month."
+          },
+          {
+            "title": "Latency and cost are not the bottleneck yet",
+            "detail": "One valid reason to fine-tune is to shrink a long system prompt that runs on every request. Until that cost actually hurts, don't bother."
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "heading": "When fine-tuning earns its place",
+        "items": [
+          {
+            "title": "Style or tone that can't survive context length limits",
+            "detail": "A brand voice requiring 2,000 words of examples per call is a genuine fine-tuning candidate — bake it into weights instead."
+          },
+          {
+            "title": "Consistent structured output at high volume",
+            "detail": "If you're parsing model output programmatically at scale, a fine-tuned model that reliably hits your schema beats prompt engineering under pressure."
+          },
+          {
+            "title": "Proprietary domain knowledge the base model lacks",
+            "detail": "Rare terminology, internal classification taxonomies, or specialized reasoning patterns that simply aren't in the pretraining data."
+          },
+          {
+            "title": "Latency-sensitive, prompt-heavy pipelines",
+            "detail": "Fine-tuning a smaller model to match a larger one's prompted behavior is a legitimate optimization — once you've proven the behavior first."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Examples showing when prompting/tool use suffice vs. when they don't."
+        },
+        "usage_note": "I use the Claude cookbooks to quickly prototype the prompting side of this decision — specifically to stress-test whether tool use and structured prompting can close the gap before I even think about a training run.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSYSTEM_PROMPT = \"\"\"\nYou are a contract reviewer. Extract the following fields from any contract snippet:\n- party_names (list)\n- effective_date (ISO 8601)\n- termination_clause (bool)\nRespond ONLY with valid JSON matching that schema. No commentary.\n\"\"\"\n\ncontract_snippet = \"\"\"\nThis Agreement is entered into on 2024-03-15 between Acme Corp and Globex Ltd.\nEither party may terminate with 30 days written notice.\n\"\"\"\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=256,\n    system=SYSTEM_PROMPT,\n    messages=[{\"role\": \"user\", \"content\": contract_snippet}]\n)\n\nprint(response.content[0].text)"
+        },
+        "example_output": "{\n  \"party_names\": [\"Acme Corp\", \"Globex Ltd\"],\n  \"effective_date\": \"2024-03-15\",\n  \"termination_clause\": true\n}"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "list",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-hero.png"
   }
 ]
