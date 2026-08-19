@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Multi-Agent Orchestration: What Actually Breaks in Production</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/multi-agent-orchestration-what-actually-breaks-in-production.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/multi-agent-orchestration-what-actually-breaks-in-production.html</guid>
+    <pubDate>Wed, 19 Aug 2026 05:31:31 +0000</pubDate>
+    <description>Most agentic systems fail at coordination, not capability — here's how to build them so they don't.</description>
+    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>workflows</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/multi-agent-orchestration-what-actually-breaks-in-production-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Fine-Tuning vs. Prompting: How to Choose Before You Commit</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html</guid>

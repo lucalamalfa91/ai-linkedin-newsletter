@@ -1747,5 +1747,53 @@
     ],
     "inspired_by": null,
     "og_image": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-hero.png"
+  },
+  {
+    "slug": "multi-agent-orchestration-what-actually-breaks-in-production",
+    "title": "Multi-Agent Orchestration: What Actually Breaks in Production",
+    "dek": "Most agentic systems fail at coordination, not capability — here's how to build them so they don't.",
+    "date": "2026-08-19",
+    "published_at": "2026-08-19T05:31:31.349828+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "workflows",
+      "reliability"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Every team I work with wants to build agents. Very few of them want to deal with what happens when two agents disagree on state, or when an LLM-driven router sends work to the wrong specialist for the fifth time in a row. That's the real problem with agentic workflows — not the individual agents, but the seams between them. Orchestration is where complexity compounds. A single agent with a clear task and a well-defined tool set is manageable. A crew of six agents sharing context through a poorly designed message bus is a debugging nightmare.</p><p>The practical split I use with clients is this: reach for <strong>CrewAI</strong> when you need to move fast and your workflow maps cleanly onto roles with defined responsibilities — a researcher, a writer, a reviewer. Reach for <strong>LangGraph</strong> when your workflow has conditional branches, loops, or human-in-the-loop checkpoints that need to survive a process restart. CrewAI abstracts the orchestration away from you, which is a gift until it isn't. LangGraph makes you draw the graph yourself, which is tedious until something goes wrong and you're grateful you can see exactly where execution stalled.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "crewAIInc/crewAI",
+          "url": "https://github.com/crewAIInc/crewAI",
+          "note": "Framework for orchestrating role-playing, autonomous agent crews."
+        },
+        "usage_note": "I use CrewAI when a client needs a working prototype in a day — role definitions and task chaining are explicit enough that non-engineers can read and adjust them.",
+        "code_example": {
+          "language": "python",
+          "code": "from crewai import Agent, Task, Crew\n\nresearcher = Agent(\n    role=\"Market Researcher\",\n    goal=\"Find recent pricing trends for enterprise SaaS in DACH region\",\n    backstory=\"You are a senior analyst with deep B2B SaaS knowledge.\",\n    verbose=False,\n    allow_delegation=False,\n)\n\nwriter = Agent(\n    role=\"Report Writer\",\n    goal=\"Summarize findings into a concise executive brief\",\n    backstory=\"You write clearly for C-level audiences with no tolerance for filler.\",\n    verbose=False,\n    allow_delegation=False,\n)\n\nresearch_task = Task(\n    description=\"Research current SaaS pricing benchmarks for mid-market DACH companies.\",\n    expected_output=\"A bullet list of 5-8 pricing data points with sources.\",\n    agent=researcher,\n)\n\nwrite_task = Task(\n    description=\"Turn the research into a one-page executive summary.\",\n    expected_output=\"A structured brief under 300 words.\",\n    agent=writer,\n)\n\ncrew = Crew(agents=[researcher, writer], tasks=[research_task, write_task], verbose=False)\nresult = crew.kickoff()\nprint(result)"
+        },
+        "example_output": "## DACH Enterprise SaaS Pricing Brief\n\nMedian ARR per seat in mid-market DACH: EUR 1,200–2,400 depending on vertical.\nUsage-based pricing adoption up ~34% YoY among Swiss-headquartered vendors.\nTop 3 pricing levers: seat count, API call volume, SSO/compliance add-ons.\n\nRecommendation: Anchor initial deals on seat tiers; introduce usage components at renewal."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The failure mode I see most often is teams choosing the higher-abstraction tool for a workflow that genuinely needs explicit state control. When a CrewAI run silently retries a failed task and produces a subtly wrong result, you often don't know until a human reads the output. With LangGraph, the graph is the documentation — you can trace exactly which node received what state. That visibility has a cost in setup time, but for anything running in production with real consequences, it's not optional.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "multi-agent-orchestration-what-actually-breaks-in-production-hero.png"
   }
 ]
