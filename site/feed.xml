@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>RAG in Practice: What Actually Breaks and Why</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-in-practice-what-actually-breaks-and-why.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-in-practice-what-actually-breaks-and-why.html</guid>
+    <pubDate>Thu, 20 Aug 2026 05:31:31 +0000</pubDate>
+    <description>How retrieval-augmented generation works in real enterprise deployments, including the failure modes nobody warns you about.</description>
+    <category>rag</category><category>retrieval</category><category>llm</category><category>enterprise-ai</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-in-practice-what-actually-breaks-and-why-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Multi-Agent Orchestration: What Actually Breaks in Production</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/multi-agent-orchestration-what-actually-breaks-in-production.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/multi-agent-orchestration-what-actually-breaks-in-production.html</guid>

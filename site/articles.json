@@ -1795,5 +1795,58 @@
     ],
     "inspired_by": null,
     "og_image": "multi-agent-orchestration-what-actually-breaks-in-production-hero.png"
+  },
+  {
+    "slug": "rag-in-practice-what-actually-breaks-and-why",
+    "title": "RAG in Practice: What Actually Breaks and Why",
+    "dek": "How retrieval-augmented generation works in real enterprise deployments, including the failure modes nobody warns you about.",
+    "date": "2026-08-20",
+    "published_at": "2026-08-20T05:31:31.733829+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "rag",
+      "retrieval",
+      "llm",
+      "enterprise-ai",
+      "knowledge-bases"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client called me six months into their internal knowledge-base project. They'd built a RAG system over their HR policy documents — about 800 PDFs — and it was confidently answering employee questions with information that had been superseded two policy cycles ago. The documents were in the index. The retrieval was working. The problem was subtler: they were chunking by page, so a chunk would contain the tail end of an old policy and the header of a new one, and the model would blend them into something that sounded authoritative but was factually wrong. Nobody had tested for that. That incident is basically my whole RAG education compressed into one phone call.</p><p>The idea behind RAG is straightforward — instead of baking all your knowledge into model weights (expensive, stale the moment training ends), you retrieve relevant text at query time and hand it to the model as context. The model reasons over fresh, specific information rather than interpolating from whatever it absorbed during pretraining. In principle this is elegant. In practice, the quality of your answers is almost entirely determined by decisions you make before the LLM ever sees a single token: how you chunk, what you embed, how you rank results, and whether your source data is actually clean.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Data framework for building RAG pipelines over private data."
+        },
+        "usage_note": "I reach for LlamaIndex when a client's data comes from multiple heterogeneous sources — SharePoint, Notion, local PDFs — because its ingestion abstractions save me from writing a different loader for every format.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.core import Settings\n\nSettings.llm = OpenAI(model=\"gpt-4o\", temperature=0)\nSettings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)\n\ndocuments = SimpleDirectoryReader(\"./hr_policies\").load_data()\nindex = VectorStoreIndex.from_documents(documents)\n\nquery_engine = index.as_query_engine(similarity_top_k=4)\nresponse = query_engine.query(\n    \"What is the current parental leave entitlement for contractors?\"\n)\nprint(response)"
+        },
+        "example_output": "Based on the retrieved policy documents (last revised March 2024):\nContractors are not eligible for the standard parental leave scheme.\nThey may apply for unpaid leave under the general leave of absence policy,\nsubject to manager approval and a minimum 6-month tenure."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The thing most teams underestimate is that RAG moves the complexity — it doesn't remove it. You've traded prompt engineering for data engineering, and data engineering is harder. Chunk boundaries matter enormously. Metadata filtering can make or break precision on large corpora. And retrieval ranking by cosine similarity alone will let you down whenever a user's question uses different vocabulary than your source documents. Hybrid search — combining dense embeddings with sparse keyword signals like BM25 — is almost always worth the extra setup once you're past the prototype stage. I've seen similarity scores look great in offline eval and still fail badly on real user queries, because real users don't phrase things the way policy writers do.</p><p>My honest advice: treat your chunking strategy as a first-class design decision, not a config value you set once and forget. Run evals against real queries before you go to production. And version your index — when source documents change, you need to know exactly which chunks changed with them, or you'll end up with the same call I got six months into that HR project.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "RAG doesn't make your LLM smarter — it makes your data quality problems visible faster."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "rag-in-practice-what-actually-breaks-and-why-hero.png"
   }
 ]
