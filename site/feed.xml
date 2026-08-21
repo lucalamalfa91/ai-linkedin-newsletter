@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Caching: How to Stop Paying for the Same Tokens Twice</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice.html</guid>
+    <pubDate>Fri, 21 Aug 2026 05:33:52 +0000</pubDate>
+    <description>A systematic look at prompt caching — what it actually saves, where it silently fails, and how to structure prompts to get real cost reductions.</description>
+    <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>production-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>RAG in Practice: What Actually Breaks and Why</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-in-practice-what-actually-breaks-and-why.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-in-practice-what-actually-breaks-and-why.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 21 Jul 2026 22:35:49 +0000</pubDate>
     <description>How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.</description>
     <category>rag</category><category>retrieval</category><category>enterprise-ai</category><category>vector-search</category><category>knowledge-management</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>How Multi-Agent Orchestration Actually Works in Production</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-multi-agent-orchestration-actually-works-in-production.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-multi-agent-orchestration-actually-works-in-production.html</guid>
-    <pubDate>Tue, 21 Jul 2026 22:29:39 +0000</pubDate>
-    <description>Breaking down agentic workflows beyond the demos so you can design systems that hold together under real enterprise load.</description>
-    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>reliability</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-multi-agent-orchestration-actually-works-in-production-hero.png" type="image/png"/>
   </item>
 </channel></rss>
