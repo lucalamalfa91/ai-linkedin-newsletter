@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Structured Outputs vs Tool Use: Know Which One You Actually Need</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-know-which-one-you-actually-need.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-know-which-one-you-actually-need.html</guid>
+    <pubDate>Sat, 22 Aug 2026 05:28:12 +0000</pubDate>
+    <description>Two ways to get reliable data out of an LLM — and picking the wrong one costs you more than you'd expect.</description>
+    <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-know-which-one-you-actually-need-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Caching: How to Stop Paying for the Same Tokens Twice</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 21 Jul 2026 22:49:28 +0000</pubDate>
     <description>Learn how to structure prompts so repeated context is cached and billed once, not on every call.</description>
     <category>prompt-caching</category><category>cost-optimization</category><category>llm-infrastructure</category><category>anthropic</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-cut-llm-costs-by-anchoring-repeated-context-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>RAG Is a Data Architecture Decision, Not Just a Prompt Trick</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-architecture-decision-not-just-a-prompt-trick.html</guid>
-    <pubDate>Tue, 21 Jul 2026 22:35:49 +0000</pubDate>
-    <description>How you structure retrieval determines whether your enterprise RAG system answers well or confidently lies.</description>
-    <category>rag</category><category>retrieval</category><category>enterprise-ai</category><category>vector-search</category><category>knowledge-management</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-architecture-decision-not-just-a-prompt-trick-hero.png" type="image/png"/>
   </item>
 </channel></rss>

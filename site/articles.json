@@ -1924,5 +1924,78 @@
       "source": "Simon Willison"
     },
     "og_image": "prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-hero.png"
+  },
+  {
+    "slug": "structured-outputs-vs-tool-use-know-which-one-you-actually-need",
+    "title": "Structured Outputs vs Tool Use: Know Which One You Actually Need",
+    "dek": "Two ways to get reliable data out of an LLM — and picking the wrong one costs you more than you'd expect.",
+    "date": "2026-08-22",
+    "published_at": "2026-08-22T05:28:12.189813+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Here's a distinction I have to draw for clients at least once a month: structured outputs and tool use are not the same thing, and they're not interchangeable. Structured outputs mean you constrain the model's response to a schema — JSON with specific fields, validated types, no freestyle prose. Tool use means you hand the model a callable interface and let it decide when and how to invoke it. Both give you machine-readable results. The similarity ends there.</p><p>The confusion is understandable. In practice, many demos blur the line — a function call that returns structured JSON, a schema that describes a tool's parameters. But the design decision underneath is real and has consequences. Structured outputs are about <em>extraction and formatting</em>. Tool use is about <em>action and agency</em>. If you pick the wrong one, you either build a rigid pipeline that can't handle edge cases, or you introduce an agent loop where a simple schema constraint would have been enough.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."
+        },
+        "usage_note": "I reach for Claude's cookbook recipes when I need a concrete baseline for a client — they show the minimal viable version of each pattern without obscuring the trade-offs.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\n# Structured output: extract invoice fields from unstructured text\nINVOICE_SCHEMA = {\n    \"type\": \"object\",\n    \"properties\": {\n        \"vendor\": {\"type\": \"string\"},\n        \"amount\": {\"type\": \"number\"},\n        \"currency\": {\"type\": \"string\"},\n        \"due_date\": {\"type\": \"string\", \"format\": \"date\"}\n    },\n    \"required\": [\"vendor\", \"amount\", \"currency\", \"due_date\"]\n}\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=512,\n    system=\"Extract invoice data. Reply only with valid JSON matching the schema.\",\n    messages=[{\n        \"role\": \"user\",\n        \"content\": \"Invoice from Acme GmbH, CHF 4,200 due 2025-09-01.\"\n    }]\n)\n\ndata = json.loads(response.content[0].text)\nprint(data)"
+        },
+        "example_output": "{\n  \"vendor\": \"Acme GmbH\",\n  \"amount\": 4200,\n  \"currency\": \"CHF\",\n  \"due_date\": \"2025-09-01\"\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>That pattern — schema in the system prompt, parse the response — works well when the model's job is to read and reformat. It's predictable, cheap, and easy to validate. The failure mode is equally predictable: the moment you need the model to <em>do</em> something based on what it reads — query a database, call an API, branch on a condition — a static schema becomes a cage. You end up bolting conditional logic onto the output parser, which is exactly the wrong layer to put it in.</p><p>Tool use inverts the control flow. Instead of the model producing a final answer, it produces an intent — \"call this function with these arguments\" — and your code decides what to do with that intent. The model can call multiple tools in sequence, react to their return values, and reason across several steps. That's the genuine value. The cost is that you now have a loop, and loops have failure modes that a single-shot schema extraction doesn't: the model can call the wrong tool, call the right tool with bad arguments, or spin in a reasoning cycle that never terminates. You need retry logic, timeout handling, and ideally some kind of guardrail on the number of turns.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference MCP server implementations that expose tools to LLMs."
+        },
+        "usage_note": "MCP reference servers are where I go to understand what a well-formed tool boundary actually looks like — the filesystem and database servers in particular are honest about what should and shouldn't be exposed.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport sqlite3\n\nclient = anthropic.Anthropic()\ndb = sqlite3.connect(\"invoices.db\")\n\ntools = [{\n    \"name\": \"query_invoices\",\n    \"description\": \"Run a read-only SQL query against the invoices table.\",\n    \"input_schema\": {\n        \"type\": \"object\",\n        \"properties\": {\n            \"sql\": {\"type\": \"string\", \"description\": \"SELECT statement only\"}\n        },\n        \"required\": [\"sql\"]\n    }\n}]\n\ndef handle_tool(name, inputs):\n    if name == \"query_invoices\":\n        sql = inputs[\"sql\"]\n        if not sql.strip().upper().startswith(\"SELECT\"):\n            return {\"error\": \"Only SELECT statements allowed\"}\n        rows = db.execute(sql).fetchall()\n        return {\"rows\": rows}\n\nmessages = [{\"role\": \"user\", \"content\": \"Which vendors have invoices over CHF 3000 due this month?\"}]\n\nfor _ in range(5):  # bounded loop\n    resp = client.messages.create(model=\"claude-opus-4-5\", max_tokens=1024, tools=tools, messages=messages)\n    if resp.stop_reason == \"end_turn\":\n        print(resp.content[0].text)\n        break\n    tool_use = next(b for b in resp.content if b.type == \"tool_use\")\n    result = handle_tool(tool_use.name, tool_use.input)\n    messages += [\n        {\"role\": \"assistant\", \"content\": resp.content},\n        {\"role\": \"user\", \"content\": [{\"type\": \"tool_result\", \"tool_use_id\": tool_use.id, \"content\": str(result)}]}\n    ]"
+        },
+        "example_output": "Based on the invoice data, two vendors have invoices over CHF 3000 due this month:\n- Acme GmbH: CHF 4,200 due 2025-09-01\n- Bergmann AG: CHF 5,800 due 2025-09-15"
+      },
+      {
+        "type": "diagram",
+        "heading": "Structured Outputs vs Tool Use",
+        "image": "structured-outputs-vs-tool-use-know-which-one-you-actually-need-diagram-1.png",
+        "alt": "Comparison: Aspect, Structured Outputs, Tool Use"
+      },
+      {
+        "type": "prose",
+        "html": "<p>My rule of thumb: if you can write the business logic yourself and just need the model to fill in the blanks, use structured outputs. If the model needs information it doesn't have yet — information that lives in a system, a database, or an API — use tool use. The boundary is roughly \"does the model need to reach out?\" If yes, give it tools. If no, give it a schema.</p><p>One thing I'd push back on in how this space gets discussed: tool use is not automatically the more sophisticated choice. I've seen architectures where someone wired up six tools to answer a question that a well-prompted structured extraction would have handled in a single call. Every tool invocation is a round trip, a potential failure point, and added latency. Sometimes the smart move is the boring one.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "code_project",
+      "diagram",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Stop Making TUIs",
+      "url": "https://simonwillison.net/2026/Aug/21/stop-making-tuis/",
+      "source": "Simon Willison"
+    },
+    "og_image": "structured-outputs-vs-tool-use-know-which-one-you-actually-need-hero.png"
   }
 ]
