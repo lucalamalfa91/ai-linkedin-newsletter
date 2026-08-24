@@ -1997,5 +1997,53 @@
       "source": "Simon Willison"
     },
     "og_image": "structured-outputs-vs-tool-use-know-which-one-you-actually-need-hero.png"
+  },
+  {
+    "slug": "mcp-is-a-good-idea-wrapped-in-too-much-hype",
+    "title": "MCP Is a Good Idea Wrapped in Too Much Hype",
+    "dek": "Model Context Protocol solves a real coordination problem — but not the one most people think it does.",
+    "date": "2026-08-24",
+    "published_at": "2026-08-24T05:38:41.591034+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "mcp",
+      "agents",
+      "tool-use",
+      "architecture",
+      "integrations"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Every few months, the AI tooling world decides it has found the universal abstraction. MCP is the current candidate. The pitch sounds compelling: one protocol to rule all tool integrations, so your LLM can talk to your database, your calendar, your file system, and your internal APIs through a single, standardized interface. What I keep hearing from architects and developers is that MCP is going to eliminate the integration problem entirely. That claim is wrong, and believing it will cost you time.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "What MCP actually solves",
+        "html": "<p>MCP doesn't eliminate integration complexity — it moves it. You still have to build, host, and maintain every server. What you gain is a standard shape for that work, which matters most when you're composing tools from multiple teams or vendors, not when you're wiring up a single internal service.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Here is what MCP genuinely does well: it gives tool authors and model orchestrators a shared contract. Before that existed, every agent framework invented its own tool-calling convention. LangChain did it one way, AutoGen another, raw OpenAI function-calling a third. If you wanted the same tool available across two frameworks, you wrote glue code. MCP replaces that glue with a spec. That is real value — narrow, but real. The failure mode I see in enterprise projects right now is teams treating MCP as if the protocol itself does the hard part. It doesn't. Deciding what a tool should expose, what its error surface looks like, how it handles auth, how it behaves when the underlying service is slow — none of that is answered by the protocol. You still make every one of those decisions. You just make them inside a standardized wrapper.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The other thing worth saying plainly: MCP's value scales with the number of consumers, not the number of servers. If you have one agent and three internal tools, a bespoke integration is probably faster to ship and easier to debug than standing up three MCP servers with proper transport layers. The protocol pays off when you have a tool that ten different agents or products need to call, or when you're publishing something to the broader ecosystem and you want it to work with whatever orchestration layer your customers already run. That's a legitimate use case. It's just a narrower one than the hype suggests. Anthropic built MCP, and they are clearly betting that a thriving third-party server ecosystem emerges around it — the same way npm or VS Code extensions created compounding value over time. That bet might pay off. But the ecosystem isn't there yet, and in the meantime, most teams are writing MCP servers for tools they could have exposed as a plain HTTP endpoint in an afternoon.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Anthropic’s best AI model struggles to attract users as cheaper tools thrive",
+      "url": "https://simonwillison.net/2026/Aug/23/anthropics-best-ai-model-struggles-to-attract-users-as-cheaper-t/",
+      "source": "Simon Willison"
+    },
+    "og_image": "mcp-is-a-good-idea-wrapped-in-too-much-hype-hero.png"
   }
 ]
