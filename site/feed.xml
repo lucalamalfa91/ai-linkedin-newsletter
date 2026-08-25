@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Build a Real Evaluation Pipeline for LLM Systems</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-real-evaluation-pipeline-for-llm-systems.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-real-evaluation-pipeline-for-llm-systems.html</guid>
+    <pubDate>Tue, 25 Aug 2026 05:32:30 +0000</pubDate>
+    <description>Skip the vibe checks — here's a concrete process for testing LLM outputs you can actually trust.</description>
+    <category>evaluation</category><category>testing</category><category>llms</category><category>rag</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-build-a-real-evaluation-pipeline-for-llm-systems-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>MCP Is a Good Idea Wrapped in Too Much Hype</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-a-good-idea-wrapped-in-too-much-hype.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-a-good-idea-wrapped-in-too-much-hype.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 23 Jul 2026 07:33:53 +0000</pubDate>
     <description>MCP standardizes how language models discover and call external tools — here is what that means in practice.</description>
     <category>mcp</category><category>agents</category><category>tool-use</category><category>enterprise-architecture</category><category>agentic-workflows</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Structured Outputs and Tool Use: Making LLMs Behave Like APIs</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-and-tool-use-making-llms-behave-like-apis.html</guid>
-    <pubDate>Wed, 22 Jul 2026 07:34:48 +0000</pubDate>
-    <description>How to design LLM tool interfaces and structured outputs that hold up inside real enterprise systems.</description>
-    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>schema-design</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-and-tool-use-making-llms-behave-like-apis-hero.png" type="image/png"/>
   </item>
 </channel></rss>

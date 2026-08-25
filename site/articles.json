@@ -2045,5 +2045,97 @@
       "source": "Simon Willison"
     },
     "og_image": "mcp-is-a-good-idea-wrapped-in-too-much-hype-hero.png"
+  },
+  {
+    "slug": "how-to-build-a-real-evaluation-pipeline-for-llm-systems",
+    "title": "How to Build a Real Evaluation Pipeline for LLM Systems",
+    "dek": "Skip the vibe checks — here's a concrete process for testing LLM outputs you can actually trust.",
+    "date": "2026-08-25",
+    "published_at": "2026-08-25T05:32:30.480940+00:00",
+    "technique": "LLM Evaluation & Testing",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "evaluation",
+      "testing",
+      "llms",
+      "rag",
+      "reliability"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I talk to are evaluating their LLM systems the same way: they run a few prompts, it looks reasonable, and they ship. That works until it doesn't — and when it breaks in production, they have no baseline to diff against. A proper eval pipeline isn't complicated, but it does require committing to a specific sequence of steps before you touch a model setting or swap a prompt.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "LLM Evaluation Pipeline",
+        "image": "how-to-build-a-real-evaluation-pipeline-for-llm-systems-diagram-1.png",
+        "alt": "Define Test Cases → Run Model → Score Outputs → Store Results → Compare Baselines → Ship or Iterate"
+      },
+      {
+        "type": "list",
+        "heading": "Rules for Building a Test Suite That Actually Holds Up",
+        "items": [
+          {
+            "title": "Cover failure modes, not happy paths",
+            "detail": "Your golden dataset should include adversarial inputs, edge cases, and real user queries that caused problems — not just the clean examples where the model already does well."
+          },
+          {
+            "title": "Separate deterministic from model-graded checks",
+            "detail": "Use exact-match or regex assertions for anything structural (JSON schema, required fields, citation format). Reserve LLM-as-judge only for subjective quality where no ground truth exists."
+          },
+          {
+            "title": "Version your evals alongside your prompts",
+            "detail": "If you change a prompt and don't update the eval, your scores are measuring the old behavior. Treat evals as first-class code in the same repo, same PR."
+          },
+          {
+            "title": "Set a regression threshold before you run",
+            "detail": "Decide in advance what score drop counts as a regression — 2%, 5%, whatever fits your risk tolerance. If you decide after seeing results, you're rationalizing, not evaluating."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "openai/evals",
+          "url": "https://github.com/openai/evals",
+          "note": "Framework and open registry of benchmarks for evaluating LLM systems."
+        },
+        "usage_note": "I use openai/evals to register a custom eval against a fixed dataset and get reproducible scores I can track across model versions.",
+        "code_example": {
+          "language": "yaml",
+          "code": "# my_evals/summarization_quality.yaml\nid: summarization-quality-v1\ndescription: Evaluates factual accuracy of summaries against source documents\nmetrics: [accuracy]\n\neval:\n  id: summarization-quality-v1\n  metrics: [accuracy]\n\nsamples:\n  type: jsonl\n  path: data/summarization_samples.jsonl\n\ncompletion_fns:\n  - oaieval:gpt-4o\n\neval_class: evals.elsuite.modelgraded.classify:ModelGradedClassify\nargs:\n  prompt_template: prompts/factual_accuracy.jinja2\n  choice_strings: [correct, incorrect, partial]\n  eval_type: classify"
+        },
+        "example_output": "Run started: summarization-quality-v1\nSamples: 120\nAccuracy: 0.847\nCorrect: 101 / 120\nPartial: 12 / 120\nIncorrect: 7 / 120\nFinal report written to: /tmp/evallogs/summarization-quality-v1.json"
+      },
+      {
+        "type": "list",
+        "heading": "Before You Call Any Eval 'Done'",
+        "items": [
+          {
+            "title": "Check score distribution, not just the mean",
+            "detail": "A 0.85 average faithfulness score can hide a cluster of 0.3s on a specific query type. Look at the tail before declaring success."
+          },
+          {
+            "title": "Re-run on a held-out slice monthly",
+            "detail": "Model drift and prompt drift are real. A score that was fine in January may have quietly degraded by March with no deployment on your side."
+          },
+          {
+            "title": "Document what each metric does and doesn't capture",
+            "detail": "Faithfulness doesn't catch hallucinations about things not in the retrieved context. Know the blind spots of every metric you report."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "how-to-build-a-real-evaluation-pipeline-for-llm-systems-hero.png"
   }
 ]
