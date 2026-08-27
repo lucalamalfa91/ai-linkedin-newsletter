@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Stop Trusting LLM Output — Validate It Like Any Other API</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-trusting-llm-output-validate-it-like-any-other-api.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-trusting-llm-output-validate-it-like-any-other-api.html</guid>
+    <pubDate>Thu, 27 Aug 2026 16:09:27 +0000</pubDate>
+    <description>Guardrails belong in your code, not in your prompt. Here's how to enforce them.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>structured-output</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-trusting-llm-output-validate-it-like-any-other-api-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Build a Real Evaluation Pipeline for LLM Systems</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-real-evaluation-pipeline-for-llm-systems.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-real-evaluation-pipeline-for-llm-systems.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 24 Jul 2026 07:32:20 +0000</pubDate>
     <description>How to replace gut-feel LLM testing with repeatable, metric-driven evaluation pipelines that actually catch regressions.</description>
     <category>evaluation</category><category>testing</category><category>rag</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/systematic-llm-evaluation-from-vibe-checks-to-measurable-quality-gates-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Model Context Protocol: Structured Tool Access for Enterprise AI Systems</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-structured-tool-access-for-enterprise-ai-systems.html</guid>
-    <pubDate>Thu, 23 Jul 2026 07:33:53 +0000</pubDate>
-    <description>MCP standardizes how language models discover and call external tools — here is what that means in practice.</description>
-    <category>mcp</category><category>agents</category><category>tool-use</category><category>enterprise-architecture</category><category>agentic-workflows</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-structured-tool-access-for-enterprise-ai-systems-hero.png" type="image/png"/>
   </item>
 </channel></rss>

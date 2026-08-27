@@ -2137,5 +2137,52 @@
     ],
     "inspired_by": null,
     "og_image": "how-to-build-a-real-evaluation-pipeline-for-llm-systems-hero.png"
+  },
+  {
+    "slug": "stop-trusting-llm-output-validate-it-like-any-other-api",
+    "title": "Stop Trusting LLM Output — Validate It Like Any Other API",
+    "dek": "Guardrails belong in your code, not in your prompt. Here's how to enforce them.",
+    "date": "2026-08-27",
+    "published_at": "2026-08-27T16:09:27.861969+00:00",
+    "technique": "Guardrails & Output Validation",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "guardrails",
+      "output-validation",
+      "reliability",
+      "structured-output"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I work with spend weeks iterating on system prompts, trying to get the model to behave. The model returns valid JSON — until it doesn't. It stays on topic — until a user asks something slightly sideways. Treating prompt engineering as your only line of defense is the wrong mental model. An LLM is a stochastic external service, and you wouldn't skip input validation on any other external API. The same discipline applies here.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The practical move is to validate at the boundary: after the model responds, before that response touches anything else in your system. That means checking structure (did we get the fields we expected?), checking content (is anything in here that shouldn't be?), and deciding what happens on failure — retry, fallback, or surface an error. The failure path is the part most teams skip, and it's exactly where production incidents come from. A validator that raises an exception and crashes your pipeline is only marginally better than no validator at all.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "guardrails-ai/guardrails",
+          "url": "https://github.com/guardrails-ai/guardrails",
+          "note": "Input/output guards to detect and mitigate LLM risks, and enforce structure."
+        },
+        "usage_note": "I reach for guardrails-ai when I need both schema enforcement and content policy checks in one place, without wiring up three separate libraries.",
+        "code_example": {
+          "language": "python",
+          "code": "import guardrails as gd\nfrom guardrails.hub import RegexMatch, ValidLength\nfrom pydantic import BaseModel, Field\n\nclass ProductSummary(BaseModel):\n    name: str = Field(\n        validators=[ValidLength(min=2, max=80, on_fail=\"reask\")]\n    )\n    one_liner: str = Field(\n        validators=[\n            ValidLength(min=10, max=160, on_fail=\"reask\"),\n            RegexMatch(regex=r\"^[^<>{}]+$\", on_fail=\"filter\"),\n        ]\n    )\n    price_usd: float\n\nguard = gd.Guard.from_pydantic(ProductSummary, num_reasks=2)\n\nraw_llm_output = '{\"name\": \"Noise Pro\", \"one_liner\": \"Studio-quality sound, zero cables.\", \"price_usd\": 149.0}'\n\nresult = guard.parse(raw_llm_output)\nprint(result.validated_output)"
+        },
+        "example_output": "{\n  \"name\": \"Noise Pro\",\n  \"one_liner\": \"Studio-quality sound, zero cables.\",\n  \"price_usd\": 149.0\n}\nValidation passed. No reasks required."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "stop-trusting-llm-output-validate-it-like-any-other-api-hero.png"
   }
 ]
