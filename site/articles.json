@@ -2184,5 +2184,57 @@
     ],
     "inspired_by": null,
     "og_image": "stop-trusting-llm-output-validate-it-like-any-other-api-hero.png"
+  },
+  {
+    "slug": "what-a-production-incident-taught-me-about-llm-tracing",
+    "title": "What a Production Incident Taught Me About LLM Tracing",
+    "dek": "When your LLM pipeline breaks silently, you need traces — not logs, not vibes.",
+    "date": "2026-08-28",
+    "published_at": "2026-08-28T17:11:31.575732+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "observability",
+      "tracing",
+      "production",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three weeks into a client engagement, their document processing pipeline started returning garbage. Not errors — garbage. The LLM was responding, latency looked fine on the dashboard, and yet the outputs were subtly wrong in ways that took a human reviewer two days to even notice. We had logging. We had token counts. What we didn't have was any visibility into <em>which</em> prompt had been sent, what the retrieved context looked like at that exact moment, or how the chain of calls had composed itself. We were debugging a multi-step system by staring at its final output, which is roughly like diagnosing an engine problem by looking at the exhaust.</p><p>That incident is why I now treat tracing as non-negotiable on any LLM system that touches production. Not a nice-to-have, not something you retrofit after the first incident — something you wire in before you write the first prompt template.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langfuse/langfuse",
+          "url": "https://github.com/langfuse/langfuse",
+          "note": "Open-source LLM observability platform: tracing, evals, prompt management."
+        },
+        "usage_note": "I reach for Langfuse when I need a self-hostable, open-source tracing layer that gives me full span-level visibility into every LLM call, retrieval step, and chain branch without sending client data to a third-party cloud.",
+        "code_example": {
+          "language": "python",
+          "code": "from langfuse import Langfuse\nfrom langfuse.decorators import observe, langfuse_context\nfrom openai import OpenAI\n\nlangfuse = Langfuse()  # reads LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_HOST\nclient = OpenAI()\n\n@observe()  # creates a top-level trace\ndef process_document(doc_id: str, text: str) -> str:\n    chunks = retrieve_relevant_chunks(doc_id, text)\n    return generate_summary(chunks)\n\n@observe()  # nested span, automatically attached to parent trace\ndef retrieve_relevant_chunks(doc_id: str, query: str) -> list[str]:\n    langfuse_context.update_current_observation(metadata={\"doc_id\": doc_id})\n    # ... your retrieval logic here ...\n    return [\"chunk_a\", \"chunk_b\"]\n\n@observe(as_type=\"generation\")  # marks this span as an LLM generation\ndef generate_summary(chunks: list[str]) -> str:\n    prompt = \"Summarize: \" + \" \".join(chunks)\n    response = client.chat.completions.create(\n        model=\"gpt-4o-mini\",\n        messages=[{\"role\": \"user\", \"content\": prompt}],\n    )\n    return response.choices[0].message.content\n\nresult = process_document(\"doc-42\", \"Annual report text...\")\nprint(result)"
+        },
+        "example_output": "Trace created: https://cloud.langfuse.com/trace/a3f9c12e\n  └─ process_document          [823ms]\n      ├─ retrieve_relevant_chunks [112ms]  doc_id=doc-42\n      └─ generate_summary          [701ms]  tokens=in:87 out:54  model=gpt-4o-mini\nSummary: The annual report highlights a 12% revenue increase..."
+      },
+      {
+        "type": "prose",
+        "html": "<p>What makes the decorator approach worth it is the nesting. Every call to <code>retrieve_relevant_chunks</code> and <code>generate_summary</code> shows up as a child span under the parent trace, so when something goes wrong at 2am you can pull up a single trace ID and see exactly what prompt text hit the model, what the retrieval returned, how long each step took, and what the model said back. Compare that to grepping through flat log files across three services. The difference isn't convenience — it's the difference between finding the bug in ten minutes versus two days, as I learned the hard way.</p><p>One thing I want to flag that people underestimate: tracing isn't just for debugging. Once you have spans with input/output captured, you can run evals against historical traces, catch prompt regressions before they reach users, and actually measure whether a prompt change improved things or just moved the failure mode. Langfuse's eval and prompt management features sit on top of the same trace data, which means the observability layer doubles as your experimentation infrastructure. That's a lot of leverage from one integration.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "If you can't replay exactly what your LLM saw and said, you don't have a production system — you have a production guess."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "what-a-production-incident-taught-me-about-llm-tracing-hero.png"
   }
 ]
