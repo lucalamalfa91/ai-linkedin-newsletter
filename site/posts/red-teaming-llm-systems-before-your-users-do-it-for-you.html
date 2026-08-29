@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Red-Teaming LLM Systems Before Your Users Do It for You — The AI Architect</title>
+  <meta name="description" content="How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.">
+  <meta property="og:title" content="Red-Teaming LLM Systems Before Your Users Do It for You">
+  <meta property="og:description" content="How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Red-Teaming LLM Systems Before Your Users Do It for You">
+  <meta name="twitter:description" content="How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Red-Teaming LLM Systems Before Your Users Do It for You", "description": "How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png", "datePublished": "2026-08-29T11:30:40.824846+00:00", "dateModified": "2026-08-29T11:30:40.824846+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "red-teaming, adversarial-testing, safety, agents, rag"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Red-Teaming &amp; Adversarial Testing</span>
+      <h1 class="article-title">Red-Teaming LLM Systems Before Your Users Do It for You</h1>
+      <p class="article-dek">How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.</p>
+      <p class="article-date">August 29, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>Most AI systems I audit in enterprise settings have never been deliberately attacked by the people who built them. They&#x27;ve been tested for correctness — does the chatbot answer the right question? — but not for failure modes that only appear when someone is actively trying to break things. That gap is where red-teaming lives, and closing it is not optional if you&#x27;re deploying anything that touches real users or real data.</p><p>Red-teaming in the LLM context means deliberately probing a system with adversarial inputs: prompt injections, jailbreak attempts, data exfiltration vectors, role-confusion attacks, and inputs designed to make the model contradict its own instructions or reveal information it shouldn&#x27;t. The goal isn&#x27;t to find every possible bug — it&#x27;s to find the <em>categories</em> of failure your system is structurally vulnerable to, so you can address them before someone else does.</p>
+    </div>
+    <div class="prose-block">
+<p>There&#x27;s a common misconception worth addressing directly: red-teaming is not the same as evaluation. Evaluation tells you how well a model performs on a distribution of expected inputs. Adversarial testing tells you what happens at the edges — and at the edges is where trust breaks. A RAG pipeline that summarizes documents beautifully 98% of the time can still be coaxed into ignoring its retrieval context entirely and hallucinating confidently if the right instruction appears in a retrieved chunk. That&#x27;s a prompt injection via the retrieval path, and standard evals will never surface it.</p><p>The other thing I push back on is the idea that this is a one-time exercise. System prompts change. New tools get added to agents. The underlying model gets swapped or fine-tuned. Each of those changes reopens attack surface. Red-teaming needs to be part of your deployment pipeline, not a checkbox you tick before launch.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/red-teaming-llm-systems-before-your-users-do-it-for-you-diagram-1.png" alt="Define Threat Model → Generate Attack Probes → Run Against System → Score &amp; Classify → Patch &amp; Retest" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>A useful threat model for an LLM system covers at least four categories. First, <strong>prompt injection</strong> — inputs that attempt to override or hijack the system prompt, whether they arrive via the user turn or through retrieved content. Second, <strong>information leakage</strong> — probes that try to extract the system prompt itself, internal tool schemas, or data from other users&#x27; sessions. Third, <strong>policy bypass</strong> — attempts to get the model to produce content it&#x27;s been instructed to refuse, typically through roleplay framing, hypothetical framing, or persona switching. Fourth, <strong>behavioral drift</strong> — inputs that don&#x27;t look adversarial at all but gradually shift the model&#x27;s behavior over a long conversation. That last category is the hardest to catch with automated tools and often requires human red-teamers.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/red-teaming-llm-systems-before-your-users-do-it-for-you-diagram-2.png" alt="Comparison: Aspect, Manual Red-Teaming, Automated Scanning" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>In practice I run both. Automated scanning — using tools like promptfoo — catches the known vulnerability classes every time a system prompt changes or a new tool is wired into an agent. Manual sessions, which I run with a small group of people who genuinely enjoy breaking things, surface the weird stuff: the multi-step social engineering sequences, the attacks that require understanding the business context, the edge cases that no template library has thought of yet. The automated pass tells me the floor; the manual pass tells me what I don&#x27;t know I don&#x27;t know.</p><p>One thing I&#x27;ve learned the hard way: the quality of your attack probes determines everything. Generic jailbreak lists from GitHub are table stakes — any well-configured system should handle those. What actually matters is building probes that are specific to <em>your</em> system&#x27;s context. If you&#x27;re building a legal document assistant, your red-team probes should include attempts to get legal advice, attempts to extract client data mentioned in retrieved documents, and attempts to impersonate the system&#x27;s persona in ways that could mislead a real user. Generic probes won&#x27;t tell you whether your specific deployment is safe.</p>
+    </div>
+    <div class="callout-box">
+      <p class="callout-label">The probe library I actually maintain</p>
+<p>For every production deployment I run, I keep a versioned YAML file of adversarial probes that are specific to that system — its domain, its tools, its known sensitive data categories. It starts small, maybe 30-40 probes, and grows every time a real user does something unexpected or a manual red-team session surfaces a new pattern. That file runs in CI on every system prompt change. It&#x27;s not glamorous, but it&#x27;s caught three serious regressions in the past year that would have shipped to production otherwise.</p>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/promptfoo/promptfoo" target="_blank" rel="noopener noreferrer">promptfoo/promptfoo</a> &mdash; Red-teaming and vulnerability scanning for prompts, agents, and RAG.</p>
+    </div>
+
+
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/red-teaming.html">red-teaming</a>
+      <a class="tag-chip" href="../tags/adversarial-testing.html">adversarial-testing</a>
+      <a class="tag-chip" href="../tags/safety.html">safety</a>
+      <a class="tag-chip" href="../tags/agents.html">agents</a>
+      <a class="tag-chip" href="../tags/rag.html">rag</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Red-Teaming%20LLM%20Systems%20Before%20Your%20Users%20Do%20It%20for%20You&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html&amp;t=Red-Teaming%20LLM%20Systems%20Before%20Your%20Users%20Do%20It%20for%20You" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Red-Teaming%20LLM%20Systems%20Before%20Your%20Users%20Do%20It%20for%20You&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html">
+        <span class="related-technique">Red-Teaming &amp; Adversarial Testing</span>
+        <span class="related-title">Red-Teaming Your AI Before Someone Else Does It For You</span>
+      </a>
+      <a class="related-card" href="../posts/red-teaming-your-ai-system-before-someone-else-does.html">
+        <span class="related-technique">Red-Teaming &amp; Adversarial Testing</span>
+        <span class="related-title">Red-Teaming Your AI System Before Someone Else Does</span>
+      </a>
+      <a class="related-card" href="../posts/how-to-actually-know-if-your-llm-system-works.html">
+        <span class="related-technique">LLM Evaluation &amp; Testing</span>
+        <span class="related-title">How to Actually Know If Your LLM System Works</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>

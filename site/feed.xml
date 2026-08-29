@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Red-Teaming LLM Systems Before Your Users Do It for You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html</guid>
+    <pubDate>Sat, 29 Aug 2026 11:30:40 +0000</pubDate>
+    <description>How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.</description>
+    <category>red-teaming</category><category>adversarial-testing</category><category>safety</category><category>agents</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>What a Production Incident Taught Me About LLM Tracing</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/what-a-production-incident-taught-me-about-llm-tracing.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-a-production-incident-taught-me-about-llm-tracing.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sun, 26 Jul 2026 11:28:09 +0000</pubDate>
     <description>How adding proper observability to an LLM pipeline changed the way I diagnose and fix production issues.</description>
     <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Guardrails and Output Validation for Production LLM Systems</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-for-production-llm-systems.html</guid>
-    <pubDate>Sat, 25 Jul 2026 07:18:12 +0000</pubDate>
-    <description>How to intercept, validate, and repair LLM outputs before they reach users or downstream systems.</description>
-    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>structured-outputs</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-for-production-llm-systems-hero.png" type="image/png"/>
   </item>
 </channel></rss>
