@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>More Context Is Not the Same as Better Context</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-same-as-better-context.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-same-as-better-context.html</guid>
+    <pubDate>Mon, 31 Aug 2026 11:24:33 +0000</pubDate>
+    <description>Everyone is racing to stuff more tokens into the window. That is not context engineering.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>llm-architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-same-as-better-context-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Red-Teaming LLM Systems Before Your Users Do It for You</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 27 Jul 2026 08:32:05 +0000</pubDate>
     <description>How to systematically break your own LLM systems and fix them before they reach production.</description>
     <category>red-teaming</category><category>adversarial-testing</category><category>safety</category><category>evaluation</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-ai-before-someone-else-does-it-for-you-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>You Can't Debug What You Can't See: LLM Tracing in Practice</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice.html</guid>
-    <pubDate>Sun, 26 Jul 2026 11:28:09 +0000</pubDate>
-    <description>How adding proper observability to an LLM pipeline changed the way I diagnose and fix production issues.</description>
-    <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/you-can-t-debug-what-you-can-t-see-llm-tracing-in-practice-hero.png" type="image/png"/>
   </item>
 </channel></rss>

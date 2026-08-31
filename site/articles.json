@@ -2314,5 +2314,52 @@
     ],
     "inspired_by": null,
     "og_image": "red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png"
+  },
+  {
+    "slug": "more-context-is-not-the-same-as-better-context",
+    "title": "More Context Is Not the Same as Better Context",
+    "dek": "Everyone is racing to stuff more tokens into the window. That is not context engineering.",
+    "date": "2026-08-31",
+    "published_at": "2026-08-31T11:24:33.915236+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "llm-architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>The 1M-token context window is now a selling point. Tencent ships Hy4 with one. Gemini had one first. OpenAI is closing the gap. And every time a new model drops with a larger window, I watch enterprise teams immediately treat it as permission to stop thinking — just throw the whole document corpus in and let the model sort it out. That instinct is wrong, and it is costing people real money and real quality.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>A 1M-token context window does not make context engineering easier. It makes sloppy context engineering harder to notice — until it fails at scale, in production, on the case that actually matters.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Context engineering is the discipline of deciding <em>what information the model needs, in what form, and in what order</em> — not how much you can physically fit. Those are completely different problems. When you dump 800 pages of policy documents into a prompt because you technically can, you are not doing context engineering. You are doing context avoidance. The model will still answer, often plausibly, and you will not immediately see the failure mode: the relevant clause buried on page 340 that gets drowned out by the surrounding noise, the instruction at position 200K that the model effectively ignores because of well-documented mid-context attention degradation, the cost of re-sending that same static corpus on every single call.</p><p>Good context engineering looks nothing like that. It looks like asking: which parts of this information are truly dynamic per request, and which parts are stable enough to cache? What is the retrieval strategy — do I need a sub-agent to pull specific sections rather than flooding the root context? Is the structure of the information helping the model locate what matters, or is it just raw text poured in? These are architectural decisions, not token-budget decisions. The window size is a constraint to work within, not a design philosophy.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The practical failure mode I see most often is what I call context dilution: the signal-to-noise ratio in the prompt drops so far that the model starts hedging, averaging across conflicting information, or simply missing the specific detail the user actually needed. You can have 900K tokens in the window and still give the model less usable information than a tightly curated 10K prompt would. That is not a model problem. That is an architecture problem, and no future model release will fix it for you — because the model is doing exactly what you asked. You asked it to process everything. It processed everything. The answer just came out wrong.</p><p>The discipline worth building is not \"how do I use the full context window\" but \"how do I design the information flow so the model receives the right context at the right moment, and nothing else.\" That means chunking and retrieval strategies, prompt caching for static content, sub-agent decomposition for large document sets, and deliberate ordering of instructions relative to content. It is more work than dumping a PDF. It is also the only approach that holds up when the stakes are real.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Introducing Hy4 Preview",
+      "url": "https://simonwillison.net/2026/Aug/29/hy4/",
+      "source": "Simon Willison"
+    },
+    "og_image": "more-context-is-not-the-same-as-better-context-hero.png"
   }
 ]
