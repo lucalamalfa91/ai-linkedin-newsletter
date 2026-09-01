@@ -2361,5 +2361,83 @@
       "source": "Simon Willison"
     },
     "og_image": "more-context-is-not-the-same-as-better-context-hero.png"
+  },
+  {
+    "slug": "dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy",
+    "title": "Dense Retrieval vs. Structured Indexing: Picking Your Embedding Strategy",
+    "dek": "Two tools, two philosophies — here's how to choose the right embedding approach for your production retrieval system.",
+    "date": "2026-09-01",
+    "published_at": "2026-09-01T09:48:28.464763+00:00",
+    "technique": "Vector Search & Embeddings",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "vector-search",
+      "embeddings",
+      "retrieval",
+      "rag"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I work with arrive at the same fork in the road: they know they need semantic search, they've heard about embeddings, and they've picked a model. Then comes the real decision — do you build a lean vector store and own the retrieval logic yourself, or do you use a higher-level indexing framework that abstracts the whole pipeline? These aren't just different libraries. They encode different assumptions about where complexity should live.</p><p>The honest answer is that neither approach is universally better. A bare-metal embedding database gives you precision and predictability at the cost of more wiring. A framework like LlamaIndex gives you speed and composability at the cost of opacity. I've run both in production. What follows is the actual trade-off, not the marketing version.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Embedding database and search infrastructure for AI applications."
+        },
+        "usage_note": "I reach for Chroma when I want the retrieval layer to be exactly as thin as I design it — no hidden re-ranking, no surprise chunking, just vectors in and results out.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.PersistentClient(path=\"./chroma_store\")\n\nef = embedding_functions.SentenceTransformerEmbeddingFunction(\n    model_name=\"all-MiniLM-L6-v2\"\n)\n\ncollection = client.get_or_create_collection(\n    name=\"support_tickets\",\n    embedding_function=ef,\n    metadata={\"hnsw:space\": \"cosine\"}\n)\n\ncollection.add(\n    documents=[\n        \"Login fails after password reset on mobile\",\n        \"Invoice PDF does not render in Safari\",\n        \"Two-factor auth code arrives 5 minutes late\",\n    ],\n    ids=[\"t001\", \"t002\", \"t003\"]\n)\n\nresults = collection.query(\n    query_texts=[\"user cannot sign in after changing password\"],\n    n_results=2\n)\n\nprint(results[\"documents\"])\nprint(results[\"distances\"])"
+        },
+        "example_output": "[['Login fails after password reset on mobile', 'Two-factor auth code arrives 5 minutes late']]\n[[0.112, 0.431]]"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Chroma's model is deliberately minimal. You supply documents, it stores vectors, you query and get distances back. That transparency is a genuine advantage when you need to instrument or debug retrieval — you can inspect every step. The downside is that you're also responsible for chunking strategy, metadata filtering design, and any re-ranking you want on top. None of that is hard, but it adds up. A client once asked me why their retrieval quality dropped after they updated their documents. The answer was a chunking change upstream — something a framework might have caught, but that Chroma happily ignored because Chroma doesn't know or care about your chunking.</p><p>LlamaIndex takes the opposite stance. It treats the entire pipeline — loading, chunking, embedding, indexing, querying, even synthesizing an answer — as one composable system. That's genuinely useful when you're building fast or when your data comes from heterogeneous sources. The risk is that defaults hide a lot of behavior. I've seen teams spend days debugging retrieval quality problems that turned out to be caused by LlamaIndex's default chunk size of 1024 tokens combined with a context window that was already under pressure. The abstraction saved them a week on day one and cost them two weeks on day thirty.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Chroma vs. LlamaIndex: Where Each Earns Its Place",
+        "image": "dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy-diagram-1.png",
+        "alt": "Comparison: Aspect, Chroma (bare-metal), LlamaIndex (framework)"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Indexing and retrieval framework built on top of embeddings."
+        },
+        "usage_note": "I switch to LlamaIndex when the data sources are messy and varied — PDFs, Notion pages, SQL tables — and I'd rather configure a pipeline than write ten different loaders from scratch.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings\nfrom llama_index.embeddings.huggingface import HuggingFaceEmbedding\nfrom llama_index.core.node_parser import SentenceSplitter\n\nSettings.embed_model = HuggingFaceEmbedding(model_name=\"BAAI/bge-small-en-v1.5\")\nSettings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)\nSettings.llm = None\n\ndocuments = SimpleDirectoryReader(\"./policy_docs\").load_data()\n\nindex = VectorStoreIndex.from_documents(documents, show_progress=True)\n\nretriever = index.as_retriever(similarity_top_k=3)\nnodes = retriever.retrieve(\"What is the data retention policy for EU customers?\")\n\nfor node in nodes:\n    print(f\"Score: {node.score:.3f}\")\n    print(node.text[:120])\n    print()"
+        },
+        "example_output": "Score: 0.847\nData stored for EU-based customers is subject to a maximum retention period of 24 months under GDPR Article 5(1)(e).\n\nScore: 0.801\nCustomers may request deletion of personal data at any time via the privacy portal. Requests are processed within 30 days.\n\nScore: 0.743\nBackup copies are excluded from the standard retention schedule and are purged on a separate 90-day cycle."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The practical rule I've landed on: if your retrieval logic is the core of the product — if the quality of search directly determines whether the thing works — start with Chroma or a similarly thin store. Own the pipeline. If retrieval is infrastructure for something else, like a document Q&A feature that needs to ship in two weeks, LlamaIndex's defaults are probably good enough to get you there, and you can always swap the underlying store later. What I'd avoid is the middle path: using a framework but fighting its abstractions at every step. That's the worst of both worlds.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "diagram",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Introducing Hy4 Preview",
+      "url": "https://simonwillison.net/2026/Aug/29/hy4/",
+      "source": "Simon Willison"
+    },
+    "og_image": "dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy-hero.png"
   }
 ]

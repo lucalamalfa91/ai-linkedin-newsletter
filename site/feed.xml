@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Dense Retrieval vs. Structured Indexing: Picking Your Embedding Strategy</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html</guid>
+    <pubDate>Tue, 01 Sep 2026 09:48:28 +0000</pubDate>
+    <description>Two tools, two philosophies — here's how to choose the right embedding approach for your production retrieval system.</description>
+    <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>More Context Is Not the Same as Better Context</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-same-as-better-context.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-same-as-better-context.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 28 Jul 2026 07:40:01 +0000</pubDate>
     <description>Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.</description>
     <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-answer-to-your-context-problem-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Red-Teaming Your AI Before Someone Else Does It For You</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-before-someone-else-does-it-for-you.html</guid>
-    <pubDate>Mon, 27 Jul 2026 08:32:05 +0000</pubDate>
-    <description>How to systematically break your own LLM systems and fix them before they reach production.</description>
-    <category>red-teaming</category><category>adversarial-testing</category><category>safety</category><category>evaluation</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-ai-before-someone-else-does-it-for-you-hero.png" type="image/png"/>
   </item>
 </channel></rss>
