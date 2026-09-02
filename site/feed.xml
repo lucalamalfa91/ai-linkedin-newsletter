@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Give Your Agents Memory That Actually Persists</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-give-your-agents-memory-that-actually-persists.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-give-your-agents-memory-that-actually-persists.html</guid>
+    <pubDate>Wed, 02 Sep 2026 09:20:39 +0000</pubDate>
+    <description>A concrete guide to structuring agent state so it survives across turns, sessions, and restarts.</description>
+    <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-give-your-agents-memory-that-actually-persists-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Dense Retrieval vs. Structured Indexing: Picking Your Embedding Strategy</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 29 Jul 2026 07:44:37 +0000</pubDate>
     <description>A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.</description>
     <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>More Context Is Not the Answer to Your Context Problem</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-answer-to-your-context-problem.html</guid>
-    <pubDate>Tue, 28 Jul 2026 07:40:01 +0000</pubDate>
-    <description>Most teams stuff more into the prompt window and call it context engineering. That is not the same thing.</description>
-    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-answer-to-your-context-problem-hero.png" type="image/png"/>
   </item>
 </channel></rss>

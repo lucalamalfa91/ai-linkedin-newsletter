@@ -2439,5 +2439,90 @@
       "source": "Simon Willison"
     },
     "og_image": "dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy-hero.png"
+  },
+  {
+    "slug": "how-to-give-your-agents-memory-that-actually-persists",
+    "title": "How to Give Your Agents Memory That Actually Persists",
+    "dek": "A concrete guide to structuring agent state so it survives across turns, sessions, and restarts.",
+    "date": "2026-09-02",
+    "published_at": "2026-09-02T09:20:39.106074+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "agents",
+      "memory",
+      "state-management",
+      "langgraph"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most agent failures I diagnose aren't reasoning failures — they're memory failures. The agent answered the right question, then forgot the context by the next turn. Or it accumulated state in a plain Python dict that evaporated the moment the process restarted. Getting memory right is mostly an architecture decision, not a model decision.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Agent Memory Lifecycle",
+        "image": "how-to-give-your-agents-memory-that-actually-persists-diagram-1.png",
+        "alt": "User Input → Load State → Run Agent → Update State → Persist State → Return Output"
+      },
+      {
+        "type": "list",
+        "heading": "Rules for Agent State That Doesn't Bite You",
+        "items": [
+          {
+            "title": "Separate ephemeral from persistent state",
+            "detail": "Scratch-pad reasoning and tool call results belong in short-term state. User preferences, past decisions, and accumulated facts need to hit a real store — SQLite, Postgres, Redis — before the turn ends."
+          },
+          {
+            "title": "Use a thread ID from the start",
+            "detail": "Every conversation or task run gets a unique thread ID. Pass it through every layer. Adding it later, when you need cross-session memory, is painful."
+          },
+          {
+            "title": "Version your state schema",
+            "detail": "State shapes change as you add features. A schema migration story needs to exist before you hit production — not after you have 50,000 stale checkpoints."
+          },
+          {
+            "title": "Cap what you carry forward",
+            "detail": "Unbounded message history will eventually exceed your context window or slow your persistence layer. Summarize or prune at a defined threshold — 20 messages is a reasonable starting point."
+          },
+          {
+            "title": "Test memory in isolation",
+            "detail": "Write unit tests that serialize state, reload it cold, and verify the agent continues correctly. Most memory bugs only appear on the second or third turn."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Stateful agent graphs with built-in persistence and memory."
+        },
+        "usage_note": "LangGraph is my default choice when an agent needs real persistence — its checkpointer abstraction means I swap between in-memory and Postgres without touching graph logic.",
+        "code_example": {
+          "language": "python",
+          "code": "from langgraph.graph import StateGraph, END\nfrom langgraph.checkpoint.sqlite import SqliteSaver\nfrom typing import TypedDict, List\n\nclass AgentState(TypedDict):\n    messages: List[str]\n    user_name: str\n    turn_count: int\n\ndef greet(state: AgentState) -> AgentState:\n    name = state[\"user_name\"]\n    count = state[\"turn_count\"] + 1\n    reply = f\"Turn {count}: Hello again, {name}.\" if count > 1 else f\"Nice to meet you, {name}.\"\n    return {\"messages\": state[\"messages\"] + [reply], \"turn_count\": count}\n\nbuilder = StateGraph(AgentState)\nbuilder.add_node(\"greet\", greet)\nbuilder.set_entry_point(\"greet\")\nbuilder.add_edge(\"greet\", END)\n\nmemory = SqliteSaver.from_conn_string(\"checkpoints.db\")\ngraph = builder.compile(checkpointer=memory)\n\nthread = {\"configurable\": {\"thread_id\": \"user-42\"}}\nresult = graph.invoke({\"messages\": [], \"user_name\": \"Elena\", \"turn_count\": 0}, thread)\nprint(result[\"messages\"][-1])\n\n# Second invocation — state is reloaded from SQLite automatically\nresult2 = graph.invoke({\"messages\": result[\"messages\"], \"user_name\": \"Elena\", \"turn_count\": result[\"turn_count\"]}, thread)\nprint(result2[\"messages\"][-1])"
+        },
+        "example_output": "Nice to meet you, Elena.\nTurn 2: Hello again, Elena."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The checkpointer is doing the heavy lifting here — every time <code>graph.invoke</code> completes, the full state is written to SQLite against that thread ID. Swap <code>SqliteSaver</code> for <code>AsyncPostgresSaver</code> in production and nothing else changes. The part people underestimate is the state schema itself: keep it flat, keep it serializable, and resist the urge to stuff live objects or closures into it.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "PRs NOT Welcome: How Top AI Open Source Projects Are Managing Thousands of Contributors",
+      "url": "https://www.latent.space/p/pr-not-welcome",
+      "source": "Latent Space"
+    },
+    "og_image": "how-to-give-your-agents-memory-that-actually-persists-hero.png"
   }
 ]
