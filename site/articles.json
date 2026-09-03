@@ -2524,5 +2524,56 @@
       "source": "Latent Space"
     },
     "og_image": "how-to-give-your-agents-memory-that-actually-persists-hero.png"
+  },
+  {
+    "slug": "write-better-prompts-by-reading-anthropic-s-own-work",
+    "title": "Write Better Prompts by Reading Anthropic's Own Work",
+    "dek": "Prompt engineering has real structure — steal from the people who test it most.",
+    "date": "2026-09-03",
+    "published_at": "2026-09-03T09:30:16.021502+00:00",
+    "technique": "Prompt Engineering & Optimization",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "prompt-engineering",
+      "llm",
+      "claude",
+      "applied-ai"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most prompt engineering advice is circular. \"Be specific.\" \"Give examples.\" \"Use clear instructions.\" True, but useless without a concrete reference point for what good actually looks like in production. The fastest way I've improved my prompting over the past year isn't reading papers — it's reading working examples written by people who test against real models every day. Anthropic's public system prompts are one source. Their Claude Cookbooks repository is a better one for practitioners.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The pattern that shows up repeatedly in well-engineered prompts: role before task, constraints before examples, and output format specified last. Get that order wrong and you waste tokens on corrections or, worse, you get plausible-looking output that silently misses the intent. The other thing worth noticing in the cookbook examples is what's <em>not</em> there — no padding, no excessive politeness, no hedge phrases like \"please try to.\" Every word is load-bearing. That's the discipline most enterprise prompts lack, and it's exactly where quality degrades at scale when prompts get passed between team members and accumulate noise.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Worked prompt-design examples across classification, RAG, and summarization."
+        },
+        "usage_note": "I reach for the cookbooks repo when a client needs a classification or summarization prompt fast — the patterns are already validated and I can adapt rather than start from scratch.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nsystem_prompt = \"\"\"\nYou are a document classifier for a financial services firm.\nYour task: assign exactly one category to the document excerpt below.\n\nCategories:\n- COMPLIANCE: regulatory requirements, audit trails, policy adherence\n- RISK: exposure assessment, loss scenarios, counterparty concerns\n- OPERATIONS: process documentation, system outages, workflow issues\n- OTHER: anything that does not clearly fit the above\n\nRules:\n- Output only the category label, nothing else.\n- If the excerpt is ambiguous, choose the closest match.\n- Do not explain your reasoning.\n\"\"\"\n\ndocument = \"\"\"\nThe settlement failure on 14 March affected three counterparties.\nBack-office reconciliation is pending sign-off from the risk desk.\n\"\"\"\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=16,\n    system=system_prompt,\n    messages=[{\"role\": \"user\", \"content\": document}]\n)\n\nprint(response.content[0].text)"
+        },
+        "example_output": "OPERATIONS"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Claude's new system prompt really doesn't want to reproduce song lyrics",
+      "url": "https://simonwillison.net/2026/Sep/2/claudes-new-system-prompt/",
+      "source": "Simon Willison"
+    },
+    "og_image": "write-better-prompts-by-reading-anthropic-s-own-work-hero.png"
   }
 ]

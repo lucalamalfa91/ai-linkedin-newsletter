@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Write Better Prompts by Reading Anthropic's Own Work</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/write-better-prompts-by-reading-anthropic-s-own-work.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/write-better-prompts-by-reading-anthropic-s-own-work.html</guid>
+    <pubDate>Thu, 03 Sep 2026 09:30:16 +0000</pubDate>
+    <description>Prompt engineering has real structure — steal from the people who test it most.</description>
+    <category>prompt-engineering</category><category>llm</category><category>claude</category><category>applied-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/write-better-prompts-by-reading-anthropic-s-own-work-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Give Your Agents Memory That Actually Persists</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-give-your-agents-memory-that-actually-persists.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-give-your-agents-memory-that-actually-persists.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 30 Jul 2026 07:34:27 +0000</pubDate>
     <description>How you store and pass state between agent steps determines whether your agent is reliable or just lucky.</description>
     <category>agents</category><category>state-management</category><category>langgraph</category><category>memory</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-is-an-architecture-decision-not-an-afterthought-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Vector Search in Practice: Embeddings That Actually Retrieve Well</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-in-practice-embeddings-that-actually-retrieve-well.html</guid>
-    <pubDate>Wed, 29 Jul 2026 07:44:37 +0000</pubDate>
-    <description>A concrete how-to for building vector search that returns relevant results, not just similar-looking ones.</description>
-    <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-in-practice-embeddings-that-actually-retrieve-well-hero.png" type="image/png"/>
   </item>
 </channel></rss>
