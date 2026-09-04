@@ -2575,5 +2575,62 @@
       "source": "Simon Willison"
     },
     "og_image": "write-better-prompts-by-reading-anthropic-s-own-work-hero.png"
+  },
+  {
+    "slug": "fine-tuning-is-not-a-prompt-that-scales",
+    "title": "Fine-Tuning Is Not a Prompt That Scales",
+    "dek": "When to stop fighting your base model with clever prompts and actually commit to fine-tuning.",
+    "date": "2026-09-04",
+    "published_at": "2026-09-04T09:22:15.748488+00:00",
+    "technique": "Fine-Tuning vs. Prompting",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "fine-tuning",
+      "prompting",
+      "model-adaptation",
+      "llm-strategy"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client came to me last autumn with a formatting problem. Their model — GPT-4o, well-prompted — kept producing summaries that were almost right. The structure was close, the tone was close, but the output never quite matched the internal report format their analysts expected. So they'd iterated. A system prompt that was now 1,400 words long, three few-shot examples, a separate validation step that re-asked the model to self-correct. It worked about 80% of the time. They wanted to get to 95%. My first instinct was to reach for a smarter prompt. My second instinct — the right one — was to ask how long they'd already been doing this. Eighteen months, they said. That's when I told them prompting had already lost this particular fight.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The honest version of the fine-tuning vs. prompting decision is this: prompting is renting behaviour from a model, and fine-tuning is buying it. Renting is cheaper upfront and flexible — you can change what you want on a Tuesday without touching any infrastructure. But if you're renting the same behaviour every single day, at scale, with a 1,400-word lease agreement you have to re-negotiate on every API call, the economics and reliability both start to crack. Fine-tuning bakes consistent behaviour into the weights. You pay once (in data curation time and training cost), and the model just knows what you want. The failure mode people don't talk about enough: fine-tuning on too little data, or on data that doesn't actually reflect the edge cases that matter, gives you a model that's confidently wrong in a narrower range of ways. It's not a free upgrade — it's a different set of trade-offs.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Examples showing when prompting/tool use suffice vs. when they don't."
+        },
+        "usage_note": "I use the Claude cookbooks repo as a concrete reference when I need to show a client exactly where the prompting ceiling is — the examples make the boundary visible without me having to argue theory.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\n# Scenario: strict output schema — a classic prompting-vs-fine-tuning stress test\nSYSTEM_PROMPT = \"\"\"\nYou are a financial report formatter.\nAlways return JSON matching this exact schema:\n{\"summary\": str, \"risk_level\": \"low\"|\"medium\"|\"high\", \"flags\": [str]}\nNo extra keys. No prose outside the JSON object.\n\"\"\"\n\nraw_text = \"\"\"\nQ3 revenue missed targets by 12%. Currency hedging partially offset losses.\nTwo regulatory inquiries opened in Germany. Cash reserves remain stable.\n\"\"\"\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=512,\n    system=SYSTEM_PROMPT,\n    messages=[{\"role\": \"user\", \"content\": f\"Format this report:\\n{raw_text}\"}]\n)\n\nprint(response.content[0].text)"
+        },
+        "example_output": "{\\n  \\\"summary\\\": \\\"Q3 revenue missed targets by 12%; currency hedging partially offset losses; cash reserves stable.\\\",\\n  \\\"risk_level\\\": \\\"high\\\",\\n  \\\"flags\\\": [\\\"Revenue miss 12%\\\", \\\"Regulatory inquiry DE (x2)\\\"]\\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>That code works. Most of the time. But run it across a thousand varied documents — some poorly formatted, some ambiguous, some in mixed languages — and you'll start seeing schema violations, extra prose bleeding in, risk levels that don't match what a domain expert would assign. A well-prompted Claude is genuinely good at following instructions, which is exactly why it can fool you into thinking you're done when you're not. The signal that you've crossed into fine-tuning territory isn't usually a catastrophic failure. It's a slow accumulation of edge cases that your prompt keeps getting patched to handle, each patch making the next failure slightly more exotic. If you're on patch number seven, stop patching. Curate 200-500 high-quality examples of the exact behaviour you want, fine-tune, and get off the treadmill.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "If your prompt has grown longer than a short-story and you're still negotiating with the model, you've already decided — you just haven't admitted it yet."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "fine-tuning-is-not-a-prompt-that-scales-hero.png"
   }
 ]
