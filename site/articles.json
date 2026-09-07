@@ -2632,5 +2632,91 @@
     ],
     "inspired_by": null,
     "og_image": "fine-tuning-is-not-a-prompt-that-scales-hero.png"
+  },
+  {
+    "slug": "agentic-workflows-and-multi-agent-orchestration-done-right",
+    "title": "Agentic Workflows and Multi-Agent Orchestration Done Right",
+    "dek": "How to design agent systems that actually finish tasks reliably, and where the common patterns break down.",
+    "date": "2026-09-07",
+    "published_at": "2026-09-07T09:59:53.939309+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "agentic-workflows",
+      "llm-architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three months ago I watched a client demo collapse in real time. Their agent — a single LLM loop with a handful of tools — was supposed to pull financial data, reconcile it against internal records, and produce a summary report. It worked perfectly in testing on short inputs. In the demo, with a real dataset, it got halfway through a tool call, hallucinated a column name, wrote a broken SQL query, then confidently summarized data it had never actually retrieved. Nobody caught it until a stakeholder asked why the numbers didn't match. That failure wasn't a model problem. It was an architecture problem.</p><p>Agentic workflows — systems where an LLM decides what to do next, calls tools, observes results, and iterates — are genuinely useful for tasks that don't fit in a single prompt. But the gap between a toy demo and a system you'd trust with real work is almost entirely about orchestration: how you structure the decision loop, how you decompose work across multiple specialized agents, and how you handle the inevitable moments when something goes wrong mid-task.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The core idea is simple enough. Instead of asking a model to produce an answer in one shot, you give it a set of tools and a loop: observe the current state, decide on an action, execute it, observe the new state, repeat. That loop is an agent. Multi-agent orchestration is what happens when you run several of these loops in coordination — an orchestrator agent that plans and delegates, and specialist agents that handle specific subtasks like web search, code execution, or document parsing.</p><p>Where people go wrong is treating orchestration as a prompt engineering problem. It isn't. The hard parts are state management, error recovery, and knowing when to stop. An agent that loops forever on a failed tool call is worse than no agent at all. An orchestrator that delegates to five sub-agents in parallel without any mechanism to reconcile conflicting outputs will produce confident-sounding nonsense. You need explicit state, explicit handoffs, and explicit termination conditions — and those are engineering decisions, not things you can prompt your way out of.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Multi-Agent Orchestration: Request to Result",
+        "image": "agentic-workflows-and-multi-agent-orchestration-done-right-diagram-1.png",
+        "alt": "User Request → Orchestrator Plans → Delegate to Agents → Agents Use Tools → Results Merged → Final Output"
+      },
+      {
+        "type": "prose",
+        "html": "<p>When I design a multi-agent system I start by asking one question: what is the natural decomposition of this task? Not 'how many agents can I create,' but 'where are the genuine boundaries between subtasks that have different tool requirements, different context windows, or different failure modes?' A researcher agent and a writer agent make sense as separate units because they have different tools and different evaluation criteria. A 'researcher-who-also-writes' agent is usually just complexity for its own sake. Keep the decomposition honest.</p><p>The orchestrator pattern deserves specific attention. A good orchestrator doesn't do domain work — it plans, routes, and aggregates. It should know which specialist to call, what to pass it, and how to validate the result before moving on. This means the orchestrator's system prompt is mostly about routing logic and quality checks, not about the substance of the task itself. If your orchestrator is doing substantive reasoning about the domain, you've probably drawn the boundary in the wrong place. Equally important: give the orchestrator an explicit way to fail gracefully. If a sub-agent returns garbage three times in a row, the orchestrator should escalate or abort — not retry indefinitely.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>State is the thing most tutorials skip over. In a single-agent loop, state is just the message history. In a multi-agent system, state is a shared data structure that every agent reads from and writes to — and it needs to be designed deliberately. What does each agent need to see? What does it need to produce? What happens to intermediate results? I've seen systems where sub-agents were writing conflicting keys into a shared dict, and the orchestrator was silently picking whichever one happened to arrive last. That's not a bug you find in unit tests; it's a bug you find in production at 2am.</p><p>LangGraph's approach here is instructive: it models the agent graph as explicit nodes and edges, with a typed state object that flows through the graph. Every transition is defined. Every node knows exactly what it receives and what it must return. That explicitness is initially more work than just chaining a few LLM calls together, but it pays off the first time you need to add a retry edge or inspect the state mid-run for debugging. CrewAI takes a higher-level approach — you define agents by role and goal, assign tasks, and let the framework handle the handoff protocol — which is faster to get started with but gives you less control over exactly what happens at each transition. Neither is universally better. The right choice depends on how much you need to control the internals versus how quickly you need something running.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "How I draw the agent boundary",
+        "html": "<p>In practice, I almost never start with more than two agents: an orchestrator and a single specialist. I get that working end-to-end, including error paths, before I add a second specialist. Every agent I add multiplies the number of possible failure combinations. The discipline of starting small has saved me from several architectures that looked elegant on a whiteboard and were unmaintainable in code. I also keep a hard cap on retry loops — usually three attempts per tool call, with exponential backoff — and I log every state transition to a persistent store so I can replay a failed run without re-running the whole thing from scratch.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "crewAIInc/crewAI",
+          "url": "https://github.com/crewAIInc/crewAI",
+          "note": "Framework for orchestrating role-playing, autonomous agent crews."
+        },
+        "usage_note": "I reach for CrewAI when the task maps cleanly onto distinct professional roles and I want to move fast without hand-wiring every transition.",
+        "code_example": {
+          "language": "python",
+          "code": "from crewai import Agent, Task, Crew, Process\nfrom crewai_tools import SerperDevTool\n\nsearch_tool = SerperDevTool()\n\nresearcher = Agent(\n    role=\"Market Research Analyst\",\n    goal=\"Find recent, factual information about {topic} and summarize key findings\",\n    backstory=\"You are a rigorous analyst who only reports what sources actually say.\",\n    tools=[search_tool],\n    verbose=True,\n    max_iter=3,\n)\n\nwriter = Agent(\n    role=\"Business Report Writer\",\n    goal=\"Turn raw research findings into a concise, structured executive summary\",\n    backstory=\"You write for time-pressed executives. No filler, no speculation.\",\n    verbose=True,\n)\n\nresearch_task = Task(\n    description=\"Research the current competitive landscape for {topic}. Identify the top 3 players, their positioning, and any notable recent moves.\",\n    expected_output=\"A bullet-point briefing with source references.\",\n    agent=researcher,\n)\n\nwriting_task = Task(\n    description=\"Using the research briefing, write a 200-word executive summary suitable for a board slide.\",\n    expected_output=\"A polished executive summary in plain prose.\",\n    agent=writer,\n    context=[research_task],\n)\n\ncrew = Crew(\n    agents=[researcher, writer],\n    tasks=[research_task, writing_task],\n    process=Process.sequential,\n    verbose=True,\n)\n\nresult = crew.kickoff(inputs={\"topic\": \"enterprise AI infrastructure\"})\nprint(result)"
+        },
+        "example_output": "Researcher: Searching for 'enterprise AI infrastructure competitive landscape 2024'...\nResearcher: Found results. Summarizing top 3 players: NVIDIA (hardware + software stack), Microsoft Azure AI (managed services), and Databricks (data + ML platform).\nResearcher Task Complete: Bullet-point briefing with citations produced.\nWriter: Drafting executive summary from briefing...\nWriter Task Complete.\n\nExecutive Summary:\nThe enterprise AI infrastructure market is currently dominated by three vendors with distinct positioning. NVIDIA controls the compute layer through its GPU ecosystem and is moving up the stack with NIM microservices. Microsoft Azure AI competes on managed accessibility and deep enterprise integration. Databricks differentiates on unified data and ML workflows for organizations with mature data platforms. Recent moves suggest consolidation pressure on mid-tier vendors. Boards evaluating build-vs-buy decisions should prioritize data residency requirements and existing vendor relationships before committing to a primary stack."
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Low-level orchestration framework for building stateful, resilient agents."
+        },
+        "usage_note": "LangGraph is what I use when I need explicit control over state transitions, conditional routing, and the ability to inspect or replay any step of a failed run.",
+        "code_example": {
+          "language": "python",
+          "code": "from typing import TypedDict, Annotated\nfrom langgraph.graph import StateGraph, END\nfrom langgraph.graph.message import add_messages\nfrom langchain_openai import ChatOpenAI\nfrom langchain_core.messages import HumanMessage, AIMessage\nfrom langchain_core.tools import tool\nimport json\n\nclass AgentState(TypedDict):\n    messages: Annotated[list, add_messages]\n    research_done: bool\n    final_report: str\n\nllm = ChatOpenAI(model=\"gpt-4o\", temperature=0)\n\n@tool\ndef fetch_market_data(sector: str) -> str:\n    \"\"\"Fetch simulated market data for a given sector.\"\"\"\n    return json.dumps({\"sector\": sector, \"growth\": \"14% YoY\", \"leaders\": [\"VendorA\", \"VendorB\"]})\n\ndef research_node(state: AgentState) -> AgentState:\n    data = fetch_market_data.invoke({\"sector\": \"AI infrastructure\"})\n    msg = AIMessage(content=f\"Research complete. Data: {data}\")\n    return {\"messages\": [msg], \"research_done\": True, \"final_report\": \"\"}\n\ndef write_node(state: AgentState) -> AgentState:\n    research_content = state[\"messages\"][-1].content\n    prompt = f\"Write a 3-sentence board summary from this data: {research_content}\"\n    response = llm.invoke([HumanMessage(content=prompt)])\n    return {\"messages\": [response], \"research_done\": True, \"final_report\": response.content}\n\ndef route_after_research(state: AgentState) -> str:\n    return \"write\" if state[\"research_done\"] else \"research\"\n\ngraph = StateGraph(AgentState)\ngraph.add_node(\"research\", research_node)\ngraph.add_node(\"write\", write_node)\ngraph.set_entry_point(\"research\")\ngraph.add_conditional_edges(\"research\", route_after_research, {\"write\": \"write\", \"research\": \"research\"})\ngraph.add_edge(\"write\", END)\n\napp = graph.compile()\nresult = app.invoke({\"messages\": [HumanMessage(content=\"Analyze AI infrastructure sector\")], \"research_done\": False, \"final_report\": \"\"})\nprint(result[\"final_report\"])"
+        },
+        "example_output": "Research node executing: fetch_market_data(sector='AI infrastructure')\nData retrieved: {\"sector\": \"AI infrastructure\", \"growth\": \"14% YoY\", \"leaders\": [\"VendorA\", \"VendorB\"]}\nRouting decision: research_done=True -> write node\nWrite node executing: invoking LLM for board summary...\n\nThe AI infrastructure sector is growing at 14% year-over-year, driven by sustained enterprise demand for compute and managed ML services. VendorA and VendorB currently hold leading positions, competing primarily on price-performance and integration depth. Boards should treat infrastructure selection as a multi-year commitment and negotiate contract flexibility before demand further compresses available capacity."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "diagram",
+      "prose",
+      "prose",
+      "callout",
+      "code_project",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "agentic-workflows-and-multi-agent-orchestration-done-right-hero.png"
   }
 ]
