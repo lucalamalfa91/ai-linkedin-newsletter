@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RAG Is Not a Knowledge Problem. It Is a Retrieval Problem. — The AI Architect</title>
+  <meta name="description" content="Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.">
+  <meta property="og:title" content="RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.">
+  <meta property="og:description" content="Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.">
+  <meta name="twitter:description" content="Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.", "description": "Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png", "datePublished": "2026-09-08T09:24:54.044374+00:00", "dateModified": "2026-09-08T09:24:54.044374+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "rag, retrieval, architecture, knowledge-bases"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Retrieval-Augmented Generation (RAG)</span>
+      <h1 class="article-title">RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.</h1>
+      <p class="article-dek">Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.</p>
+      <p class="article-date">September 8, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>Everyone who has shipped a RAG system in production has had the same uncomfortable moment: the answer is wrong, the document that would have fixed it is sitting right there in the index, and the model never saw it. The enterprise AI world has convinced itself that RAG is fundamentally about <em>giving the model knowledge</em> — connect your docs, done. That framing is wrong, and it causes bad architectural decisions from day one.</p>
+    </div>
+    <div class="callout-pullquote">
+      <p class="pullquote-label">The claim I keep repeating to clients</p>
+<p>RAG is a retrieval system with an LLM bolted on the end. If your retrieval is mediocre, no amount of prompt engineering or model swapping will save you. Fix the retrieval first.</p>
+    </div>
+    <div class="prose-block">
+<p>The retrieval half of RAG is just information retrieval — a field that has been studied seriously since the 1970s. Chunking strategy, embedding model choice, query rewriting, re-ranking, hybrid search: these are retrieval engineering decisions, and most teams spend almost no time on them. They pick a vector database, embed their PDFs with whatever model the tutorial used, and then spend three weeks tweaking their system prompt wondering why recall is poor. The system prompt is not the problem.</p><p>There is a specific failure mode I see constantly in Swiss enterprise deployments: chunks that are too large for the embedding model to represent faithfully, and too small to contain the actual answer. A 512-token chunk that starts mid-sentence and ends mid-table retrieves with mediocre similarity scores and delivers incomplete context. The model then hallucinates the missing part. The team blames the model. The real fix is a better chunking strategy — semantic splitting, or at minimum a sliding window with meaningful overlap — combined with a re-ranker that scores retrieved passages by relevance to the actual query, not just by vector distance.</p>
+    </div>
+    <div class="prose-block">
+<p>None of this means RAG is a bad pattern. It is the right default architecture for grounding LLM outputs in private, frequently updated data. But treat it like what it is: a two-stage pipeline where stage one (retrieval) is the hard part and stage two (generation) is almost forgiving by comparison. A good retriever feeding a weak model will outperform a weak retriever feeding a frontier model. That is the trade-off most teams get backwards. Measure your retrieval precision and recall independently, before you ever evaluate the generated answer. If you cannot tell whether your retriever is finding the right documents, you have no idea what you are actually debugging.</p>
+    </div>
+
+
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/rag.html">rag</a>
+      <a class="tag-chip" href="../tags/retrieval.html">retrieval</a>
+      <a class="tag-chip" href="../tags/architecture.html">architecture</a>
+      <a class="tag-chip" href="../tags/knowledge-bases.html">knowledge-bases</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=RAG%20Is%20Not%20a%20Knowledge%20Problem.%20It%20Is%20a%20Retrieval%20Problem.&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html&amp;t=RAG%20Is%20Not%20a%20Knowledge%20Problem.%20It%20Is%20a%20Retrieval%20Problem." target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=RAG%20Is%20Not%20a%20Knowledge%20Problem.%20It%20Is%20a%20Retrieval%20Problem.&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached.html">
+        <span class="related-technique">Retrieval-Augmented Generation (RAG)</span>
+        <span class="related-title">RAG Is Not a Solution. It&#x27;s a Retrieval Problem With an LLM Attached.</span>
+      </a>
+      <a class="related-card" href="../posts/rag-in-practice-what-actually-breaks-and-why.html">
+        <span class="related-technique">Retrieval-Augmented Generation (RAG)</span>
+        <span class="related-title">RAG in Practice: What Actually Breaks and Why</span>
+      </a>
+      <a class="related-card" href="../posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html">
+        <span class="related-technique">Vector Search &amp; Embeddings</span>
+        <span class="related-title">Dense Retrieval vs. Structured Indexing: Picking Your Embedding Strategy</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>

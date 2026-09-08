@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html</guid>
+    <pubDate>Tue, 08 Sep 2026 09:24:54 +0000</pubDate>
+    <description>Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.</description>
+    <category>rag</category><category>retrieval</category><category>architecture</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Agentic Workflows and Multi-Agent Orchestration Done Right</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/agentic-workflows-and-multi-agent-orchestration-done-right.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agentic-workflows-and-multi-agent-orchestration-done-right.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 03 Aug 2026 08:30:21 +0000</pubDate>
     <description>The choice between one capable agent and a coordinated crew determines your system's failure modes before you write a single prompt.</description>
     <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Fine-Tuning vs. Prompting: How to Choose Before You Build</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-build.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-build.html</guid>
-    <pubDate>Sat, 01 Aug 2026 07:29:01 +0000</pubDate>
-    <description>Most teams reach for fine-tuning too early. Here is how to think through the decision systematically.</description>
-    <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>llm-strategy</category><category>cost</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-before-you-build-hero.png" type="image/png"/>
   </item>
 </channel></rss>

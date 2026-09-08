@@ -2718,5 +2718,48 @@
     ],
     "inspired_by": null,
     "og_image": "agentic-workflows-and-multi-agent-orchestration-done-right-hero.png"
+  },
+  {
+    "slug": "rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem",
+    "title": "RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.",
+    "dek": "Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.",
+    "date": "2026-09-08",
+    "published_at": "2026-09-08T09:24:54.044374+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "rag",
+      "retrieval",
+      "architecture",
+      "knowledge-bases"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Everyone who has shipped a RAG system in production has had the same uncomfortable moment: the answer is wrong, the document that would have fixed it is sitting right there in the index, and the model never saw it. The enterprise AI world has convinced itself that RAG is fundamentally about <em>giving the model knowledge</em> — connect your docs, done. That framing is wrong, and it causes bad architectural decisions from day one.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The claim I keep repeating to clients",
+        "html": "<p>RAG is a retrieval system with an LLM bolted on the end. If your retrieval is mediocre, no amount of prompt engineering or model swapping will save you. Fix the retrieval first.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The retrieval half of RAG is just information retrieval — a field that has been studied seriously since the 1970s. Chunking strategy, embedding model choice, query rewriting, re-ranking, hybrid search: these are retrieval engineering decisions, and most teams spend almost no time on them. They pick a vector database, embed their PDFs with whatever model the tutorial used, and then spend three weeks tweaking their system prompt wondering why recall is poor. The system prompt is not the problem.</p><p>There is a specific failure mode I see constantly in Swiss enterprise deployments: chunks that are too large for the embedding model to represent faithfully, and too small to contain the actual answer. A 512-token chunk that starts mid-sentence and ends mid-table retrieves with mediocre similarity scores and delivers incomplete context. The model then hallucinates the missing part. The team blames the model. The real fix is a better chunking strategy — semantic splitting, or at minimum a sliding window with meaningful overlap — combined with a re-ranker that scores retrieved passages by relevance to the actual query, not just by vector distance.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>None of this means RAG is a bad pattern. It is the right default architecture for grounding LLM outputs in private, frequently updated data. But treat it like what it is: a two-stage pipeline where stage one (retrieval) is the hard part and stage two (generation) is almost forgiving by comparison. A good retriever feeding a weak model will outperform a weak retriever feeding a frontier model. That is the trade-off most teams get backwards. Measure your retrieval precision and recall independently, before you ever evaluate the generated answer. If you cannot tell whether your retriever is finding the right documents, you have no idea what you are actually debugging.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png"
   }
 ]
