@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Caching: Stop Paying Twice for the Same Tokens</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html</guid>
+    <pubDate>Wed, 09 Sep 2026 09:26:07 +0000</pubDate>
+    <description>A concrete guide to structuring prompts so repeated context is cached and billed once, not every call.</description>
+    <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-stop-paying-twice-for-the-same-tokens-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 04 Aug 2026 07:40:42 +0000</pubDate>
     <description>Most RAG failures happen before the model ever sees a token — here's why that changes everything.</description>
     <category>rag</category><category>retrieval</category><category>architecture</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Single Agent or Multi-Agent: Choosing the Right Orchestration Model</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/single-agent-or-multi-agent-choosing-the-right-orchestration-model.html</guid>
-    <pubDate>Mon, 03 Aug 2026 08:30:21 +0000</pubDate>
-    <description>The choice between one capable agent and a coordinated crew determines your system's failure modes before you write a single prompt.</description>
-    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/single-agent-or-multi-agent-choosing-the-right-orchestration-model-hero.png" type="image/png"/>
   </item>
 </channel></rss>

@@ -2761,5 +2761,104 @@
     ],
     "inspired_by": null,
     "og_image": "rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png"
+  },
+  {
+    "slug": "prompt-caching-stop-paying-twice-for-the-same-tokens",
+    "title": "Prompt Caching: Stop Paying Twice for the Same Tokens",
+    "dek": "A concrete guide to structuring prompts so repeated context is cached and billed once, not every call.",
+    "date": "2026-09-09",
+    "published_at": "2026-09-09T09:26:07.342724+00:00",
+    "technique": "Prompt Caching & Cost Optimization",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "prompt-caching",
+      "cost-optimization",
+      "anthropic",
+      "production"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Token costs accumulate fast when you're running the same 2,000-word system prompt through every API call in a high-volume pipeline. Prompt caching — available today on Anthropic's Claude and a handful of other providers — lets you mark a prefix of your prompt as cacheable. The first call pays full price; subsequent calls that hit the same prefix are billed at a steep discount (roughly 90% cheaper on Claude). The catch: you have to structure your prompts deliberately to make this work, and most teams don't.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "How Prompt Caching Works End to End",
+        "image": "prompt-caching-stop-paying-twice-for-the-same-tokens-diagram-1.png",
+        "alt": "Build Prompt → Mark Cache Prefix → First API Call → Cache Written → Subsequent Calls → Cache Hit, Billed Cheap"
+      },
+      {
+        "type": "list",
+        "heading": "Rules for Getting Cache Hits Reliably",
+        "items": [
+          {
+            "title": "Put stable content first",
+            "detail": "System prompt, persona, long reference documents — anything that doesn't change between calls goes at the top of the prompt, before any user-specific content."
+          },
+          {
+            "title": "Mark the boundary explicitly",
+            "detail": "On Claude, add cache_control: {type: 'ephemeral'} to the last content block you want cached. Everything above that marker is eligible; everything below is not."
+          },
+          {
+            "title": "Keep the prefix byte-identical",
+            "detail": "Even a single character change breaks the cache. Don't interpolate dynamic values — dates, user names, session IDs — into the cacheable section."
+          },
+          {
+            "title": "Watch the minimum token threshold",
+            "detail": "Claude requires at least 1,024 tokens in the cached prefix for claude-3-5 models. Padding a short system prompt with filler to hit the threshold is not worth it — restructure instead."
+          },
+          {
+            "title": "Monitor cache_read_input_tokens in responses",
+            "detail": "The API returns a usage breakdown. If cache_read_input_tokens is zero on calls where you expect hits, your prefix is drifting between requests."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Includes worked examples of prompt caching to cut latency and cost."
+        },
+        "usage_note": "I reach for the Claude cookbooks repo when I need a working reference before writing production code — the caching example gets the content block structure exactly right, which is easy to fumble on your first attempt.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSYSTEM_PROMPT = \"\"\"You are a senior contract analyst. Your job is to extract\nkey obligations, dates, and parties from legal documents.\n[... 1500 more words of stable instructions and reference clauses ...]\"\"\"\n\ndef analyze_contract(contract_text: str) -> str:\n    response = client.messages.create(\n        model=\"claude-3-5-sonnet-20241022\",\n        max_tokens=1024,\n        system=[\n            {\n                \"type\": \"text\",\n                \"text\": SYSTEM_PROMPT,\n                \"cache_control\": {\"type\": \"ephemeral\"},\n            }\n        ],\n        messages=[\n            {\"role\": \"user\", \"content\": contract_text}\n        ],\n    )\n    usage = response.usage\n    print(f\"Cache read tokens : {usage.cache_read_input_tokens}\")\n    print(f\"Cache write tokens: {usage.cache_creation_input_tokens}\")\n    return response.content[0].text\n\nresult = analyze_contract(\"This Agreement is entered into on 1 June 2025 ...\")"
+        },
+        "example_output": "Cache read tokens : 0\nCache write tokens: 1847\n# --- second call with same system prompt ---\nCache read tokens : 1847\nCache write tokens: 0\nKey obligations: Vendor must deliver by 30 September 2025.\nParties: Acme AG (Client), SupplyCo GmbH (Vendor)."
+      },
+      {
+        "type": "list",
+        "heading": "When Caching Is Not Worth the Effort",
+        "items": [
+          {
+            "title": "Low call volume",
+            "detail": "If you're making fewer than a few hundred calls per day against the same prompt, the engineering overhead of restructuring and monitoring outweighs the savings."
+          },
+          {
+            "title": "Highly dynamic system prompts",
+            "detail": "If business logic forces user-specific content into the top of your system prompt, you'll never get a stable prefix — fix the prompt architecture first."
+          },
+          {
+            "title": "Short prompts",
+            "detail": "Below the minimum token threshold the feature simply doesn't activate. Caching is for heavy system prompts and long reference documents, not 200-token instructions."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": {
+      "title": "Introducing GPT-6 Astra for developers",
+      "url": "https://simonwillison.net/2026/Sep/5/introducing-gpt-6-astra-for-developers/",
+      "source": "Simon Willison"
+    },
+    "og_image": "prompt-caching-stop-paying-twice-for-the-same-tokens-hero.png"
   }
 ]
