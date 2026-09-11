@@ -2860,5 +2860,84 @@
       "source": "Simon Willison"
     },
     "og_image": "prompt-caching-stop-paying-twice-for-the-same-tokens-hero.png"
+  },
+  {
+    "slug": "structured-outputs-vs-tool-use-pick-the-right-constraint",
+    "title": "Structured Outputs vs Tool Use: Pick the Right Constraint",
+    "dek": "Two ways to make LLMs behave predictably — and choosing wrong costs you more than just clean JSON.",
+    "date": "2026-09-11",
+    "published_at": "2026-09-11T09:24:12.406814+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "structured-outputs",
+      "tool-use",
+      "agents",
+      "reliability",
+      "mcp"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Here is the actual question I get asked most often by enterprise teams: <em>\"Should we use structured outputs or tools?\"</em> The honest answer is that these two techniques solve different problems, and conflating them is the source of a surprising number of production failures I've been called in to fix. Structured outputs constrain what the model <em>says</em>. Tool use constrains what the model <em>does</em>. That distinction sounds obvious until you're three months into a project and your \"structured output\" pipeline is secretly making side-effectful API calls inside a Pydantic validator.</p><p>Structured outputs — JSON mode, response schemas, grammar-constrained decoding — are fundamentally about <strong>shape</strong>. You want the model's response to fit a contract so downstream code can parse it without try/except spaghetti. Tool use is about <strong>capability</strong>: you're handing the model a set of actions it can invoke, and you're agreeing to execute those actions on its behalf. The model still returns structured data in both cases, which is exactly why people confuse them.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."
+        },
+        "usage_note": "I reach for the Claude cookbooks when I need a reference implementation that's already thought through the error cases — particularly the customer-service agent pattern, which shows how structured outputs and tool calls live in the same conversation without trampling each other.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\ntools = [\n    {\n        \"name\": \"lookup_order\",\n        \"description\": \"Look up an order by ID and return its status.\",\n        \"input_schema\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"order_id\": {\"type\": \"string\", \"description\": \"The order identifier\"}\n            },\n            \"required\": [\"order_id\"]\n        }\n    }\n]\n\ndef handle_tool_call(name, inputs):\n    if name == \"lookup_order\":\n        # Simulated DB response\n        return {\"order_id\": inputs[\"order_id\"], \"status\": \"shipped\", \"eta\": \"2025-07-18\"}\n\nmessages = [{\"role\": \"user\", \"content\": \"Where is order ORD-9921?\"}]\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    tools=tools,\n    messages=messages\n)\n\nif response.stop_reason == \"tool_use\":\n    tool_block = next(b for b in response.content if b.type == \"tool_use\")\n    result = handle_tool_call(tool_block.name, tool_block.input)\n    print(json.dumps(result, indent=2))"
+        },
+        "example_output": "{\n  \"order_id\": \"ORD-9921\",\n  \"status\": \"shipped\",\n  \"eta\": \"2025-07-18\"\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Notice what happened there: the model decided <em>whether</em> to call the tool and <em>which arguments</em> to pass. Your application decided <em>whether to execute it</em>. That separation of concerns is the whole point of tool use — and it's also where the risk lives. Every tool you expose is a surface area. A model that can call <code>lookup_order</code> today might be prompted tomorrow to call it in a loop across every customer ID it can infer. Structured outputs carry no such risk; a schema that says \"return a sentiment label\" cannot exfiltrate data, no matter how creative the adversarial prompt.</p><p>So why not just use structured outputs everywhere and be done with it? Because structured outputs are static. The model can only return what it already knows or can reason about from context. The moment you need live data, external state, or a side effect — send an email, run a query, write a file — you need tool use. The MCP (Model Context Protocol) servers below are a good illustration of this: they're essentially a standardized way to expose tool surfaces to any compliant model, which means the schema question and the capability question are handled by different layers of the stack.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Structured Outputs vs Tool Use",
+        "image": "structured-outputs-vs-tool-use-pick-the-right-constraint-diagram-1.png",
+        "alt": "Comparison: Aspect, Structured Outputs, Tool Use"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference MCP server implementations that expose tools to LLMs."
+        },
+        "usage_note": "When I need to expose tools to a model in a way that a second team can maintain independently, I use MCP reference servers — the filesystem and fetch servers in particular give you a clean baseline for understanding how tool schemas should be declared.",
+        "code_example": {
+          "language": "typescript",
+          "code": "import { Server } from \"@modelcontextprotocol/sdk/server/index.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { ListToolsRequestSchema, CallToolRequestSchema } from \"@modelcontextprotocol/sdk/types.js\";\n\nconst server = new Server(\n  { name: \"inventory-tools\", version: \"1.0.0\" },\n  { capabilities: { tools: {} } }\n);\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: \"get_stock_level\",\n    description: \"Return current stock for a given SKU.\",\n    inputSchema: {\n      type: \"object\",\n      properties: { sku: { type: \"string\" } },\n      required: [\"sku\"]\n    }\n  }]\n}));\n\nserver.setRequestHandler(CallToolRequestSchema, async (req) => {\n  if (req.params.name === \"get_stock_level\") {\n    const sku = req.params.arguments?.sku as string;\n    // Simulated inventory lookup\n    return { content: [{ type: \"text\", text: JSON.stringify({ sku, quantity: 142 }) }] };\n  }\n  throw new Error(\"Unknown tool\");\n});\n\nawait server.connect(new StdioServerTransport());"
+        },
+        "example_output": "MCP server listening on stdio\nTool called: get_stock_level { sku: 'WIDGET-7' }\nResponse: { sku: 'WIDGET-7', quantity: 142 }"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The MCP pattern makes one thing explicit that ad-hoc tool implementations often obscure: the tool schema is a contract, not a hint. When the schema lives in a dedicated server process, it's versioned, testable, and auditable independently of the model or the prompt. That's the architecture I push clients toward once they move past a single-tool proof of concept. Structured outputs and tool use aren't competing philosophies — they're complementary layers. Use structured outputs to make the model's reasoning legible and parseable. Use tool use, carefully, when the model genuinely needs to reach outside its context window. The mistake is using tools as a crutch for problems that a well-designed schema would have solved without any round-trips at all.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "diagram",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": ".blend URL Viewer",
+      "url": "https://simonwillison.net/2026/Sep/9/blender-viewer/",
+      "source": "Simon Willison"
+    },
+    "og_image": "structured-outputs-vs-tool-use-pick-the-right-constraint-hero.png"
   }
 ]

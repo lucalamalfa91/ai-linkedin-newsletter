@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Structured Outputs vs Tool Use: Pick the Right Constraint</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-constraint.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-constraint.html</guid>
+    <pubDate>Fri, 11 Sep 2026 09:24:12 +0000</pubDate>
+    <description>Two ways to make LLMs behave predictably — and choosing wrong costs you more than just clean JSON.</description>
+    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-pick-the-right-constraint-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Caching: Stop Paying Twice for the Same Tokens</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 05 Aug 2026 07:40:07 +0000</pubDate>
     <description>A practical guide to structuring prompts so repeated context costs you almost nothing.</description>
     <category>prompt-caching</category><category>cost-optimization</category><category>claude</category><category>api</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/cut-your-claude-api-bill-with-prompt-caching-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>RAG Is Not a Solution. It's a Retrieval Problem With an LLM Attached.</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached.html</guid>
-    <pubDate>Tue, 04 Aug 2026 07:40:42 +0000</pubDate>
-    <description>Most RAG failures happen before the model ever sees a token — here's why that changes everything.</description>
-    <category>rag</category><category>retrieval</category><category>architecture</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-solution-it-s-a-retrieval-problem-with-an-llm-attached-hero.png" type="image/png"/>
   </item>
 </channel></rss>
