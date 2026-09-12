@@ -2939,5 +2939,56 @@
       "source": "Simon Willison"
     },
     "og_image": "structured-outputs-vs-tool-use-pick-the-right-constraint-hero.png"
+  },
+  {
+    "slug": "mcp-a-standard-plug-format-for-llm-tool-access",
+    "title": "MCP: A Standard Plug Format for LLM Tool Access",
+    "dek": "Model Context Protocol gives your LLM a consistent way to call tools without bespoke glue code for every integration.",
+    "date": "2026-09-12",
+    "published_at": "2026-09-12T09:03:07.797656+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "mcp",
+      "tools",
+      "agents",
+      "integration"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most tool-calling setups I see in production are a tangle of hand-rolled adapters — one function that wraps a database query, another that hits an internal REST API, each wired differently into the prompt. It works until you swap models or want to reuse the same tools across two different agents. Then you rewrite everything. Model Context Protocol is Anthropic's answer to that problem: a single, transport-agnostic wire format that defines how a host (the LLM runtime) discovers and invokes tools exposed by a server. Think of it less as a framework and more as a plug standard — the same way USB-C doesn't care what's on either end of the cable.</p><p>The practical trade-off worth naming: MCP adds a process boundary. Your tools now live in a separate server process (or remote service), which means latency on every call and one more thing to keep running. For a quick prototype that's noise; for a high-frequency agent loop making dozens of tool calls per turn, you'll feel it. It's also still early — the spec has moved fast and some client implementations lag behind.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference implementations and community MCP servers."
+        },
+        "usage_note": "I reach for the official reference servers when I want a working MCP setup in minutes without writing the server scaffolding myself — the filesystem server alone covers most retrieval tasks I'd otherwise hand-code.",
+        "code_example": {
+          "language": "python",
+          "code": "import asyncio\nfrom mcp import ClientSession, StdioServerParameters\nfrom mcp.client.stdio import stdio_client\n\nserver_params = StdioServerParameters(\n    command=\"npx\",\n    args=[\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/tmp/docs\"],\n)\n\nasync def list_available_tools():\n    async with stdio_client(server_params) as (read, write):\n        async with ClientSession(read, write) as session:\n            await session.initialize()\n            tools = await session.list_tools()\n            for tool in tools.tools:\n                print(f\"{tool.name}: {tool.description}\")\n\nasyncio.run(list_available_tools())"
+        },
+        "example_output": "read_file: Read the complete contents of a file from the filesystem.\nread_multiple_files: Read the contents of multiple files simultaneously.\nwrite_file: Create a new file or overwrite an existing file.\nlist_directory: Get a listing of files and directories at a path.\nsearch_files: Recursively search for files matching a pattern.\nget_file_info: Retrieve metadata for a file or directory."
+      },
+      {
+        "type": "prose",
+        "html": "<p>What you get from this pattern is that any MCP-compatible client — Claude Desktop, your own agent loop, a third-party orchestrator — can talk to that same filesystem server without changes on either side. Add a database server or a web-search server next to it and the client discovers them the same way. That composability is the actual point. The spec is worth reading once; after that, the reference implementations at <code>modelcontextprotocol/servers</code> cover the common cases well enough that you rarely need to write a server from scratch.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "So you want to use OpenRouter?",
+      "url": "https://simonwillison.net/2026/Sep/11/so-you-want-to-use-openrouter/",
+      "source": "Simon Willison"
+    },
+    "og_image": "mcp-a-standard-plug-format-for-llm-tool-access-hero.png"
   }
 ]

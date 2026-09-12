@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>MCP: A Standard Plug Format for LLM Tool Access</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-a-standard-plug-format-for-llm-tool-access.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-a-standard-plug-format-for-llm-tool-access.html</guid>
+    <pubDate>Sat, 12 Sep 2026 09:03:07 +0000</pubDate>
+    <description>Model Context Protocol gives your LLM a consistent way to call tools without bespoke glue code for every integration.</description>
+    <category>mcp</category><category>tools</category><category>agents</category><category>integration</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-a-standard-plug-format-for-llm-tool-access-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Structured Outputs vs Tool Use: Pick the Right Constraint</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-constraint.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-constraint.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 06 Aug 2026 07:40:36 +0000</pubDate>
     <description>Structured outputs and tool use give you a contract with the model — here is how to actually use it.</description>
     <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-parsing-model-output-by-hand-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Cut Your Claude API Bill with Prompt Caching</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/cut-your-claude-api-bill-with-prompt-caching.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/cut-your-claude-api-bill-with-prompt-caching.html</guid>
-    <pubDate>Wed, 05 Aug 2026 07:40:07 +0000</pubDate>
-    <description>A practical guide to structuring prompts so repeated context costs you almost nothing.</description>
-    <category>prompt-caching</category><category>cost-optimization</category><category>claude</category><category>api</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/cut-your-claude-api-bill-with-prompt-caching-hero.png" type="image/png"/>
   </item>
 </channel></rss>
