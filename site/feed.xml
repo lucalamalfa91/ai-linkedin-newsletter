@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How I Stopped Trusting My Gut on LLM Output Quality</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-trusting-my-gut-on-llm-output-quality.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-trusting-my-gut-on-llm-output-quality.html</guid>
+    <pubDate>Mon, 14 Sep 2026 10:22:22 +0000</pubDate>
+    <description>A field note on building real evaluation pipelines — before a client demo forces you to.</description>
+    <category>evaluation</category><category>testing</category><category>rag</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-i-stopped-trusting-my-gut-on-llm-output-quality-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>MCP: A Standard Plug Format for LLM Tool Access</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-a-standard-plug-format-for-llm-tool-access.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-a-standard-plug-format-for-llm-tool-access.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 07 Aug 2026 06:10:01 +0000</pubDate>
     <description>A field note on what Model Context Protocol really does, where it earns its keep, and where it quietly bites you.</description>
     <category>mcp</category><category>agents</category><category>tool-use</category><category>architecture</category><category>security</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Stop Parsing Model Output by Hand</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-parsing-model-output-by-hand.html</guid>
-    <pubDate>Thu, 06 Aug 2026 07:40:36 +0000</pubDate>
-    <description>Structured outputs and tool use give you a contract with the model — here is how to actually use it.</description>
-    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-parsing-model-output-by-hand-hero.png" type="image/png"/>
   </item>
 </channel></rss>

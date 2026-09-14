@@ -2990,5 +2990,58 @@
       "source": "Simon Willison"
     },
     "og_image": "mcp-a-standard-plug-format-for-llm-tool-access-hero.png"
+  },
+  {
+    "slug": "how-i-stopped-trusting-my-gut-on-llm-output-quality",
+    "title": "How I Stopped Trusting My Gut on LLM Output Quality",
+    "dek": "A field note on building real evaluation pipelines — before a client demo forces you to.",
+    "date": "2026-09-14",
+    "published_at": "2026-09-14T10:22:22.047884+00:00",
+    "technique": "LLM Evaluation & Testing",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "evaluation",
+      "testing",
+      "rag",
+      "reliability",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Last autumn I was three days out from a client presentation — a Swiss financial services firm, cautious by nature — and my RAG pipeline was producing answers that <em>felt</em> right. I'd been reading outputs manually for two weeks. My gut said we were good. Then a colleague ran a fresh batch of 40 questions and we noticed the model had been quietly hallucinating source attribution: correct facts, wrong documents cited. Nobody caught it because we'd been skimming, not measuring. That's the moment I stopped treating LLM evaluation as something you do at the end.</p><p>The hard truth is that informal review doesn't scale past maybe 20 outputs, and it degrades fast when you're tired or already emotionally invested in the system working. You need numbers. Not because numbers are perfect — they're not — but because a score you can track across deployments is infinitely more useful than a vague sense that things are \"mostly fine.\" The two tools I reach for most are OpenAI Evals for general LLM behavior and RAGAS specifically when there's a retrieval component involved.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "openai/evals",
+          "url": "https://github.com/openai/evals",
+          "note": "Framework and open registry of benchmarks for evaluating LLM systems."
+        },
+        "usage_note": "I use openai/evals when I need a repeatable benchmark I can run after every prompt change — it keeps me honest across iterations without manual review.",
+        "code_example": {
+          "language": "python",
+          "code": "import openai\nfrom evals.api import CompletionFn\nfrom evals.base import RunSpec\nfrom evals.registry import Registry\nfrom evals.runner import Runner\n\n# Point to your custom eval spec\nregistry = Registry(registry_dirs=[\"./my_evals\"])\n\nrun_spec = RunSpec(\n    model_name=\"gpt-4o\",\n    eval_name=\"my_company.contract_qa.v1\",\n    completion_fn_options={\"temperature\": 0.0},\n)\n\nrunner = Runner(\n    run_spec=run_spec,\n    registry=registry,\n    max_samples=100,\n)\n\nresult = runner.run()\nprint(f\"Accuracy: {result.metrics['accuracy']:.2%}\")\nprint(f\"Samples evaluated: {result.metrics['n_samples']}\")"
+        },
+        "example_output": "Accuracy: 82.00%\nSamples evaluated: 100\n\nFailed cases written to: /tmp/evals/run_abc123/failures.jsonl\nEval complete. Results logged to Snowflake."
+      },
+      {
+        "type": "prose",
+        "html": "<p>One thing worth saying plainly: neither of these tools tells you your system is good. They tell you whether it got better or worse relative to a baseline you defined. That distinction matters. RAGAS faithfulness near 1.0 means the answer is grounded in retrieved context — it says nothing about whether you retrieved the <em>right</em> context in the first place. You still need a well-curated test set, and building that is the unglamorous part nobody talks about enough. I usually spend more time assembling 80 representative question-answer pairs than I do wiring up the evaluation framework itself. The framework is the easy part.</p><p>If you're advising a client on an LLM system and you can't show them a score that moves when the system changes, you're flying blind — and eventually that catches up with you, usually at the worst possible moment. Start the eval harness on day one, not the week before go-live.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "A metric you can track across deployments is worth more than two weeks of reading outputs and feeling good about them."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "how-i-stopped-trusting-my-gut-on-llm-output-quality-hero.png"
   }
 ]
