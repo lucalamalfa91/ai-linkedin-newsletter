@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Guardrails and Output Validation: Treating LLM Output as Untrusted Input</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-treating-llm-output-as-untrusted-input.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-treating-llm-output-as-untrusted-input.html</guid>
+    <pubDate>Tue, 15 Sep 2026 09:49:07 +0000</pubDate>
+    <description>Why validating what your LLM returns is as important as any other layer of your production stack.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>production-ai</category><category>safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-treating-llm-output-as-untrusted-input-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How I Stopped Trusting My Gut on LLM Output Quality</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-trusting-my-gut-on-llm-output-quality.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-trusting-my-gut-on-llm-output-quality.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 08 Aug 2026 05:43:34 +0000</pubDate>
     <description>A practical guide to building evaluation pipelines that catch real failures before your users do.</description>
     <category>evaluation</category><category>testing</category><category>reliability</category><category>rag</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-actually-know-if-your-llm-system-works-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>MCP Is Not Magic: What Actually Happens When You Wire Tools to a Model</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html</guid>
-    <pubDate>Fri, 07 Aug 2026 06:10:01 +0000</pubDate>
-    <description>A field note on what Model Context Protocol really does, where it earns its keep, and where it quietly bites you.</description>
-    <category>mcp</category><category>agents</category><category>tool-use</category><category>architecture</category><category>security</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model-hero.png" type="image/png"/>
   </item>
 </channel></rss>

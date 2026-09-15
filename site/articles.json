@@ -3043,5 +3043,87 @@
     ],
     "inspired_by": null,
     "og_image": "how-i-stopped-trusting-my-gut-on-llm-output-quality-hero.png"
+  },
+  {
+    "slug": "guardrails-and-output-validation-treating-llm-output-as-untrusted-input",
+    "title": "Guardrails and Output Validation: Treating LLM Output as Untrusted Input",
+    "dek": "Why validating what your LLM returns is as important as any other layer of your production stack.",
+    "date": "2026-09-15",
+    "published_at": "2026-09-15T09:49:07.150395+00:00",
+    "technique": "Guardrails & Output Validation",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "guardrails",
+      "output-validation",
+      "reliability",
+      "production-ai",
+      "safety"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>There's a category error that shows up in a surprising number of enterprise AI projects I review: the team treats the LLM as a trusted system component. The prompt goes in, the text comes out, and it gets used — sometimes directly in a database write, sometimes rendered into a UI, sometimes handed to the next agent in a pipeline. Nobody checks it. The assumption is that a well-written prompt produces well-structured, safe, in-bounds output. That assumption will eventually be wrong, and when it is, the failure is usually invisible until it isn't.</p><p>The correct mental model is this: LLM output is untrusted external input, the same way you'd treat data arriving from a third-party API or a user-submitted form. You validate it. You sanitize it. You have a defined policy for what happens when it fails validation. This isn't pessimism about the models — it's just standard defensive engineering, applied to a new kind of data source.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Where Validation Fits in a Production Pipeline",
+        "image": "guardrails-and-output-validation-treating-llm-output-as-untrusted-input-diagram-1.png",
+        "alt": "User Input → Input Guard → LLM Call → Output Guard → Downstream System"
+      },
+      {
+        "type": "prose",
+        "html": "<p>There are two distinct places to apply validation: before the model sees anything, and after it responds. Input guards handle things like prompt injection attempts, PII that shouldn't be sent to an external API, off-topic requests that will produce useless responses, and content policy violations. Output guards are where you enforce structure (is this actually valid JSON?), check factual constraints (does the cited document ID exist?), flag hallucinated entities, detect toxic or off-brand language, and verify that any generated code doesn't do something you didn't ask for. Both layers matter, but they catch different failure modes, and conflating them leads to gaps.</p><p>Structure enforcement is the most common starting point, and the one that bites teams hardest when they skip it. Even with a model that's been carefully prompted to return a specific JSON schema, you'll occasionally get a response with an extra key, a number where you expected a string, or a markdown code fence wrapping the JSON. These are small deviations. But if your downstream code does <code>response['confidence']</code> and that key is missing because the model returned <code>confidence_score</code> instead, you have a silent data integrity bug. Schema validation with a strict parser catches this immediately and gives you a retry path or a fallback, rather than a corrupt database row you discover three days later.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Beyond structure, semantic validation is where the work gets genuinely interesting and also harder. Structural checks are deterministic — the JSON either parses or it doesn't. Semantic checks ask: is the content actually appropriate? Is the summary faithful to the source document? Does the generated SQL only touch the tables it's supposed to? These checks often require a second model call — a cheaper, faster model acting as a judge — or a set of rule-based heuristics. The cost of that second call is real, and you have to weigh it against the risk profile of the task. For a customer-facing financial report, you run the semantic check. For an internal draft that a human will review before anything happens, maybe you don't.</p><p>Retry logic is the other half of the equation that often gets designed as an afterthought. When a guard fires, what happens? The naive answer is \"retry the LLM call.\" That works sometimes, but if the failure is systematic — your prompt is ambiguous, or the model genuinely can't produce valid output for this input — you'll burn tokens in a loop and degrade latency. A better pattern is structured retry with feedback: include the validation error in the retry prompt so the model knows what it got wrong. After two or three failed retries, fall through to a human escalation path or a safe default response. Never let the retry loop run unbounded in production.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Input Guards vs. Output Guards",
+        "image": "guardrails-and-output-validation-treating-llm-output-as-untrusted-input-diagram-2.png",
+        "alt": "Comparison: Aspect, Input Guards, Output Guards"
+      },
+      {
+        "type": "prose",
+        "html": "<p>One practical note on where guardrails live architecturally: they belong in your application layer, not in your prompts. Prompt-based instructions like \"always return valid JSON\" or \"never mention competitor names\" are useful hints, but they are not enforcement. A sufficiently adversarial user input, an edge case in the model's training distribution, or a model update from your provider can break them at any time. Real enforcement happens in code that runs every time, regardless of what the model decided to do. Think of prompt instructions as the happy-path guide and validation code as the actual contract.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "How I wire this into client projects",
+        "html": "<p>For most enterprise deployments I set up, the guardrail layer is a thin middleware class that sits between the application and the LLM client. It holds a registry of validators — schema validators, regex-based PII detectors, a toxicity classifier for customer-facing outputs — and a retry policy (max two retries with error feedback, then escalate). I keep it separate from the prompt templates deliberately: when a new risk surface appears, I add a validator without touching the prompt logic. The two concerns stay decoupled, and the validation layer is independently testable. That last part matters more than people expect — you can write unit tests against your guardrail layer with synthetic bad outputs before you've written a single prompt.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "guardrails-ai/guardrails",
+          "url": "https://github.com/guardrails-ai/guardrails",
+          "note": "Input/output guards to detect and mitigate LLM risks, and enforce structure."
+        },
+        "usage_note": "I reach for guardrails-ai when I need a structured, composable way to declare validators for both input and output — it handles schema enforcement, retry orchestration, and integrates with Pydantic models so the rest of the application gets typed objects, not raw strings.",
+        "code_example": {
+          "language": "python",
+          "code": "import guardrails as gd\nfrom guardrails.hub import DetectPII, ToxicLanguage\nfrom pydantic import BaseModel, Field\nfrom typing import Literal\n\nclass AnalysisOutput(BaseModel):\n    sentiment: Literal[\"positive\", \"neutral\", \"negative\"]\n    confidence: float = Field(ge=0.0, le=1.0)\n    summary: str = Field(max_length=300)\n\nguard = gd.Guard.from_pydantic(\n    output_class=AnalysisOutput,\n    prompt=\"\"\"Analyze the customer feedback below and return a JSON object\nwith sentiment (positive/neutral/negative), confidence (0-1), and a summary.\n\nFeedback: ${feedback}\n\n${gr.complete_json_suffix_v3}\"\"\",\n)\nguard.use(ToxicLanguage(threshold=0.5), on=\"output\")\nguard.use(DetectPII([\"EMAIL_ADDRESS\", \"PHONE_NUMBER\"]), on=\"output\")\n\nresult = guard(\n    llm_api=\"openai/gpt-4o-mini\",\n    prompt_params={\"feedback\": \"Delivery was late and support never replied.\"},\n    max_retries=2,\n)\nprint(result.validated_output)\nprint(f\"Passed validation: {result.validation_passed}\")\nprint(f\"Retries used: {result.raw_llm_output}\")"
+        },
+        "example_output": "AnalysisOutput(sentiment='negative', confidence=0.91, summary='Customer experienced a late delivery and received no response from support.')\nPassed validation: True\nRetries used: 0"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "prose",
+      "prose",
+      "diagram",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Quoting Boris Cherny",
+      "url": "https://simonwillison.net/2026/Sep/11/boris-cherny/",
+      "source": "Simon Willison"
+    },
+    "og_image": "guardrails-and-output-validation-treating-llm-output-as-untrusted-input-hero.png"
   }
 ]
