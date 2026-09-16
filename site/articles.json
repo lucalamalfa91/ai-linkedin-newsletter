@@ -3125,5 +3125,49 @@
       "source": "Simon Willison"
     },
     "og_image": "guardrails-and-output-validation-treating-llm-output-as-untrusted-input-hero.png"
+  },
+  {
+    "slug": "tracing-your-llm-is-not-the-same-as-understanding-it",
+    "title": "Tracing Your LLM Is Not the Same as Understanding It",
+    "dek": "Most teams instrument their AI pipelines for the wrong reasons — here's what observability actually tells you.",
+    "date": "2026-09-16",
+    "published_at": "2026-09-16T09:43:45.305421+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "observability",
+      "tracing",
+      "llm-ops",
+      "evaluation",
+      "production-ai"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>The observability tooling space for LLMs has exploded, and with it a convenient myth: that if you can <em>see</em> every token, every latency number, every prompt and completion in a nice trace view, you understand what your system is doing. You don't. Visibility is not comprehension. Most teams I work with in enterprise contexts have tracing set up within the first two sprints, and then spend the next six months staring at dashboards without knowing what to do with them.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The thing nobody says out loud",
+        "html": "<p>Tracing tells you <em>what happened</em>. It cannot tell you <em>whether it was good</em>. The moment you confuse those two things, your observability stack becomes an expensive logging system with a prettier UI.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Here is the actual problem: LLM outputs don't fail the way software fails. A null pointer exception is unambiguous. A response that is subtly off-topic, confidently wrong, or stylistically inconsistent with your brand is not. No trace, however detailed, will surface that for you automatically — not without evaluation logic you define yourself. The teams that get real value from observability are the ones who have already done the harder work of deciding what \"correct\" looks like for their use case, and then wired that definition into their tracing pipeline as an explicit eval. The tracing is just the scaffolding. The judgment is yours to supply.</p><p>Langfuse is the tool I reach for most often in this space — not because it has the longest feature list, but because it keeps the distinction between tracing and evaluation genuinely separate and explicit. You instrument your pipeline to capture spans and generations, and then you attach scoring functions or human review workflows to those traces. That separation forces a useful discipline: you have to actually decide what you are measuring before you can measure it. Many hosted alternatives quietly blur that line, which feels helpful until you realize you have been measuring proxy metrics that don't correlate with anything your users actually care about.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The contrarian position I hold — and will defend to enterprise clients who push back — is that you should delay setting up LLM observability until you have at least a rough answer to one question: what does a bad output look like in your system? If you cannot answer that concretely, you will instrument everything and learn nothing. Start with evals, even crude ones. A regex check, a length heuristic, a one-line LLM-as-judge prompt. Get those running first. Then add tracing so you have the context to act on what your evals surface. The order matters more than the tooling.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "tracing-your-llm-is-not-the-same-as-understanding-it-hero.png"
   }
 ]

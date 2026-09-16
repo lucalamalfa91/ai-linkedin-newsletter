@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Tracing Your LLM Is Not the Same as Understanding It</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/tracing-your-llm-is-not-the-same-as-understanding-it.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/tracing-your-llm-is-not-the-same-as-understanding-it.html</guid>
+    <pubDate>Wed, 16 Sep 2026 09:43:45 +0000</pubDate>
+    <description>Most teams instrument their AI pipelines for the wrong reasons — here's what observability actually tells you.</description>
+    <category>observability</category><category>tracing</category><category>llm-ops</category><category>evaluation</category><category>production-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/tracing-your-llm-is-not-the-same-as-understanding-it-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Guardrails and Output Validation: Treating LLM Output as Untrusted Input</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-treating-llm-output-as-untrusted-input.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-treating-llm-output-as-untrusted-input.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 10 Aug 2026 06:10:50 +0000</pubDate>
     <description>Most teams bolt on output validation at the end. Here is why that framing produces brittle systems.</description>
     <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-are-not-a-safety-net-they-are-a-contract-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>How to Actually Know If Your LLM System Works</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-works.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-works.html</guid>
-    <pubDate>Sat, 08 Aug 2026 05:43:34 +0000</pubDate>
-    <description>A practical guide to building evaluation pipelines that catch real failures before your users do.</description>
-    <category>evaluation</category><category>testing</category><category>reliability</category><category>rag</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-actually-know-if-your-llm-system-works-hero.png" type="image/png"/>
   </item>
 </channel></rss>
