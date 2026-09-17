@@ -3169,5 +3169,105 @@
     ],
     "inspired_by": null,
     "og_image": "tracing-your-llm-is-not-the-same-as-understanding-it-hero.png"
+  },
+  {
+    "slug": "how-to-red-team-your-llm-before-your-users-do-it-for-you",
+    "title": "How to Red-Team Your LLM Before Your Users Do It for You",
+    "dek": "A concrete process for finding prompt injection, jailbreaks, and policy failures before they reach production.",
+    "date": "2026-09-17",
+    "published_at": "2026-09-17T09:51:51.882909+00:00",
+    "technique": "Red-Teaming & Adversarial Testing",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "red-teaming",
+      "adversarial-testing",
+      "reliability",
+      "prompt-injection",
+      "safety"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams ship an LLM feature, watch it in production for a week, and then fix what breaks. That is not a testing strategy — it is a delayed incident response plan. Red-teaming means deliberately attacking your own system with adversarial inputs before anyone else does. It is not glamorous work, but it is the difference between discovering a jailbreak yourself on a Tuesday afternoon and reading about it in a customer complaint on a Friday.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Red-Teaming Loop",
+        "image": "how-to-red-team-your-llm-before-your-users-do-it-for-you-diagram-1.png",
+        "alt": "Define Scope → Generate Attacks → Run Against System → Score Responses → Fix & Retest"
+      },
+      {
+        "type": "list",
+        "heading": "What to attack — in priority order",
+        "items": [
+          {
+            "title": "System prompt leakage",
+            "detail": "Ask the model to repeat, summarize, or translate its instructions. If it complies, your prompt is exposed to any user who asks nicely."
+          },
+          {
+            "title": "Prompt injection via user content",
+            "detail": "In RAG or tool-use flows, inject instructions inside retrieved documents or tool outputs. This is the most underestimated vector in enterprise deployments."
+          },
+          {
+            "title": "Role and persona abandonment",
+            "detail": "Try to convince the model it is a different system, operating in a test mode, or that its previous instructions have been superseded."
+          },
+          {
+            "title": "Policy boundary probing",
+            "detail": "Push the model toward outputs your organization has explicitly ruled out — specific advice categories, competitor mentions, regulated content. Map where the line actually sits, not where you assumed it was."
+          },
+          {
+            "title": "Indirect refusal bypasses",
+            "detail": "Ask the same disallowed thing rephrased as fiction, a hypothetical, a translation task, or a request to critique an example that contains the disallowed content."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "promptfoo/promptfoo",
+          "url": "https://github.com/promptfoo/promptfoo",
+          "note": "Red-teaming and vulnerability scanning for prompts, agents, and RAG."
+        },
+        "usage_note": "I reach for promptfoo when I need a repeatable, CI-friendly red-team scan rather than ad-hoc manual probing — it runs a structured attack suite against any endpoint and scores the results automatically.",
+        "code_example": {
+          "language": "yaml",
+          "code": "# promptfooconfig.yaml\nprompts:\n  - \"You are a helpful assistant for Acme Corp. {{message}}\"\n\nproviders:\n  - id: openai:gpt-4o\n    config:\n      temperature: 0\n\nredteam:\n  purpose: \"Customer support assistant for a financial services company\"\n  numTests: 40\n  plugins:\n    - prompt-injection\n    - jailbreak\n    - policy\n    - pii:direct\n    - harmful:hate\n  strategies:\n    - jailbreak:composite\n    - crescendo"
+        },
+        "example_output": "Running red team with 40 tests across 5 plugins...\n\nResults:\n  prompt-injection   PASS  12/12\n  jailbreak          FAIL   9/14  (3 bypasses found)\n  policy             PASS   6/6\n  pii:direct         FAIL   3/4   (1 SSN disclosure)\n  harmful:hate       PASS   4/4\n\nOverall score: 34/40  (85%)\nReport written to: redteam-report.html"
+      },
+      {
+        "type": "list",
+        "heading": "Rules I follow when running a red-team cycle",
+        "items": [
+          {
+            "title": "Fix the scoring criteria before you run attacks",
+            "detail": "Decide what a passing response looks like before you see the outputs. Post-hoc scoring drifts toward confirming your assumptions."
+          },
+          {
+            "title": "Treat every bypass as a regression test",
+            "detail": "When an attack succeeds, add it to your permanent test suite. The fix should make that exact input fail forever, not just today."
+          },
+          {
+            "title": "Red-team the retrieval layer separately",
+            "detail": "In RAG systems, run attacks against the retriever and the generator independently. A clean generator can still misbehave when fed a poisoned document."
+          },
+          {
+            "title": "Run it in CI, not just before launch",
+            "detail": "A prompt change, a model upgrade, or a new tool can reopen a vulnerability you already closed. Automated scanning on every deployment is the only way to catch regressions."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "how-to-red-team-your-llm-before-your-users-do-it-for-you-hero.png"
   }
 ]

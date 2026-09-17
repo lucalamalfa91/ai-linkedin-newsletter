@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Red-Team Your LLM Before Your Users Do It for You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-red-team-your-llm-before-your-users-do-it-for-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-red-team-your-llm-before-your-users-do-it-for-you.html</guid>
+    <pubDate>Thu, 17 Sep 2026 09:51:51 +0000</pubDate>
+    <description>A concrete process for finding prompt injection, jailbreaks, and policy failures before they reach production.</description>
+    <category>red-teaming</category><category>adversarial-testing</category><category>reliability</category><category>prompt-injection</category><category>safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-red-team-your-llm-before-your-users-do-it-for-you-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Tracing Your LLM Is Not the Same as Understanding It</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/tracing-your-llm-is-not-the-same-as-understanding-it.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/tracing-your-llm-is-not-the-same-as-understanding-it.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 11 Aug 2026 05:53:57 +0000</pubDate>
     <description>How to add tracing to your LLM application so you can actually debug it when things go wrong.</description>
     <category>observability</category><category>tracing</category><category>debugging</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/instrument-your-llm-calls-before-you-need-to-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Guardrails Are Not a Safety Net. They Are a Contract.</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract.html</guid>
-    <pubDate>Mon, 10 Aug 2026 06:10:50 +0000</pubDate>
-    <description>Most teams bolt on output validation at the end. Here is why that framing produces brittle systems.</description>
-    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-are-not-a-safety-net-they-are-a-contract-hero.png" type="image/png"/>
   </item>
 </channel></rss>
