@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Stop Stuffing the Context Window — Manage It Instead</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-stuffing-the-context-window-manage-it-instead.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-stuffing-the-context-window-manage-it-instead.html</guid>
+    <pubDate>Fri, 18 Sep 2026 09:25:30 +0000</pubDate>
+    <description>More tokens does not mean better answers. Here's how to be deliberate about what you put in context.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-stuffing-the-context-window-manage-it-instead-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Red-Team Your LLM Before Your Users Do It for You</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-red-team-your-llm-before-your-users-do-it-for-you.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-red-team-your-llm-before-your-users-do-it-for-you.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 12 Aug 2026 06:14:51 +0000</pubDate>
     <description>Adversarial testing isn't a security luxury — here's the minimum you should be running on every AI deployment.</description>
     <category>red-teaming</category><category>security</category><category>testing</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-ai-system-before-someone-else-does-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Instrument Your LLM Calls Before You Need To</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/instrument-your-llm-calls-before-you-need-to.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/instrument-your-llm-calls-before-you-need-to.html</guid>
-    <pubDate>Tue, 11 Aug 2026 05:53:57 +0000</pubDate>
-    <description>How to add tracing to your LLM application so you can actually debug it when things go wrong.</description>
-    <category>observability</category><category>tracing</category><category>debugging</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/instrument-your-llm-calls-before-you-need-to-hero.png" type="image/png"/>
   </item>
 </channel></rss>

@@ -3269,5 +3269,52 @@
     ],
     "inspired_by": null,
     "og_image": "how-to-red-team-your-llm-before-your-users-do-it-for-you-hero.png"
+  },
+  {
+    "slug": "stop-stuffing-the-context-window-manage-it-instead",
+    "title": "Stop Stuffing the Context Window — Manage It Instead",
+    "dek": "More tokens does not mean better answers. Here's how to be deliberate about what you put in context.",
+    "date": "2026-09-18",
+    "published_at": "2026-09-18T09:25:30.314237+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "agents"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams discover context management the hard way: the model starts contradicting itself around message 40, or latency triples, or costs blow up on a document-heavy workflow. The instinct is to throw more tokens at the problem — bigger context window, newer model. That instinct is usually wrong. What you actually need is a strategy for <em>what goes in</em>, in what order, and what gets dropped or summarized as a conversation grows. That's context engineering, and it's more like memory architecture than prompt writing.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The practical rules are not complicated, but they require discipline. Put stable, rarely-changing content (system instructions, reference documents, schemas) at the top and leave it there — models attend more reliably to material near the edges of a long context. Put dynamic, task-specific content close to the final user turn. For anything beyond a few exchanges, maintain an explicit working summary that you update and inject, rather than letting the raw transcript balloon. And when you're routing to sub-agents, pass only the slice of context each agent actually needs — not the full conversation history. The failure mode I see most often in enterprise deployments is treating the context window as a dump rather than a curated working set.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Long-context and context-management patterns (PDF uploads, sub-agents)."
+        },
+        "usage_note": "I reach for the Anthropic cookbooks when I need a reference implementation that shows the full pattern — not just an API call, but the surrounding logic for chunking, routing, and summarizing across long documents and sub-agent handoffs.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\ndef build_context(system_ref: str, working_summary: str, user_turn: str) -> list:\n    \"\"\"Assemble context deliberately: stable content first, dynamic content last.\"\"\"\n    return [\n        {\"role\": \"user\", \"content\": working_summary + \"\\n\\n\" + user_turn}\n    ]\n\ndef summarize_history(history: list, model: str = \"claude-opus-4-5\") -> str:\n    \"\"\"Compress growing transcript into a rolling summary before it bloats.\"\"\"\n    transcript = \"\\n\".join(f\"{m['role'].upper()}: {m['content']}\" for m in history)\n    resp = client.messages.create(\n        model=model,\n        max_tokens=512,\n        system=\"Summarize the conversation below into a compact working memory. Preserve decisions, open questions, and key facts. Drop pleasantries.\",\n        messages=[{\"role\": \"user\", \"content\": transcript}]\n    )\n    return resp.content[0].text\n\n# Simulate a growing session\nhistory = [\n    {\"role\": \"user\", \"content\": \"We need to extract clause types from 200 supplier contracts.\"},\n    {\"role\": \"assistant\", \"content\": \"Understood. I suggest chunking by section and running a classifier sub-agent per chunk.\"},\n    {\"role\": \"user\", \"content\": \"Agreed. Liability and termination clauses are highest priority.\"}\n]\n\n# Compress before the next heavy turn\nsummary = summarize_history(history)\nmessages = build_context(\n    system_ref=\"[schema and instructions stored at top of system prompt]\",\n    working_summary=f\"WORKING MEMORY:\\n{summary}\",\n    user_turn=\"Now process the first 10 contracts and return structured JSON.\"\n)\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    system=\"You are a contract analysis agent. Follow the schema provided. Be concise.\",\n    messages=messages\n)\nprint(response.content[0].text)"
+        },
+        "example_output": "[\n  {\"contract_id\": \"SUP-001\", \"liability_cap\": \"2x annual fees\", \"termination_notice\": \"90 days\"},\n  {\"contract_id\": \"SUP-002\", \"liability_cap\": \"unlimited\", \"termination_notice\": \"30 days\"},\n  {\"contract_id\": \"SUP-003\", \"liability_cap\": \"1x annual fees\", \"termination_notice\": \"60 days\"}\n]"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "stop-stuffing-the-context-window-manage-it-instead-hero.png"
   }
 ]
