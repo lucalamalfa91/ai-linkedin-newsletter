@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Vector Search Done Right: Raw Embeddings vs. Retrieval Frameworks</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks.html</guid>
+    <pubDate>Sat, 19 Sep 2026 09:13:48 +0000</pubDate>
+    <description>Choosing between a bare embedding database and a full retrieval framework shapes everything downstream — here is how to think about that trade-off.</description>
+    <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Stop Stuffing the Context Window — Manage It Instead</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-stuffing-the-context-window-manage-it-instead.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-stuffing-the-context-window-manage-it-instead.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 13 Aug 2026 06:17:23 +0000</pubDate>
     <description>Long-context windows are not a substitute for thinking carefully about what you actually put in them.</description>
     <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-i-learned-filling-180k-tokens-and-getting-garbage-back-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Red-Teaming Your AI System Before Someone Else Does</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-system-before-someone-else-does.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-ai-system-before-someone-else-does.html</guid>
-    <pubDate>Wed, 12 Aug 2026 06:14:51 +0000</pubDate>
-    <description>Adversarial testing isn't a security luxury — here's the minimum you should be running on every AI deployment.</description>
-    <category>red-teaming</category><category>security</category><category>testing</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-ai-system-before-someone-else-does-hero.png" type="image/png"/>
   </item>
 </channel></rss>
