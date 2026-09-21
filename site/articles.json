@@ -3389,5 +3389,66 @@
       "source": "Simon Willison"
     },
     "og_image": "vector-search-done-right-raw-embeddings-vs-retrieval-frameworks-hero.png"
+  },
+  {
+    "slug": "your-agent-has-no-memory-that-s-your-fault",
+    "title": "Your Agent Has No Memory. That's Your Fault.",
+    "dek": "How to design agent state that actually persists across turns, restarts, and failures.",
+    "date": "2026-09-21",
+    "published_at": "2026-09-21T10:26:40.966043+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "agents",
+      "memory",
+      "state-management",
+      "langgraph"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client called me six weeks into a deployment. Their customer-service agent — which we'd built together and tested extensively — was asking users to re-explain their problem on every single message. Not occasionally. Every time. The agent looked fine in isolation. Each individual LLM call was correct. But nobody had thought hard about where state actually lived between turns, so it lived nowhere. The conversation history was being reconstructed from scratch on each request using whatever happened to be in the HTTP body. When the front-end dropped a field, the agent forgot everything.</p><p>That incident pushed me to stop treating memory as an afterthought you bolt on after the agent logic is done. State management is the architecture. Everything else — the tools, the prompts, the model choice — is secondary if you haven't answered: what does this agent remember, for how long, and what happens when the process restarts?</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>There are roughly three layers worth thinking about separately. First, <strong>in-context memory</strong>: the messages and tool results you stuff into the current prompt window. This is ephemeral by nature and that's fine — it's your working memory for a single run. Second, <strong>external short-term state</strong>: a persisted checkpoint of the agent's current task, scratchpad, and intermediate results. This is what lets a user close their browser and come back. Third, <strong>long-term memory</strong>: facts about a user or entity that should survive across completely separate sessions — preferences, past decisions, account context. Most teams I see implement only the first layer, wonder why their agent feels amnesiac, and then try to fix it by making the context window bigger. Bigger context is not a memory strategy.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Stateful agent graphs with built-in persistence and memory."
+        },
+        "usage_note": "I reach for LangGraph specifically when the agent needs durable checkpointing — the graph abstraction forces you to be explicit about what state exists and where it's stored, which is exactly the discipline most agent projects lack.",
+        "code_example": {
+          "language": "python",
+          "code": "from langgraph.graph import StateGraph, END\nfrom langgraph.checkpoint.sqlite import SqliteSaver\nfrom typing import TypedDict, List\n\nclass AgentState(TypedDict):\n    messages: List[dict]\n    user_intent: str\n    resolved: bool\n\ndef understand(state: AgentState) -> AgentState:\n    last = state[\"messages\"][-1][\"content\"]\n    # In practice: call your LLM here to extract intent\n    state[\"user_intent\"] = last\n    return state\n\ndef respond(state: AgentState) -> AgentState:\n    # In practice: generate a reply grounded in user_intent\n    reply = {\"role\": \"assistant\", \"content\": f\"Got it: {state['user_intent']}\"}\n    state[\"messages\"].append(reply)\n    state[\"resolved\"] = True\n    return state\n\nmemory = SqliteSaver.from_conn_string(\"agent_state.db\")\n\ngraph = StateGraph(AgentState)\ngraph.add_node(\"understand\", understand)\ngraph.add_node(\"respond\", respond)\ngraph.set_entry_point(\"understand\")\ngraph.add_edge(\"understand\", \"respond\")\ngraph.add_edge(\"respond\", END)\n\napp = graph.compile(checkpointer=memory)\n\nconfig = {\"configurable\": {\"thread_id\": \"user-42-session-7\"}}\nresult = app.invoke(\n    {\"messages\": [{\"role\": \"user\", \"content\": \"I need to cancel my order\"}],\n     \"user_intent\": \"\",\n     \"resolved\": False},\n    config=config\n)"
+        },
+        "example_output": "# State persisted to agent_state.db under thread_id 'user-42-session-7'\n# On next invocation with same thread_id, previous messages are restored automatically\n# result['messages']:\n# [{'role': 'user', 'content': 'I need to cancel my order'},\n#  {'role': 'assistant', 'content': 'Got it: I need to cancel my order'}]\n# result['resolved']: True"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The <code>thread_id</code> in that config is doing more work than it looks like. It's the key that ties a checkpoint to a specific user and session. Get that naming convention wrong — or generate it randomly on each request like I've seen teams do — and you're back to the amnesiac agent. I typically use a compound key: <code>{user_id}-{session_id}</code> for short-term continuity, and a separate long-term store keyed only on <code>user_id</code> for facts that should outlive any individual session. LangGraph handles the short-term side cleanly. For long-term memory I keep it simple: a small table in Postgres with a retrieval step at the start of each graph run that injects relevant facts into the initial state. No vector database required unless the facts are genuinely unstructured and numerous — and they usually aren't.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "An agent without a memory design isn't an agent — it's a stateless function wearing a costume."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "llm-keys-ui 0.1",
+      "url": "https://simonwillison.net/2026/Sep/20/llm-keys-ui/",
+      "source": "Simon Willison"
+    },
+    "og_image": "your-agent-has-no-memory-that-s-your-fault-hero.png"
   }
 ]

@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Your Agent Has No Memory. That's Your Fault.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/your-agent-has-no-memory-that-s-your-fault.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-agent-has-no-memory-that-s-your-fault.html</guid>
+    <pubDate>Mon, 21 Sep 2026 10:26:40 +0000</pubDate>
+    <description>How to design agent state that actually persists across turns, restarts, and failures.</description>
+    <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-agent-has-no-memory-that-s-your-fault-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Vector Search Done Right: Raw Embeddings vs. Retrieval Frameworks</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 14 Aug 2026 06:14:56 +0000</pubDate>
     <description>Vector search is not one thing — knowing when to use dense embeddings versus sparse retrieval changes everything downstream.</description>
     <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/dense-vs-sparse-retrieval-choosing-your-embedding-strategy-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>What I Learned Filling 180k Tokens and Getting Garbage Back</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-filling-180k-tokens-and-getting-garbage-back.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-filling-180k-tokens-and-getting-garbage-back.html</guid>
-    <pubDate>Thu, 13 Aug 2026 06:17:23 +0000</pubDate>
-    <description>Long-context windows are not a substitute for thinking carefully about what you actually put in them.</description>
-    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-i-learned-filling-180k-tokens-and-getting-garbage-back-hero.png" type="image/png"/>
   </item>
 </channel></rss>
