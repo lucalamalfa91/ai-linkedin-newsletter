@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Engineering Is Not Guessing: A Systematic Method</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-guessing-a-systematic-method.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-guessing-a-systematic-method.html</guid>
+    <pubDate>Tue, 22 Sep 2026 09:40:12 +0000</pubDate>
+    <description>How to move from intuitive prompt tweaking to a disciplined optimization process that actually holds up in production.</description>
+    <category>prompt-engineering</category><category>llm-optimization</category><category>production-ai</category><category>evaluation</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-not-guessing-a-systematic-method-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Your Agent Has No Memory. That's Your Fault.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/your-agent-has-no-memory-that-s-your-fault.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-agent-has-no-memory-that-s-your-fault.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 15 Aug 2026 05:25:26 +0000</pubDate>
     <description>How you model agent state determines whether your system recovers gracefully or fails silently under pressure.</description>
     <category>agents</category><category>state-management</category><category>memory</category><category>langgraph</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-and-state-management-a-practical-architecture-guide-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Dense vs. Sparse Retrieval: Choosing Your Embedding Strategy</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-vs-sparse-retrieval-choosing-your-embedding-strategy.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-vs-sparse-retrieval-choosing-your-embedding-strategy.html</guid>
-    <pubDate>Fri, 14 Aug 2026 06:14:56 +0000</pubDate>
-    <description>Vector search is not one thing — knowing when to use dense embeddings versus sparse retrieval changes everything downstream.</description>
-    <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/dense-vs-sparse-retrieval-choosing-your-embedding-strategy-hero.png" type="image/png"/>
   </item>
 </channel></rss>
