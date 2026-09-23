@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Fine-Tuning Is Not a Promotion. Prompting Is Not a Shortcut.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut.html</guid>
+    <pubDate>Wed, 23 Sep 2026 09:47:16 +0000</pubDate>
+    <description>Most teams reach for fine-tuning too early and prompting too late — here's why that instinct is backwards.</description>
+    <category>fine-tuning</category><category>prompting</category><category>llm-strategy</category><category>model-selection</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Engineering Is Not Guessing: A Systematic Method</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-guessing-a-systematic-method.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-guessing-a-systematic-method.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 17 Aug 2026 05:36:06 +0000</pubDate>
     <description>Most teams treat prompts as an afterthought. Here is why that costs them more than they think.</description>
     <category>prompt-engineering</category><category>llm</category><category>reliability</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-a-skill-not-a-trick-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Agent Memory and State Management: A Practical Architecture Guide</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-and-state-management-a-practical-architecture-guide.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-and-state-management-a-practical-architecture-guide.html</guid>
-    <pubDate>Sat, 15 Aug 2026 05:25:26 +0000</pubDate>
-    <description>How you model agent state determines whether your system recovers gracefully or fails silently under pressure.</description>
-    <category>agents</category><category>state-management</category><category>memory</category><category>langgraph</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-and-state-management-a-practical-architecture-guide-hero.png" type="image/png"/>
   </item>
 </channel></rss>

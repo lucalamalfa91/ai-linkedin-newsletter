@@ -3524,5 +3524,48 @@
       "source": "Simon Willison"
     },
     "og_image": "prompt-engineering-is-not-guessing-a-systematic-method-hero.png"
+  },
+  {
+    "slug": "fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut",
+    "title": "Fine-Tuning Is Not a Promotion. Prompting Is Not a Shortcut.",
+    "dek": "Most teams reach for fine-tuning too early and prompting too late — here's why that instinct is backwards.",
+    "date": "2026-09-23",
+    "published_at": "2026-09-23T09:47:16.976585+00:00",
+    "technique": "Fine-Tuning vs. Prompting",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "fine-tuning",
+      "prompting",
+      "llm-strategy",
+      "model-selection"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>The conventional wisdom goes something like this: prompting is what you do when you're getting started, and fine-tuning is what you graduate to once you're serious. It's framed as a maturity ladder. Prompt engineering is the beginner's tool; fine-tuning is where the real work happens. I think this framing is wrong, and it causes teams to waste months and real money chasing a solution to a problem that didn't require it.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>Fine-tuning is not a better version of prompting. It solves a completely different problem. If your prompts aren't working, fine-tuning almost certainly won't fix it — it will just make the failure more expensive and harder to reverse.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Here's what I actually see in practice. A team has a model that isn't following instructions reliably, or the outputs aren't matching the brand tone, or the structured output keeps drifting from the schema. Someone proposes fine-tuning. The reasoning is intuitive: if we train the model on examples of what we want, it'll learn to do it. And sometimes that's true. But more often, the underlying issue is that the prompt is ambiguous, the context is incomplete, or the task itself hasn't been defined precisely enough for any model to do it consistently. Fine-tuning on bad examples of a poorly-specified task just bakes the confusion in deeper. I've watched teams spend six weeks on a fine-tuning project that a cleaner prompt and a few well-chosen examples in context would have solved in two days.</p><p>The cases where fine-tuning genuinely earns its place are narrower than people think. You need it when you're trying to change the model's default behavior at a level that prompt length and context windows can't reach — when you have thousands of high-quality labeled examples, when latency or cost constraints make a long system prompt impractical at scale, or when you're trying to teach the model a highly specific format or domain vocabulary that genuinely doesn't appear in its pretraining data. That's a real list, but notice how specific it is. Most product teams don't meet those conditions in the first six months of building.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>What I tell clients is this: treat prompting as the highest-leverage thing you can do, not a placeholder until you get to the \"real\" solution. A well-structured prompt with clear instructions, a worked example or two, and explicit output constraints will outperform a carelessly fine-tuned model on a vague task almost every time. The Anthropic cookbooks make this point concretely — they show scenarios where tool use and careful prompting fully handle tasks that look, at first glance, like they'd require a specialized model. The point isn't that fine-tuning is bad. It's that the decision deserves the same rigor you'd apply to any architectural choice. You wouldn't add a caching layer before you've profiled the bottleneck. Don't fine-tune before you've exhausted what a well-engineered prompt can do.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut-hero.png"
   }
 ]
