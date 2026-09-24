@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Structure Agentic Workflows Before They Structure You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-structure-agentic-workflows-before-they-structure-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-structure-agentic-workflows-before-they-structure-you.html</guid>
+    <pubDate>Thu, 24 Sep 2026 09:44:36 +0000</pubDate>
+    <description>A practical guide to orchestrating multi-agent systems without losing control of state, cost, or correctness.</description>
+    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-structure-agentic-workflows-before-they-structure-you-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Fine-Tuning Is Not a Promotion. Prompting Is Not a Shortcut.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 18 Aug 2026 05:30:51 +0000</pubDate>
     <description>A practical decision framework so you stop reaching for fine-tuning when a well-crafted prompt would do the job.</description>
     <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-before-you-commit-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Prompt Engineering Is a Skill, Not a Trick</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-a-skill-not-a-trick.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-a-skill-not-a-trick.html</guid>
-    <pubDate>Mon, 17 Aug 2026 05:36:06 +0000</pubDate>
-    <description>Most teams treat prompts as an afterthought. Here is why that costs them more than they think.</description>
-    <category>prompt-engineering</category><category>llm</category><category>reliability</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-a-skill-not-a-trick-hero.png" type="image/png"/>
   </item>
 </channel></rss>

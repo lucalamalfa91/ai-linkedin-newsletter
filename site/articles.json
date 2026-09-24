@@ -3567,5 +3567,109 @@
     ],
     "inspired_by": null,
     "og_image": "fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut-hero.png"
+  },
+  {
+    "slug": "how-to-structure-agentic-workflows-before-they-structure-you",
+    "title": "How to Structure Agentic Workflows Before They Structure You",
+    "dek": "A practical guide to orchestrating multi-agent systems without losing control of state, cost, or correctness.",
+    "date": "2026-09-24",
+    "published_at": "2026-09-24T09:44:36.180212+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "agentic-workflows",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most multi-agent failures I've debugged weren't model failures — they were architecture failures. Someone wired up four agents in a loop, gave them all write access to the same state, and wondered why the system kept contradicting itself by step three. The orchestration layer is where you earn your money on these projects, and it deserves as much design time as the prompts themselves.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Multi-Agent Orchestration: Core Flow",
+        "image": "how-to-structure-agentic-workflows-before-they-structure-you-diagram-1.png",
+        "alt": "User Task In → Orchestrator Routes → Specialist Agents → Tool Calls → State Updated → Output Returned"
+      },
+      {
+        "type": "list",
+        "heading": "Rules Before You Write a Single Agent",
+        "items": [
+          {
+            "title": "Define state ownership first",
+            "detail": "Decide which agent can write to which part of shared state. Overlapping write access is the fastest path to garbage outputs."
+          },
+          {
+            "title": "Make the orchestrator dumb on purpose",
+            "detail": "The orchestrator should route and sequence — not reason. Reasoning belongs inside the specialist agents, not in the router."
+          },
+          {
+            "title": "Set hard token budgets per agent",
+            "detail": "Without per-agent limits, one runaway sub-task will blow your cost ceiling before the workflow finishes."
+          },
+          {
+            "title": "Treat every tool call as fallible",
+            "detail": "Network calls fail, APIs rate-limit, schemas change. Every agent that calls a tool needs a defined fallback, not an implicit retry loop."
+          },
+          {
+            "title": "Log agent inputs and outputs separately",
+            "detail": "Aggregate logs are useless for debugging. You need to replay exactly what each agent received and returned at each step."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "crewAIInc/crewAI",
+          "url": "https://github.com/crewAIInc/crewAI",
+          "note": "Framework for orchestrating role-playing, autonomous agent crews."
+        },
+        "usage_note": "I reach for crewAI when a workflow maps cleanly onto distinct roles — researcher, analyst, writer — and I want the role definitions to live close to the task definitions in the same file.",
+        "code_example": {
+          "language": "python",
+          "code": "from crewai import Agent, Task, Crew\n\nresearcher = Agent(\n    role=\"Market Researcher\",\n    goal=\"Find recent pricing data for enterprise SaaS tools in Europe\",\n    backstory=\"You are a detail-oriented analyst who cites sources.\",\n    verbose=False,\n    allow_delegation=False,\n)\n\nwriter = Agent(\n    role=\"Report Writer\",\n    goal=\"Summarize research findings into a concise executive briefing\",\n    backstory=\"You write clearly for C-level audiences. No jargon.\",\n    verbose=False,\n    allow_delegation=False,\n)\n\nresearch_task = Task(\n    description=\"Gather pricing benchmarks for CRM tools used by Swiss mid-market firms.\",\n    agent=researcher,\n)\n\nwriting_task = Task(\n    description=\"Write a 200-word briefing based on the research findings.\",\n    agent=writer,\n)\n\ncrew = Crew(agents=[researcher, writer], tasks=[research_task, writing_task])\nresult = crew.kickoff()\nprint(result)"
+        },
+        "example_output": "## Executive Briefing: CRM Pricing — Swiss Mid-Market\n\nLeading CRM platforms in the Swiss mid-market segment (50–500 employees)\ntypically range from CHF 80 to CHF 220 per user per month at enterprise tier.\nSalesforce and HubSpot dominate, with Microsoft Dynamics gaining share in\nmanufacturing verticals. Discounts of 15–30% are common on annual contracts\nnegotiated through local resellers.\n\nRecommendation: benchmark against HubSpot Sales Hub Pro before renewing\nany incumbent contract."
+      },
+      {
+        "type": "list",
+        "heading": "Checklist Before Going to Production",
+        "items": [
+          {
+            "title": "Idempotency on retries",
+            "detail": "If an agent re-runs the same step, it must not duplicate side effects — double-sent emails, double-written DB rows, double-charged API calls."
+          },
+          {
+            "title": "Human checkpoint for irreversible actions",
+            "detail": "Any action that can't be undone — sending a message, committing a transaction — needs a pause-and-confirm step, even in a mostly automated flow."
+          },
+          {
+            "title": "Timeout at the workflow level, not just per-agent",
+            "detail": "Individual agents can each respect their limits and still leave you with a hung orchestrator. Set a ceiling on total wall-clock time."
+          },
+          {
+            "title": "Test with adversarial inputs",
+            "detail": "Feed the workflow malformed data, empty results, and contradictory tool outputs before your client does it accidentally in week two."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": {
+      "title": "SF October 14th: A Birds of a Feather Session on Agentic Engineering",
+      "url": "https://simonwillison.net/2026/Sep/23/bof-agentic-engineering/",
+      "source": "Simon Willison"
+    },
+    "og_image": "how-to-structure-agentic-workflows-before-they-structure-you-hero.png"
   }
 ]
