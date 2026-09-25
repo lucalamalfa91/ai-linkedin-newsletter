@@ -3671,5 +3671,56 @@
       "source": "Simon Willison"
     },
     "og_image": "how-to-structure-agentic-workflows-before-they-structure-you-hero.png"
+  },
+  {
+    "slug": "rag-is-a-data-pipeline-problem-not-a-prompt-problem",
+    "title": "RAG Is a Data Pipeline Problem, Not a Prompt Problem",
+    "dek": "Most RAG failures happen before the LLM ever sees a token — here's where to look first.",
+    "date": "2026-09-25",
+    "published_at": "2026-09-25T10:02:18.889663+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "rag",
+      "retrieval",
+      "embeddings",
+      "data-pipelines"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I work with come to RAG thinking the hard part is the generation side — which model, which prompt template, how to phrase the system message. After running this in production across a dozen enterprise projects, I'll tell you plainly: the generation side is almost never where things break. The failure is upstream. Bad chunking strategies, inconsistent metadata, documents that were never cleaned before indexing. The LLM is doing exactly what you'd expect given what it was handed — garbage context in, garbage answer out.</p><p>The one trade-off worth internalizing early: chunk size is a dial with real costs in both directions. Chunks that are too small lose surrounding context, so the retrieved snippet is technically relevant but semantically incomplete. Chunks that are too large dilute the signal, and you burn context window on noise. There's no universal right answer, but for dense technical documents I usually start at 512 tokens with a 10% overlap and measure retrieval precision before touching anything else.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Data framework for building RAG pipelines over private data."
+        },
+        "usage_note": "I reach for LlamaIndex when I need a full ingestion-to-query pipeline fast — it handles document parsing, chunking, and index management without me wiring everything by hand.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\nfrom llama_index.core import Settings\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.embeddings.openai import OpenAIEmbedding\n\nSettings.llm = OpenAI(model=\"gpt-4o-mini\")\nSettings.embed_model = OpenAIEmbedding(model=\"text-embedding-3-small\")\nSettings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=50)\n\ndocuments = SimpleDirectoryReader(\"./company_docs\").load_data()\nindex = VectorStoreIndex.from_documents(documents)\n\nquery_engine = index.as_query_engine(similarity_top_k=4)\nresponse = query_engine.query(\n    \"What is our data retention policy for EU customers?\"\n)\nprint(response)"
+        },
+        "example_output": "Based on the provided documents, EU customer data is retained\nfor a maximum of 24 months following account closure, in\ncompliance with GDPR Article 17. Backups are purged within\n90 days of the primary deletion event.\n\nSource: data-policy-v3.pdf, section 4.2"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Once chunking and ingestion are stable, the next thing I'd look at is your retrieval store. Chroma is what I use for local development and mid-scale production workloads — it's easy to run, supports metadata filtering out of the box, and doesn't require standing up a separate service during early iteration. The metadata filtering part matters more than people expect: being able to say \"only search documents tagged for the Swiss market\" cuts irrelevant retrievals dramatically and makes the whole system feel sharper without touching the model at all.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "🔬 An Oscar, Two Asteroids, and the Algorithm in Your sklearn: John Platt on AI for Science",
+      "url": "https://www.latent.space/p/john-platt",
+      "source": "Latent Space"
+    },
+    "og_image": "rag-is-a-data-pipeline-problem-not-a-prompt-problem-hero.png"
   }
 ]

@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>RAG Is a Data Pipeline Problem, Not a Prompt Problem</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-pipeline-problem-not-a-prompt-problem.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-pipeline-problem-not-a-prompt-problem.html</guid>
+    <pubDate>Fri, 25 Sep 2026 10:02:18 +0000</pubDate>
+    <description>Most RAG failures happen before the LLM ever sees a token — here's where to look first.</description>
+    <category>rag</category><category>retrieval</category><category>embeddings</category><category>data-pipelines</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-pipeline-problem-not-a-prompt-problem-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Structure Agentic Workflows Before They Structure You</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-structure-agentic-workflows-before-they-structure-you.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-structure-agentic-workflows-before-they-structure-you.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 19 Aug 2026 05:31:31 +0000</pubDate>
     <description>Most agentic systems fail at coordination, not capability — here's how to build them so they don't.</description>
     <category>agents</category><category>multi-agent</category><category>orchestration</category><category>workflows</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/multi-agent-orchestration-what-actually-breaks-in-production-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Fine-Tuning vs. Prompting: How to Choose Before You Commit</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html</guid>
-    <pubDate>Tue, 18 Aug 2026 05:30:51 +0000</pubDate>
-    <description>A practical decision framework so you stop reaching for fine-tuning when a well-crafted prompt would do the job.</description>
-    <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-before-you-commit-hero.png" type="image/png"/>
   </item>
 </channel></rss>
