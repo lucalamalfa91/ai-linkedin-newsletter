@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>The Invoice That Taught Me to Stop Resending the Same Tokens</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html</guid>
+    <pubDate>Sat, 26 Sep 2026 09:44:09 +0000</pubDate>
+    <description>How prompt caching works in practice, and why most teams leave serious money on the table by ignoring it.</description>
+    <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/the-invoice-that-taught-me-to-stop-resending-the-same-tokens-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>RAG Is a Data Pipeline Problem, Not a Prompt Problem</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-pipeline-problem-not-a-prompt-problem.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-pipeline-problem-not-a-prompt-problem.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 20 Aug 2026 05:31:31 +0000</pubDate>
     <description>How retrieval-augmented generation works in real enterprise deployments, including the failure modes nobody warns you about.</description>
     <category>rag</category><category>retrieval</category><category>llm</category><category>enterprise-ai</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-in-practice-what-actually-breaks-and-why-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Multi-Agent Orchestration: What Actually Breaks in Production</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/multi-agent-orchestration-what-actually-breaks-in-production.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/multi-agent-orchestration-what-actually-breaks-in-production.html</guid>
-    <pubDate>Wed, 19 Aug 2026 05:31:31 +0000</pubDate>
-    <description>Most agentic systems fail at coordination, not capability — here's how to build them so they don't.</description>
-    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>workflows</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/multi-agent-orchestration-what-actually-breaks-in-production-hero.png" type="image/png"/>
   </item>
 </channel></rss>

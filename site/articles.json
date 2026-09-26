@@ -3722,5 +3722,61 @@
       "source": "Latent Space"
     },
     "og_image": "rag-is-a-data-pipeline-problem-not-a-prompt-problem-hero.png"
+  },
+  {
+    "slug": "the-invoice-that-taught-me-to-stop-resending-the-same-tokens",
+    "title": "The Invoice That Taught Me to Stop Resending the Same Tokens",
+    "dek": "How prompt caching works in practice, and why most teams leave serious money on the table by ignoring it.",
+    "date": "2026-09-26",
+    "published_at": "2026-09-26T09:44:09.396191+00:00",
+    "technique": "Prompt Caching & Cost Optimization",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "prompt-caching",
+      "cost-optimization",
+      "anthropic",
+      "enterprise-ai"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client pinged me mid-project last autumn. Their monthly Claude bill had jumped roughly 40% in a single week — no new features shipped, no spike in users. When I pulled the logs, the culprit was obvious: every single API call was re-sending a 6,000-token system prompt containing their entire product knowledge base. Same tokens, same order, thousands of times a day. They were paying to re-read the same document on every request, as if the model had amnesia between calls. It didn't need to. That's exactly the problem prompt caching solves.</p><p>The mechanism is straightforward. Anthropic's API lets you mark a prefix of your prompt — system instructions, retrieved documents, few-shot examples — with a <code>cache_control</code> marker. On the first call, those tokens are processed and stored. On subsequent calls that share the same prefix, the model reads from cache rather than re-processing from scratch. You pay a one-time write cost and then a much smaller read cost on every cache hit. For that client, switching to cached prompts cut their bill by about a third within a day. The latency drop was a bonus they hadn't even asked for.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Includes worked examples of prompt caching to cut latency and cost."
+        },
+        "usage_note": "I keep coming back to the Claude cookbooks repo when I need a clean, minimal example to show a client — the prompt caching notebook strips away the noise and shows exactly where the cache_control marker goes.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nKNOWLEDGE_BASE = open(\"product_docs.txt\").read()\n\ndef ask(question: str) -> str:\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=1024,\n        system=[\n            {\n                \"type\": \"text\",\n                \"text\": KNOWLEDGE_BASE,\n                \"cache_control\": {\"type\": \"ephemeral\"},\n            }\n        ],\n        messages=[{\"role\": \"user\", \"content\": question}],\n    )\n    usage = response.usage\n    print(f\"Input: {usage.input_tokens} | Cache write: {usage.cache_creation_input_tokens} | Cache read: {usage.cache_read_input_tokens}\")\n    return response.content[0].text\n\nprint(ask(\"What is the refund policy?\"))\nprint(ask(\"How do I cancel a subscription?\"))\nprint(ask(\"Do you offer volume discounts?\"))"
+        },
+        "example_output": "Input: 6240 | Cache write: 6180 | Cache read: 0\nRefund requests must be submitted within 30 days of purchase...\n\nInput: 62 | Cache write: 0 | Cache read: 6180\nTo cancel, navigate to Account Settings and select...\n\nInput: 62 | Cache write: 0 | Cache read: 6180\nYes, volume pricing starts at 50 seats..."
+      },
+      {
+        "type": "prose",
+        "html": "<p>A few things are worth knowing before you go add <code>cache_control</code> everywhere. The cache is ephemeral — it lives for about five minutes of inactivity, so it's most effective for workloads with steady, ongoing traffic. A batch job that runs once a night probably won't benefit much; a customer-facing assistant handling continuous queries will. Also, caching only applies to the prefix up to the marker, so if your prompt structure changes between calls — different instructions, shuffled few-shot examples — you'll get cache misses and pay full price. Stability in prompt structure is the prerequisite. The other failure mode I see: teams cache a prefix that's too short to matter. If your static prefix is only a few hundred tokens, the savings are marginal. The technique earns its keep when you're caching thousands of tokens — long system prompts, retrieved documents, or extensive example sets.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "Prompt caching is not a feature you turn on — it's a discipline you build into how you structure every prompt from the start."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "Runway’s WorldPrompt and the Engineering of Real-Time Worlds",
+      "url": "https://www.latent.space/p/runway",
+      "source": "Latent Space"
+    },
+    "og_image": "the-invoice-that-taught-me-to-stop-resending-the-same-tokens-hero.png"
   }
 ]
