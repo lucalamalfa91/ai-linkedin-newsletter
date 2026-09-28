@@ -3778,5 +3778,84 @@
       "source": "Latent Space"
     },
     "og_image": "the-invoice-that-taught-me-to-stop-resending-the-same-tokens-hero.png"
+  },
+  {
+    "slug": "structured-outputs-vs-tool-use-pick-the-right-contract",
+    "title": "Structured Outputs vs Tool Use: Pick the Right Contract",
+    "dek": "Two ways to constrain what an LLM returns — they look similar but fail in completely different ways.",
+    "date": "2026-09-28",
+    "published_at": "2026-09-28T11:29:53.373305+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "structured-outputs",
+      "tool-use",
+      "agents",
+      "reliability",
+      "mcp"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Here is a distinction that trips up almost every team I work with in the first month: structured outputs and tool use are not the same thing dressed differently. Structured outputs say \"give me your answer in this shape.\" Tool use says \"before you answer, go do something.\" Conflating them produces systems that are either over-engineered or quietly broken — usually both at once.</p><p>The confusion is understandable. Both involve schemas. Both impose discipline on what the model produces. But the moment of execution is completely different. With structured outputs, the model is still the terminal step — it reasons, then it formats. With tool use, the model is an orchestrator — it decides, the environment acts, then the model integrates what came back. That asymmetry changes everything about how you design, test, and trust the system.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."
+        },
+        "usage_note": "I reach for the Claude cookbook tool-use recipes when I need a concrete starting point for a customer-facing agent — the calculator and SQL examples in particular show exactly where schema discipline matters and where it doesn't.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic, json\n\nclient = anthropic.Anthropic()\n\ntools = [\n    {\n        \"name\": \"run_sql\",\n        \"description\": \"Execute a read-only SQL query and return rows as JSON.\",\n        \"input_schema\": {\n            \"type\": \"object\",\n            \"properties\": {\n                \"query\": {\"type\": \"string\", \"description\": \"Valid SELECT statement\"}\n            },\n            \"required\": [\"query\"]\n        }\n    }\n]\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    tools=tools,\n    messages=[{\"role\": \"user\", \"content\": \"How many orders shipped last week?\"}]\n)\n\nfor block in response.content:\n    if block.type == \"tool_use\":\n        print(f\"Tool called: {block.name}\")\n        print(f\"Input: {json.dumps(block.input, indent=2)}\")"
+        },
+        "example_output": "Tool called: run_sql\nInput: {\n  \"query\": \"SELECT COUNT(*) AS order_count FROM orders WHERE shipped_at >= CURRENT_DATE - INTERVAL '7 days'\"\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Notice what the model did there: it produced a <em>decision</em>, not an answer. The SQL is an intent handed off to something else. That is the core of tool use — the model's output is an instruction to an external system, and the final answer depends on what that system returns. This is where tool use earns its complexity cost. You now have two failure surfaces: the model might generate a malformed or dangerous query, and the database might return something the model misreads. Structured outputs, by contrast, keep the whole thing inside the model. You get back a validated JSON object and that's it — no round-trip, no integration surface, no environment state to worry about.</p><p>So when do you actually want structured outputs alone? When the model's own knowledge or reasoning is sufficient, and you just need the result in a predictable shape — classification, entity extraction, scoring, summarization with a fixed schema. The failure mode there is subtler: the model will confidently produce valid JSON that is semantically wrong. A field called <code>sentiment</code> will always be one of your enum values, but it might be the wrong one. Validation catches shape errors, not reasoning errors. That is a trade-off worth naming explicitly before you ship.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Structured Outputs vs Tool Use",
+        "image": "structured-outputs-vs-tool-use-pick-the-right-contract-diagram-1.png",
+        "alt": "Comparison: Aspect, Structured Outputs, Tool Use"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference MCP server implementations that expose tools to LLMs."
+        },
+        "usage_note": "I use the MCP reference servers when a client wants a standardised way to expose internal tools — it removes the per-model plumbing and lets the schema contract live in one place.",
+        "code_example": {
+          "language": "typescript",
+          "code": "import { Server } from \"@modelcontextprotocol/sdk/server/index.js\";\nimport { StdioServerTransport } from \"@modelcontextprotocol/sdk/server/stdio.js\";\nimport { CallToolRequestSchema, ListToolsRequestSchema } from \"@modelcontextprotocol/sdk/types.js\";\n\nconst server = new Server({ name: \"inventory-tools\", version: \"1.0.0\" }, {\n  capabilities: { tools: {} }\n});\n\nserver.setRequestHandler(ListToolsRequestSchema, async () => ({\n  tools: [{\n    name: \"get_stock_level\",\n    description: \"Return current stock count for a given SKU.\",\n    inputSchema: {\n      type: \"object\",\n      properties: { sku: { type: \"string\" } },\n      required: [\"sku\"]\n    }\n  }]\n}));\n\nserver.setRequestHandler(CallToolRequestSchema, async (req) => {\n  if (req.params.name === \"get_stock_level\") {\n    const sku = req.params.arguments?.sku as string;\n    const stock = await fetchStockFromWarehouse(sku);\n    return { content: [{ type: \"text\", text: JSON.stringify({ sku, stock }) }] };\n  }\n  throw new Error(\"Unknown tool\");\n});\n\nawait server.connect(new StdioServerTransport());"
+        },
+        "example_output": "MCP server listening on stdio\nTool registered: get_stock_level\nIncoming call: get_stock_level { sku: 'WH-1042' }\nResponse: { \"sku\": \"WH-1042\", \"stock\": 318 }"
+      },
+      {
+        "type": "prose",
+        "html": "<p>MCP is worth the investment when you have multiple models or agents that need to share the same tool definitions — it externalises the schema contract so you're not duplicating it inside every prompt or every SDK call. The cost is operational: you now run a server, you manage a transport layer, and you have to think about what happens when that server is unavailable mid-conversation. For a single-model internal prototype, that overhead is usually not worth it. For a production setup where three different agents need to hit the same inventory system, it pays for itself quickly.</p><p>The honest summary: use structured outputs when you want a reliable shape around the model's own reasoning. Use tool use when the model needs to touch the world to produce a correct answer. And use MCP when you want the tool contract to outlive any single model integration. These are not stages on a spectrum — they're different bets about where the intelligence lives and where the risk sits.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "diagram",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Bluesky reply bot checker",
+      "url": "https://simonwillison.net/2026/Sep/27/bluesky-bot-check/",
+      "source": "Simon Willison"
+    },
+    "og_image": "structured-outputs-vs-tool-use-pick-the-right-contract-hero.png"
   }
 ]

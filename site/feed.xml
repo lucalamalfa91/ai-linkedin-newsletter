@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Structured Outputs vs Tool Use: Pick the Right Contract</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract.html</guid>
+    <pubDate>Mon, 28 Sep 2026 11:29:53 +0000</pubDate>
+    <description>Two ways to constrain what an LLM returns — they look similar but fail in completely different ways.</description>
+    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-pick-the-right-contract-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>The Invoice That Taught Me to Stop Resending the Same Tokens</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 21 Aug 2026 05:33:52 +0000</pubDate>
     <description>A systematic look at prompt caching — what it actually saves, where it silently fails, and how to structure prompts to get real cost reductions.</description>
     <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>production-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>RAG in Practice: What Actually Breaks and Why</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-in-practice-what-actually-breaks-and-why.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-in-practice-what-actually-breaks-and-why.html</guid>
-    <pubDate>Thu, 20 Aug 2026 05:31:31 +0000</pubDate>
-    <description>How retrieval-augmented generation works in real enterprise deployments, including the failure modes nobody warns you about.</description>
-    <category>rag</category><category>retrieval</category><category>llm</category><category>enterprise-ai</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-in-practice-what-actually-breaks-and-why-hero.png" type="image/png"/>
   </item>
 </channel></rss>
