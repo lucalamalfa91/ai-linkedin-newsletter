@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Model Context Protocol: A Standard Worth Taking Seriously</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html</guid>
+    <pubDate>Tue, 29 Sep 2026 11:10:58 +0000</pubDate>
+    <description>MCP gives AI agents a structured way to talk to external tools — here's how it actually works and when to use it.</description>
+    <category>mcp</category><category>agents</category><category>tool-use</category><category>integration</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-a-standard-worth-taking-seriously-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Structured Outputs vs Tool Use: Pick the Right Contract</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 22 Aug 2026 05:28:12 +0000</pubDate>
     <description>Two ways to get reliable data out of an LLM — and picking the wrong one costs you more than you'd expect.</description>
     <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-know-which-one-you-actually-need-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Prompt Caching: How to Stop Paying for the Same Tokens Twice</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice.html</guid>
-    <pubDate>Fri, 21 Aug 2026 05:33:52 +0000</pubDate>
-    <description>A systematic look at prompt caching — what it actually saves, where it silently fails, and how to structure prompts to get real cost reductions.</description>
-    <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>production-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-hero.png" type="image/png"/>
   </item>
 </channel></rss>

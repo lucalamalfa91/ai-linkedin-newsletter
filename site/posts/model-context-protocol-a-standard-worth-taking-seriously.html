@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Model Context Protocol: A Standard Worth Taking Seriously — The AI Architect</title>
+  <meta name="description" content="MCP gives AI agents a structured way to talk to external tools — here&#x27;s how it actually works and when to use it.">
+  <meta property="og:title" content="Model Context Protocol: A Standard Worth Taking Seriously">
+  <meta property="og:description" content="MCP gives AI agents a structured way to talk to external tools — here&#x27;s how it actually works and when to use it.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-a-standard-worth-taking-seriously-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Model Context Protocol: A Standard Worth Taking Seriously">
+  <meta name="twitter:description" content="MCP gives AI agents a structured way to talk to external tools — here&#x27;s how it actually works and when to use it.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-a-standard-worth-taking-seriously-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Model Context Protocol: A Standard Worth Taking Seriously", "description": "MCP gives AI agents a structured way to talk to external tools — here's how it actually works and when to use it.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-a-standard-worth-taking-seriously-hero.png", "datePublished": "2026-09-29T11:10:58.946722+00:00", "dateModified": "2026-09-29T11:10:58.946722+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "mcp, agents, tool-use, integration, architecture"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Model Context Protocol (MCP)</span>
+      <h1 class="article-title">Model Context Protocol: A Standard Worth Taking Seriously</h1>
+      <p class="article-dek">MCP gives AI agents a structured way to talk to external tools — here&#x27;s how it actually works and when to use it.</p>
+      <p class="article-date">September 29, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>Three years ago, every team building an AI integration invented their own protocol. Tool A exposed a REST endpoint with one schema. Tool B used a custom JSON envelope. Tool C required a hand-rolled adapter that lived in a utils folder no one wanted to touch. The model sat in the middle, and every new capability meant another bespoke glue layer. This is still the default in most enterprise projects I walk into. It&#x27;s not a disaster — it works — but the maintenance cost compounds quietly until someone proposes a rewrite.</p><p>Model Context Protocol (MCP) is Anthropic&#x27;s attempt to stop that pattern before it calcifies further. The idea is simple enough to fit on a whiteboard: define one open protocol that any host (your AI application) can use to talk to any server (a tool, a data source, an API), so that the adapter problem is solved once, not once per integration. Whether it actually delivers on that depends on how you use it, and there are real constraints worth understanding before you commit to it.</p>
+    </div>
+    <div class="prose-block">
+<p>At its core, MCP is a client-server protocol running over JSON-RPC 2.0. The <strong>host</strong> is the process that runs the LLM — your application. The <strong>client</strong> is a component inside the host that manages connections. The <strong>server</strong> is a lightweight process that exposes capabilities: tools the model can call, resources it can read, and prompts it can request. Servers can run locally as child processes (stdio transport) or remotely over HTTP with Server-Sent Events. The model never talks to the MCP server directly — it issues a tool call in its normal output, the host intercepts it, routes it through the MCP client, and returns the result as context. From the model&#x27;s perspective, it&#x27;s just function calling with a well-defined schema on the other side.</p><p>The three primitive types matter more than they first appear. <strong>Tools</strong> are model-invoked — the LLM decides when to call them, which means they need tight, unambiguous descriptions or you&#x27;ll get hallucinated arguments and failed calls. <strong>Resources</strong> are application-controlled — the host decides what context to inject, not the model. <strong>Prompts</strong> are user-controlled templates that servers can expose. Getting this distinction wrong is the most common architectural mistake I see: people expose everything as a tool when most of their data access would be better served as a resource, keeping the model out of the routing decision entirely.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/model-context-protocol-a-standard-worth-taking-seriously-diagram-1.png" alt="User Input → LLM Inference → Tool Call Parsed → MCP Client Routes → Server Executes → Result Returned" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>The protocol version negotiation at connection startup is one of those details that looks like boilerplate until it bites you. When a client connects, both sides exchange their supported protocol version and capability sets. If your host supports sampling and your server doesn&#x27;t declare it, sampling calls will silently fail or error depending on implementation. This means upgrading an MCP server is not always a drop-in replacement — you need to verify capability alignment, especially if you&#x27;re mixing servers from different authors or updating the reference SDK. In a multi-server setup (which is the common production case), you also need to think about tool name collisions across servers. There&#x27;s no namespace enforcement in the protocol itself; that&#x27;s your problem to handle in the host layer.</p><p>Security is the other place where MCP&#x27;s openness creates real work. Because any MCP server can expose tools that execute code, read files, or call external APIs, the attack surface expands with every server you add. Prompt injection through malicious resource content is a documented risk — a resource that returns text designed to override the model&#x27;s instructions is not a theoretical concern. The practical mitigations are: run servers with minimal OS permissions, validate and sanitize resource content before it enters the context window, and be selective about which servers you trust in multi-tenant environments. MCP doesn&#x27;t solve this for you; it just gives you a consistent place to enforce it.</p>
+    </div>
+    <div class="callout-box">
+      <p class="callout-label">How I actually deploy this</p>
+<p>In client engagements, I almost never start with a custom MCP server. I start with the reference implementations — filesystem, fetch, a database connector — and wire them up to see what the model actually does with them in realistic sessions. That empirical phase tells me where the tool descriptions need tightening and where a resource would have been smarter than a tool. Only after that do I write custom servers for proprietary systems. The other rule I hold: one MCP server per bounded domain. A server that does file I/O, database queries, and API calls is a maintenance liability dressed up as convenience.</p>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noopener noreferrer">modelcontextprotocol/servers</a> &mdash; Reference implementations and community MCP servers.</p>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://magazine.sebastianraschka.com/p/classifier-history-and-jev" target="_blank" rel="noopener noreferrer">Language Models for Text Classification: From Bag-of-Words to Jev</a> (Sebastian Raschka)</p>
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/mcp.html">mcp</a>
+      <a class="tag-chip" href="../tags/agents.html">agents</a>
+      <a class="tag-chip" href="../tags/tool-use.html">tool-use</a>
+      <a class="tag-chip" href="../tags/integration.html">integration</a>
+      <a class="tag-chip" href="../tags/architecture.html">architecture</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Model%20Context%20Protocol%3A%20A%20Standard%20Worth%20Taking%20Seriously&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html&amp;t=Model%20Context%20Protocol%3A%20A%20Standard%20Worth%20Taking%20Seriously" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Model%20Context%20Protocol%3A%20A%20Standard%20Worth%20Taking%20Seriously&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/mcp-is-a-good-idea-wrapped-in-too-much-hype.html">
+        <span class="related-technique">Model Context Protocol (MCP)</span>
+        <span class="related-title">MCP Is a Good Idea Wrapped in Too Much Hype</span>
+      </a>
+      <a class="related-card" href="../posts/mcp-is-not-magic-what-actually-happens-when-you-wire-tools-to-a-model.html">
+        <span class="related-technique">Model Context Protocol (MCP)</span>
+        <span class="related-title">MCP Is Not Magic: What Actually Happens When You Wire Tools to a Model</span>
+      </a>
+      <a class="related-card" href="../posts/structured-outputs-vs-tool-use-pick-the-right-contract.html">
+        <span class="related-technique">Structured Outputs &amp; Tool Use</span>
+        <span class="related-title">Structured Outputs vs Tool Use: Pick the Right Contract</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>

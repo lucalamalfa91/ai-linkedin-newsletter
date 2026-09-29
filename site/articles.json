@@ -3857,5 +3857,75 @@
       "source": "Simon Willison"
     },
     "og_image": "structured-outputs-vs-tool-use-pick-the-right-contract-hero.png"
+  },
+  {
+    "slug": "model-context-protocol-a-standard-worth-taking-seriously",
+    "title": "Model Context Protocol: A Standard Worth Taking Seriously",
+    "dek": "MCP gives AI agents a structured way to talk to external tools — here's how it actually works and when to use it.",
+    "date": "2026-09-29",
+    "published_at": "2026-09-29T11:10:58.946722+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "mcp",
+      "agents",
+      "tool-use",
+      "integration",
+      "architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three years ago, every team building an AI integration invented their own protocol. Tool A exposed a REST endpoint with one schema. Tool B used a custom JSON envelope. Tool C required a hand-rolled adapter that lived in a utils folder no one wanted to touch. The model sat in the middle, and every new capability meant another bespoke glue layer. This is still the default in most enterprise projects I walk into. It's not a disaster — it works — but the maintenance cost compounds quietly until someone proposes a rewrite.</p><p>Model Context Protocol (MCP) is Anthropic's attempt to stop that pattern before it calcifies further. The idea is simple enough to fit on a whiteboard: define one open protocol that any host (your AI application) can use to talk to any server (a tool, a data source, an API), so that the adapter problem is solved once, not once per integration. Whether it actually delivers on that depends on how you use it, and there are real constraints worth understanding before you commit to it.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>At its core, MCP is a client-server protocol running over JSON-RPC 2.0. The <strong>host</strong> is the process that runs the LLM — your application. The <strong>client</strong> is a component inside the host that manages connections. The <strong>server</strong> is a lightweight process that exposes capabilities: tools the model can call, resources it can read, and prompts it can request. Servers can run locally as child processes (stdio transport) or remotely over HTTP with Server-Sent Events. The model never talks to the MCP server directly — it issues a tool call in its normal output, the host intercepts it, routes it through the MCP client, and returns the result as context. From the model's perspective, it's just function calling with a well-defined schema on the other side.</p><p>The three primitive types matter more than they first appear. <strong>Tools</strong> are model-invoked — the LLM decides when to call them, which means they need tight, unambiguous descriptions or you'll get hallucinated arguments and failed calls. <strong>Resources</strong> are application-controlled — the host decides what context to inject, not the model. <strong>Prompts</strong> are user-controlled templates that servers can expose. Getting this distinction wrong is the most common architectural mistake I see: people expose everything as a tool when most of their data access would be better served as a resource, keeping the model out of the routing decision entirely.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "How an MCP Tool Call Moves Through the Stack",
+        "image": "model-context-protocol-a-standard-worth-taking-seriously-diagram-1.png",
+        "alt": "User Input → LLM Inference → Tool Call Parsed → MCP Client Routes → Server Executes → Result Returned"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The protocol version negotiation at connection startup is one of those details that looks like boilerplate until it bites you. When a client connects, both sides exchange their supported protocol version and capability sets. If your host supports sampling and your server doesn't declare it, sampling calls will silently fail or error depending on implementation. This means upgrading an MCP server is not always a drop-in replacement — you need to verify capability alignment, especially if you're mixing servers from different authors or updating the reference SDK. In a multi-server setup (which is the common production case), you also need to think about tool name collisions across servers. There's no namespace enforcement in the protocol itself; that's your problem to handle in the host layer.</p><p>Security is the other place where MCP's openness creates real work. Because any MCP server can expose tools that execute code, read files, or call external APIs, the attack surface expands with every server you add. Prompt injection through malicious resource content is a documented risk — a resource that returns text designed to override the model's instructions is not a theoretical concern. The practical mitigations are: run servers with minimal OS permissions, validate and sanitize resource content before it enters the context window, and be selective about which servers you trust in multi-tenant environments. MCP doesn't solve this for you; it just gives you a consistent place to enforce it.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "How I actually deploy this",
+        "html": "<p>In client engagements, I almost never start with a custom MCP server. I start with the reference implementations — filesystem, fetch, a database connector — and wire them up to see what the model actually does with them in realistic sessions. That empirical phase tells me where the tool descriptions need tightening and where a resource would have been smarter than a tool. Only after that do I write custom servers for proprietary systems. The other rule I hold: one MCP server per bounded domain. A server that does file I/O, database queries, and API calls is a maintenance liability dressed up as convenience.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference implementations and community MCP servers."
+        },
+        "usage_note": "I use the official MCP servers repository as my starting point for any new integration — specifically the filesystem and fetch servers, which cover the majority of what enterprise agents actually need before any custom work is justified.",
+        "code_example": {
+          "language": "python",
+          "code": "import asyncio\nfrom mcp import ClientSession, StdioServerParameters\nfrom mcp.client.stdio import stdio_client\n\nserver_params = StdioServerParameters(\n    command=\"npx\",\n    args=[\"-y\", \"@modelcontextprotocol/server-filesystem\", \"/tmp/workspace\"],\n)\n\nasync def list_and_read():\n    async with stdio_client(server_params) as (read, write):\n        async with ClientSession(read, write) as session:\n            await session.initialize()\n\n            tools = await session.list_tools()\n            print(\"Available tools:\")\n            for tool in tools.tools:\n                print(f\"  {tool.name}: {tool.description}\")\n\n            result = await session.call_tool(\n                \"read_file\",\n                arguments={\"path\": \"/tmp/workspace/notes.txt\"}\n            )\n            print(\"\\nFile contents:\")\n            print(result.content[0].text)\n\nasyncio.run(list_and_read())"
+        },
+        "example_output": "Available tools:\n  read_file: Read the complete contents of a file from the file system.\n  read_multiple_files: Read the contents of multiple files simultaneously.\n  write_file: Create a new file or overwrite an existing file with new content.\n  list_directory: Get a listing of all files and directories in a specified path.\n  search_files: Recursively search for files and directories matching a pattern.\n\nFile contents:\nMeeting agenda for Thursday:\n- Review Q3 deployment metrics\n- Discuss MCP rollout for internal tooling\n- Assign owners for documentation sprint"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "diagram",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Language Models for Text Classification: From Bag-of-Words to Jev",
+      "url": "https://magazine.sebastianraschka.com/p/classifier-history-and-jev",
+      "source": "Sebastian Raschka"
+    },
+    "og_image": "model-context-protocol-a-standard-worth-taking-seriously-hero.png"
   }
 ]
