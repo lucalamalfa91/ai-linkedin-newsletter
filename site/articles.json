@@ -3927,5 +3927,48 @@
       "source": "Sebastian Raschka"
     },
     "og_image": "model-context-protocol-a-standard-worth-taking-seriously-hero.png"
+  },
+  {
+    "slug": "stop-pretending-vibes-are-evaluation",
+    "title": "Stop Pretending Vibes Are Evaluation",
+    "dek": "Most teams ship LLM features without real evaluation. Here's why that's a structural problem, not a laziness problem.",
+    "date": "2026-09-30",
+    "published_at": "2026-09-30T10:56:34.140482+00:00",
+    "technique": "LLM Evaluation & Testing",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "evaluation",
+      "testing",
+      "reliability",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>A benchmark score on a public dataset tells you almost nothing about whether your system works. The hard part of LLM evaluation isn't measuring — it's deciding what to measure, and most teams never actually do that.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The conversation around LLM evaluation has collapsed into two camps, and both are wrong. The first camp treats evaluation as an afterthought — you ship, you watch the support tickets, you fix what burns. The second camp treats it as a benchmarking exercise — you run your system against MMLU or HellaSwag or some RAG retrieval metric and declare victory. Neither camp is doing evaluation in any meaningful sense. The first is just firefighting. The second is measuring the wrong thing with false precision.</p><p>What I see in practice, working with enterprise teams across Switzerland and Europe, is that evaluation fails before a single metric is computed. It fails because nobody has written down what \"good\" looks like for their specific use case. If you cannot write three concrete examples of a response your system should produce and three it should never produce, you are not ready to evaluate anything. You are ready to guess.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The industry fixation on automated metrics is understandable — human review doesn't scale, and nobody wants to pay annotators to read ten thousand chatbot responses. But the shortcut has a real cost. Metrics like faithfulness, relevance, or BLEU score are proxies, and proxies drift from reality the moment your data distribution shifts even slightly. I've watched teams optimize a RAG pipeline's faithfulness score for two sprints, then discover in a live demo that the system confidently cites the wrong document when the query is phrased slightly differently than anything in their test set. The metric looked great. The system was broken.</p><p>The right mental model is closer to software testing than to academic benchmarking. You need unit tests for known failure modes — the edge cases you've already burned your fingers on. You need regression tests so that a prompt change doesn't silently break something that was working. And you need a small, curated human-reviewed set that you trust more than any automated score, because that set is what you use to validate whether your automated metrics are even tracking reality. Automation accelerates evaluation; it does not replace judgment.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>None of this means automated frameworks are useless — they're essential infrastructure once you know what you're measuring. Tools like openai/evals give you a structured way to define and run evaluations against a registry of test cases, which is genuinely valuable for keeping a team honest over time. RAGAS gives you a starting vocabulary of metrics for RAG systems — faithfulness, answer relevance, context precision — that are at least grounded in something defensible. I use both. But I always start with the same question before touching either one: what does failure look like for this system, for this user, in this context? If you can answer that clearly, the tools help you scale the answer. If you can't, the tools just give you a number to hide behind.</p>"
+      }
+    ],
+    "block_signature": [
+      "callout",
+      "prose",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "stop-pretending-vibes-are-evaluation-hero.png"
   }
 ]
