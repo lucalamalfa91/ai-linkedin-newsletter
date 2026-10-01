@@ -3970,5 +3970,108 @@
     ],
     "inspired_by": null,
     "og_image": "stop-pretending-vibes-are-evaluation-hero.png"
+  },
+  {
+    "slug": "guardrails-and-output-validation-a-practical-how-to",
+    "title": "Guardrails and Output Validation: A Practical How-To",
+    "dek": "How to catch bad LLM output before it reaches your users, with concrete steps and real code.",
+    "date": "2026-10-01",
+    "published_at": "2026-10-01T11:25:37.307553+00:00",
+    "technique": "Guardrails & Output Validation",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "guardrails",
+      "output-validation",
+      "reliability",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most LLM failures I see in production aren't hallucinations in the dramatic sense — they're structural: a field that should be an integer comes back as a string, a required key is missing, or the model decides to add an apology paragraph where you expected clean JSON. Guardrails and output validation exist to catch exactly these failures before they propagate downstream. The pattern is simple; the discipline of actually applying it consistently is not.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Request–Validate–Repair Loop",
+        "image": "guardrails-and-output-validation-a-practical-how-to-diagram-1.png",
+        "alt": "User Input → Input Guard → LLM Call → Output Guard → Repair / Retry → Validated Output"
+      },
+      {
+        "type": "list",
+        "heading": "Rules I Follow Before Writing a Single Guard",
+        "items": [
+          {
+            "title": "Define the contract first",
+            "detail": "Write the schema or the set of constraints your output must satisfy before you write any prompt. If you can't define it, you can't validate it."
+          },
+          {
+            "title": "Validate both ends",
+            "detail": "Input guards catch prompt injection, PII leakage, and off-topic requests. Output guards catch structural violations and policy breaches. Skipping either end leaves a gap."
+          },
+          {
+            "title": "Fail loudly in staging, fail gracefully in production",
+            "detail": "During development, raise hard exceptions so failures are visible. In production, fall back to a safe default or trigger a retry — don't silently pass bad output."
+          },
+          {
+            "title": "Cap your retries",
+            "detail": "The repair-and-retry loop is useful but expensive. Two retries maximum; after that, return an error state rather than burning tokens indefinitely."
+          },
+          {
+            "title": "Log every validation failure",
+            "detail": "A validation failure is a signal — either the model is drifting, the prompt is ambiguous, or the schema is wrong. You need that data."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "guardrails-ai/guardrails",
+          "url": "https://github.com/guardrails-ai/guardrails",
+          "note": "Input/output guards to detect and mitigate LLM risks, and enforce structure."
+        },
+        "usage_note": "I reach for guardrails-ai when I need declarative, schema-driven validation with built-in repair — it handles the retry loop so I don't wire it up manually every time.",
+        "code_example": {
+          "language": "python",
+          "code": "from guardrails import Guard\nfrom guardrails.hub import ValidRange, ValidChoices\nfrom pydantic import BaseModel, Field\n\nclass RiskAssessment(BaseModel):\n    score: int = Field(ge=0, le=100, description=\"Risk score 0-100\")\n    category: str = Field(description=\"One of: low, medium, high\")\n    summary: str = Field(max_length=280, description=\"Short explanation\")\n\nguard = Guard.from_pydantic(RiskAssessment, num_reasks=2)\n\nresult = guard(\n    llm_api=\"openai/gpt-4o-mini\",\n    prompt=\"Assess the credit risk for a 28-year-old freelancer with 14 months of income history.\",\n)\n\nprint(result.validated_output)"
+        },
+        "example_output": "{\n  \"score\": 62,\n  \"category\": \"medium\",\n  \"summary\": \"Freelancer with short income history presents moderate risk; stable recent earnings offset limited credit tenure.\"\n}"
+      },
+      {
+        "type": "list",
+        "heading": "When the Guard Fails: What to Check",
+        "items": [
+          {
+            "title": "Schema too strict for the task",
+            "detail": "If the model fails validation repeatedly even with a good prompt, your schema may be imposing constraints the task can't reliably satisfy. Loosen or split the output."
+          },
+          {
+            "title": "Prompt and schema are misaligned",
+            "detail": "The prompt asks for a narrative; the schema expects structured fields. Align them — tell the model explicitly what shape the output must take."
+          },
+          {
+            "title": "Model version changed under you",
+            "detail": "A model update can shift output formatting enough to break existing guards. Pin model versions in production and run validation tests on any upgrade."
+          },
+          {
+            "title": "Retry budget exhausted legitimately",
+            "detail": "If two retries consistently fail, the problem isn't the model — it's the contract. Revisit the schema before increasing the retry cap."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": {
+      "title": "[AINews] Gemini 4 Argon: GDM’s answer to Astra/Fable, with 1M output",
+      "url": "https://www.latent.space/p/ainews-gemini-4-argon-gdms-answer",
+      "source": "Latent Space"
+    },
+    "og_image": "guardrails-and-output-validation-a-practical-how-to-hero.png"
   }
 ]

@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Guardrails and Output Validation: A Practical How-To</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-a-practical-how-to.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-a-practical-how-to.html</guid>
+    <pubDate>Thu, 01 Oct 2026 11:25:37 +0000</pubDate>
+    <description>How to catch bad LLM output before it reaches your users, with concrete steps and real code.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-a-practical-how-to-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Stop Pretending Vibes Are Evaluation</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-pretending-vibes-are-evaluation.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-pretending-vibes-are-evaluation.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 25 Aug 2026 05:32:30 +0000</pubDate>
     <description>Skip the vibe checks — here's a concrete process for testing LLM outputs you can actually trust.</description>
     <category>evaluation</category><category>testing</category><category>llms</category><category>rag</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-build-a-real-evaluation-pipeline-for-llm-systems-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>MCP Is a Good Idea Wrapped in Too Much Hype</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-a-good-idea-wrapped-in-too-much-hype.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-is-a-good-idea-wrapped-in-too-much-hype.html</guid>
-    <pubDate>Mon, 24 Aug 2026 05:38:41 +0000</pubDate>
-    <description>Model Context Protocol solves a real coordination problem — but not the one most people think it does.</description>
-    <category>mcp</category><category>agents</category><category>tool-use</category><category>architecture</category><category>integrations</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-is-a-good-idea-wrapped-in-too-much-hype-hero.png" type="image/png"/>
   </item>
 </channel></rss>
