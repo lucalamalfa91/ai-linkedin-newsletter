@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>You Cannot Debug What You Cannot See in Your LLM Pipeline</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline.html</guid>
+    <pubDate>Fri, 02 Oct 2026 10:55:07 +0000</pubDate>
+    <description>LLM observability is not monitoring — here's the specific difference that changes how you instrument your code.</description>
+    <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Guardrails and Output Validation: A Practical How-To</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-a-practical-how-to.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-a-practical-how-to.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 27 Aug 2026 16:09:27 +0000</pubDate>
     <description>Guardrails belong in your code, not in your prompt. Here's how to enforce them.</description>
     <category>guardrails</category><category>output-validation</category><category>reliability</category><category>structured-output</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-trusting-llm-output-validate-it-like-any-other-api-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>How to Build a Real Evaluation Pipeline for LLM Systems</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-real-evaluation-pipeline-for-llm-systems.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-real-evaluation-pipeline-for-llm-systems.html</guid>
-    <pubDate>Tue, 25 Aug 2026 05:32:30 +0000</pubDate>
-    <description>Skip the vibe checks — here's a concrete process for testing LLM outputs you can actually trust.</description>
-    <category>evaluation</category><category>testing</category><category>llms</category><category>rag</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-build-a-real-evaluation-pipeline-for-llm-systems-hero.png" type="image/png"/>
   </item>
 </channel></rss>

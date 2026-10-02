@@ -4073,5 +4073,52 @@
       "source": "Latent Space"
     },
     "og_image": "guardrails-and-output-validation-a-practical-how-to-hero.png"
+  },
+  {
+    "slug": "you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline",
+    "title": "You Cannot Debug What You Cannot See in Your LLM Pipeline",
+    "dek": "LLM observability is not monitoring — here's the specific difference that changes how you instrument your code.",
+    "date": "2026-10-02",
+    "published_at": "2026-10-02T10:55:07.968221+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "observability",
+      "tracing",
+      "llm-ops",
+      "debugging"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I talk to have logging. They write prompts and responses to a database, maybe track latency on a dashboard, and call it done. That is not observability — that is archaeology. When something goes wrong in a multi-step chain, you need to reconstruct the exact sequence of calls, which model version was active, what the intermediate outputs looked like, and where the token budget started bleeding. Flat logs do not give you that. Traces do.</p><p>The mental shift is from <em>events</em> to <em>spans</em>. A trace wraps an entire request — from the first user message to the final response — and every LLM call, retrieval step, or tool invocation inside it becomes a child span with its own timing, input, output, and metadata. When a chain produces a wrong answer, you open the trace and walk the tree. You do not grep through lines hoping you correlated the right request ID.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langfuse/langfuse",
+          "url": "https://github.com/langfuse/langfuse",
+          "note": "Open-source LLM observability platform: tracing, evals, prompt management."
+        },
+        "usage_note": "I reach for Langfuse on client projects because it gives me the full trace tree, cost tracking per span, and a prompt management layer — all self-hostable, which matters the moment a European enterprise asks where the data lives.",
+        "code_example": {
+          "language": "python",
+          "code": "from langfuse.openai import openai  # drop-in wrapper, no manual span code\nfrom langfuse import Langfuse\n\nlangfuse = Langfuse()  # reads LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY from env\n\ndef answer_with_rag(user_query: str, retrieved_chunks: list[str]) -> str:\n    context = \"\\n\".join(retrieved_chunks)\n\n    # Every call here is automatically captured as a traced span\n    response = openai.chat.completions.create(\n        model=\"gpt-4o\",\n        messages=[\n            {\"role\": \"system\", \"content\": \"Answer using only the context provided.\"},\n            {\"role\": \"user\", \"content\": f\"Context:\\n{context}\\n\\nQuestion: {user_query}\"},\n        ],\n        name=\"rag-answer\",          # span name visible in Langfuse UI\n        metadata={\"chunks\": len(retrieved_chunks)},\n    )\n\n    langfuse.flush()  # ensure spans are sent before process exits\n    return response.choices[0].message.content"
+        },
+        "example_output": "# Langfuse UI shows a trace like:\n# TRACE  rag-answer  420ms  $0.0031\n#   SPAN  openai.chat  418ms\n#     input:  {system: 'Answer using only...', user: 'Context:\\n...\\nQuestion: ...'}\n#     output: 'The quarterly revenue was CHF 4.2M, as stated in section 3.'\n#     tokens: prompt=312  completion=24  total=336\n#     metadata: {chunks: 3}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>One thing worth saying plainly: instrumentation cost is not zero. Adding tracing to a high-throughput pipeline introduces a small network overhead, and if you are not disciplined about sampling, you will pay for storage you never query. Start by tracing 100% in staging, then decide what sampling rate makes sense in production based on actual volume. The traces you capture in the first week of a new deployment will save you hours the first time something breaks — and something always breaks.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline-hero.png"
   }
 ]
