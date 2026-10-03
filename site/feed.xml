@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>What Broke My Chatbot Before a Client Did</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-broke-my-chatbot-before-a-client-did.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-broke-my-chatbot-before-a-client-did.html</guid>
+    <pubDate>Sat, 03 Oct 2026 10:15:19 +0000</pubDate>
+    <description>Red-teaming your AI system yourself, before anyone else does, is the only honest quality check.</description>
+    <category>red-teaming</category><category>adversarial-testing</category><category>reliability</category><category>prompt-security</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-broke-my-chatbot-before-a-client-did-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>You Cannot Debug What You Cannot See in Your LLM Pipeline</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 28 Aug 2026 17:11:31 +0000</pubDate>
     <description>When your LLM pipeline breaks silently, you need traces — not logs, not vibes.</description>
     <category>observability</category><category>tracing</category><category>production</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-a-production-incident-taught-me-about-llm-tracing-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Stop Trusting LLM Output — Validate It Like Any Other API</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-trusting-llm-output-validate-it-like-any-other-api.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-trusting-llm-output-validate-it-like-any-other-api.html</guid>
-    <pubDate>Thu, 27 Aug 2026 16:09:27 +0000</pubDate>
-    <description>Guardrails belong in your code, not in your prompt. Here's how to enforce them.</description>
-    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>structured-output</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-trusting-llm-output-validate-it-like-any-other-api-hero.png" type="image/png"/>
   </item>
 </channel></rss>
