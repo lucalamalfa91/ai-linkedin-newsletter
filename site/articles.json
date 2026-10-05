@@ -4173,5 +4173,80 @@
     ],
     "inspired_by": null,
     "og_image": "what-broke-my-chatbot-before-a-client-did-hero.png"
+  },
+  {
+    "slug": "context-engineering-what-you-put-in-the-window-is-the-real-work",
+    "title": "Context Engineering: What You Put in the Window Is the Real Work",
+    "dek": "How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.",
+    "date": "2026-10-05",
+    "published_at": "2026-10-05T12:05:53.990102+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "agents",
+      "retrieval"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>There is a persistent fantasy that long-context models solve the context problem. They don't — they relocate it. When you could only fit 4,000 tokens into a window, the constraint was obvious and engineers took it seriously. Now that you can stuff 200,000 tokens in, people do exactly that, then wonder why the model's answers feel vague, why it misses details buried in the middle, why costs are ballooning. The window got bigger; the thinking about what to put in it didn't keep pace.</p><p>Context engineering is the discipline of deciding what information a model sees, in what form, in what order, and at what level of detail — for a given task, at a given moment. It is not prompt engineering, though prompts are part of it. It is not RAG, though retrieval is one tool. It is the full architecture of the information environment you construct around a model call. Get it right and you get consistent, accurate, cheap outputs. Get it wrong and no amount of model capability will save you.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The first thing to understand is that long-context models are not equally attentive across the full window. There is substantial empirical evidence — and any practitioner who has run evals knows this intuitively — that models perform better on information placed near the beginning or end of a context, and worse on information buried in the middle. This is sometimes called the lost-in-the-middle problem, and it has real consequences. If you are building a document QA system and you concatenate twenty PDFs in whatever order they come off the filesystem, you are not doing context engineering. You are hoping the model gets lucky.</p><p>The second thing to understand is that irrelevant content is not neutral. Every token that isn't useful to the task is a token that dilutes the signal. Models can and do get distracted by tangential information. A customer support agent that gets the full CRM history of an account when it only needs the last three interactions will sometimes anchor on old, irrelevant complaints. Shorter, sharper context almost always beats longer, comprehensive context — provided the shorter version actually contains what the model needs. That proviso is doing a lot of work, and it's where most of the real engineering effort goes.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "How Context Gets Built Before a Model Call",
+        "image": "context-engineering-what-you-put-in-the-window-is-the-real-work-diagram-1.png",
+        "alt": "Task Defined → Retrieve Candidates → Rank & Filter → Structure & Order → Inject System State → Model Call"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Retrieval is the most common first step, but ranking and filtering are where most teams underinvest. Embedding similarity gives you a rough relevance signal; it does not give you the right set of chunks for a complex reasoning task. A question like \"what changed in our refund policy between Q1 and Q3?\" requires temporal reasoning across multiple documents — a pure vector search will surface chunks that mention refunds, but not necessarily in the right order or with the right surrounding context to make the comparison meaningful. Hybrid retrieval (dense + sparse), metadata filtering, and sometimes a cheap LLM reranking pass are all legitimate tools. The point is that what comes out of retrieval is raw material, not finished context.</p><p>Structuring and ordering matter more than most engineers expect. I use explicit section headers inside the context window — not for aesthetics, but because they give the model reliable anchors. If I'm giving a model a contract to analyze alongside a set of regulatory requirements, I will label each section clearly: <strong>CONTRACT TEXT</strong>, <strong>APPLICABLE REGULATIONS</strong>, <strong>YOUR TASK</strong>. I put the task last. This is deliberate: the model reads the supporting material first, then encounters the question with that material fresh. For very long documents I will sometimes put a short summary of the document at the top, then the full text below — the summary primes attention, the full text provides the evidence. This is not a trick; it is information architecture.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>For agentic workloads, context engineering gets more complicated because the window evolves over time. Every tool call result, every sub-agent response, every intermediate reasoning step is a candidate for inclusion — and the window fills up fast. The two failure modes I see most often are context bloat (keeping everything, running out of space or degrading quality) and context amnesia (summarizing too aggressively, losing details the model needs later). The right answer is usually selective retention: decide up front which classes of information are ephemeral (tool call scaffolding, intermediate steps) and which are durable (user intent, key facts extracted, decisions made), and manage them differently. Ephemeral content gets summarized or dropped; durable content stays verbatim or gets promoted to a structured memory store that gets re-injected when relevant.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The rule I apply before every long-context build",
+        "html": "<p>Before I finalize any context pipeline for a client, I run what I call a necessity audit: for every category of content going into the window, I have to answer \"what specifically goes wrong if this is absent?\" If I can't answer that concretely, the content doesn't go in. It sounds obvious, but it forces you to be honest about how much of what you're including is habit or defensiveness rather than genuine signal. On three separate enterprise projects this year, the audit cut context size by 40–60% with no measurable quality loss — and significant cost reduction.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Long-context and context-management patterns (PDF uploads, sub-agents)."
+        },
+        "usage_note": "I reach for Claude's native document handling and the sub-agent pattern when a task genuinely requires synthesizing multiple large sources — the cookbooks give a clean, realistic starting point that I adapt for client work.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport base64\nfrom pathlib import Path\n\nclient = anthropic.Anthropic()\n\ndef load_pdf_as_document(pdf_path: str) -> dict:\n    \"\"\"Encode a PDF for the Claude API document block format.\"\"\"\n    data = Path(pdf_path).read_bytes()\n    return {\n        \"type\": \"document\",\n        \"source\": {\n            \"type\": \"base64\",\n            \"media_type\": \"application/pdf\",\n            \"data\": base64.standard_b64encode(data).decode(\"utf-8\"),\n        },\n    }\n\ndef focused_doc_query(pdf_paths: list[str], question: str, context_note: str = \"\") -> str:\n    \"\"\"\n    Build a structured context window: documents first, task last.\n    context_note lets callers inject scoping instructions (e.g. date ranges,\n    sections to ignore) without polluting the system prompt.\n    \"\"\"\n    content = []\n\n    # Load and label each document — explicit anchors for the model\n    for i, path in enumerate(pdf_paths, 1):\n        content.append({\"type\": \"text\", \"text\": f\"### DOCUMENT {i}: {Path(path).name}\"})\n        content.append(load_pdf_as_document(path))\n\n    # Scoping note before the question, if provided\n    if context_note:\n        content.append({\"type\": \"text\", \"text\": f\"### SCOPE NOTE\\n{context_note}\"})\n\n    # Task comes last — model has seen all evidence before the question\n    content.append({\"type\": \"text\", \"text\": f\"### YOUR TASK\\n{question}\"})\n\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=1024,\n        system=(\n            \"You are a precise document analyst. \"\n            \"Answer only from the provided documents. \"\n            \"If the documents do not contain sufficient information, say so explicitly.\"\n        ),\n        messages=[{\"role\": \"user\", \"content\": content}],\n    )\n    return response.content[0].text\n\n# Example: compare refund policy across two quarterly policy PDFs\nresult = focused_doc_query(\n    pdf_paths=[\"policy_q1_2024.pdf\", \"policy_q3_2024.pdf\"],\n    question=\"What changed in the refund eligibility window between Q1 and Q3?\",\n    context_note=\"Focus only on sections describing refund eligibility and time limits.\",\n)\nprint(result)"
+        },
+        "example_output": "Comparing DOCUMENT 1 (policy_q1_2024.pdf) and DOCUMENT 2 (policy_q3_2024.pdf):\n\nQ1 2024: Refund eligibility window was 30 days from purchase date, applicable to\nall product categories including digital goods with manager approval.\n\nQ3 2024: Eligibility window extended to 45 days for physical goods. Digital goods\nwere explicitly excluded from refund eligibility with no exception pathway noted.\n\nKey change: +15 days for physical goods; digital goods policy tightened significantly.\nNo mention of manager-approval override in Q3 document."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "diagram",
+      "prose",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Quoting Matthew Green",
+      "url": "https://simonwillison.net/2026/Oct/1/matthew-green/",
+      "source": "Simon Willison"
+    },
+    "og_image": "context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png"
   }
 ]

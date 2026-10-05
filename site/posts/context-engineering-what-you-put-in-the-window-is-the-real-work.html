@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Context Engineering: What You Put in the Window Is the Real Work — The AI Architect</title>
+  <meta name="description" content="How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.">
+  <meta property="og:title" content="Context Engineering: What You Put in the Window Is the Real Work">
+  <meta property="og:description" content="How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Context Engineering: What You Put in the Window Is the Real Work">
+  <meta name="twitter:description" content="How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Context Engineering: What You Put in the Window Is the Real Work", "description": "How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png", "datePublished": "2026-10-05T12:05:53.990102+00:00", "dateModified": "2026-10-05T12:05:53.990102+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "context-engineering, long-context, prompt-design, agents, retrieval"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Context Engineering &amp; Long-Context Management</span>
+      <h1 class="article-title">Context Engineering: What You Put in the Window Is the Real Work</h1>
+      <p class="article-dek">How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.</p>
+      <p class="article-date">October 5, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>There is a persistent fantasy that long-context models solve the context problem. They don&#x27;t — they relocate it. When you could only fit 4,000 tokens into a window, the constraint was obvious and engineers took it seriously. Now that you can stuff 200,000 tokens in, people do exactly that, then wonder why the model&#x27;s answers feel vague, why it misses details buried in the middle, why costs are ballooning. The window got bigger; the thinking about what to put in it didn&#x27;t keep pace.</p><p>Context engineering is the discipline of deciding what information a model sees, in what form, in what order, and at what level of detail — for a given task, at a given moment. It is not prompt engineering, though prompts are part of it. It is not RAG, though retrieval is one tool. It is the full architecture of the information environment you construct around a model call. Get it right and you get consistent, accurate, cheap outputs. Get it wrong and no amount of model capability will save you.</p>
+    </div>
+    <div class="prose-block">
+<p>The first thing to understand is that long-context models are not equally attentive across the full window. There is substantial empirical evidence — and any practitioner who has run evals knows this intuitively — that models perform better on information placed near the beginning or end of a context, and worse on information buried in the middle. This is sometimes called the lost-in-the-middle problem, and it has real consequences. If you are building a document QA system and you concatenate twenty PDFs in whatever order they come off the filesystem, you are not doing context engineering. You are hoping the model gets lucky.</p><p>The second thing to understand is that irrelevant content is not neutral. Every token that isn&#x27;t useful to the task is a token that dilutes the signal. Models can and do get distracted by tangential information. A customer support agent that gets the full CRM history of an account when it only needs the last three interactions will sometimes anchor on old, irrelevant complaints. Shorter, sharper context almost always beats longer, comprehensive context — provided the shorter version actually contains what the model needs. That proviso is doing a lot of work, and it&#x27;s where most of the real engineering effort goes.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/context-engineering-what-you-put-in-the-window-is-the-real-work-diagram-1.png" alt="Task Defined → Retrieve Candidates → Rank &amp; Filter → Structure &amp; Order → Inject System State → Model Call" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>Retrieval is the most common first step, but ranking and filtering are where most teams underinvest. Embedding similarity gives you a rough relevance signal; it does not give you the right set of chunks for a complex reasoning task. A question like &quot;what changed in our refund policy between Q1 and Q3?&quot; requires temporal reasoning across multiple documents — a pure vector search will surface chunks that mention refunds, but not necessarily in the right order or with the right surrounding context to make the comparison meaningful. Hybrid retrieval (dense + sparse), metadata filtering, and sometimes a cheap LLM reranking pass are all legitimate tools. The point is that what comes out of retrieval is raw material, not finished context.</p><p>Structuring and ordering matter more than most engineers expect. I use explicit section headers inside the context window — not for aesthetics, but because they give the model reliable anchors. If I&#x27;m giving a model a contract to analyze alongside a set of regulatory requirements, I will label each section clearly: <strong>CONTRACT TEXT</strong>, <strong>APPLICABLE REGULATIONS</strong>, <strong>YOUR TASK</strong>. I put the task last. This is deliberate: the model reads the supporting material first, then encounters the question with that material fresh. For very long documents I will sometimes put a short summary of the document at the top, then the full text below — the summary primes attention, the full text provides the evidence. This is not a trick; it is information architecture.</p>
+    </div>
+    <div class="prose-block">
+<p>For agentic workloads, context engineering gets more complicated because the window evolves over time. Every tool call result, every sub-agent response, every intermediate reasoning step is a candidate for inclusion — and the window fills up fast. The two failure modes I see most often are context bloat (keeping everything, running out of space or degrading quality) and context amnesia (summarizing too aggressively, losing details the model needs later). The right answer is usually selective retention: decide up front which classes of information are ephemeral (tool call scaffolding, intermediate steps) and which are durable (user intent, key facts extracted, decisions made), and manage them differently. Ephemeral content gets summarized or dropped; durable content stays verbatim or gets promoted to a structured memory store that gets re-injected when relevant.</p>
+    </div>
+    <div class="callout-box">
+      <p class="callout-label">The rule I apply before every long-context build</p>
+<p>Before I finalize any context pipeline for a client, I run what I call a necessity audit: for every category of content going into the window, I have to answer &quot;what specifically goes wrong if this is absent?&quot; If I can&#x27;t answer that concretely, the content doesn&#x27;t go in. It sounds obvious, but it forces you to be honest about how much of what you&#x27;re including is habit or defensiveness rather than genuine signal. On three separate enterprise projects this year, the audit cut context size by 40–60% with no measurable quality loss — and significant cost reduction.</p>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/anthropics/claude-cookbooks" target="_blank" rel="noopener noreferrer">anthropics/claude-cookbooks</a> &mdash; Long-context and context-management patterns (PDF uploads, sub-agents).</p>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Oct/1/matthew-green/" target="_blank" rel="noopener noreferrer">Quoting Matthew Green</a> (Simon Willison)</p>
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/context-engineering.html">context-engineering</a>
+      <a class="tag-chip" href="../tags/long-context.html">long-context</a>
+      <a class="tag-chip" href="../tags/prompt-design.html">prompt-design</a>
+      <a class="tag-chip" href="../tags/agents.html">agents</a>
+      <a class="tag-chip" href="../tags/retrieval.html">retrieval</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Context%20Engineering%3A%20What%20You%20Put%20in%20the%20Window%20Is%20the%20Real%20Work&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html&amp;t=Context%20Engineering%3A%20What%20You%20Put%20in%20the%20Window%20Is%20the%20Real%20Work" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Context%20Engineering%3A%20What%20You%20Put%20in%20the%20Window%20Is%20the%20Real%20Work&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/stop-stuffing-the-context-window-manage-it-instead.html">
+        <span class="related-technique">Context Engineering &amp; Long-Context Management</span>
+        <span class="related-title">Stop Stuffing the Context Window — Manage It Instead</span>
+      </a>
+      <a class="related-card" href="../posts/what-i-learned-filling-180k-tokens-and-getting-garbage-back.html">
+        <span class="related-technique">Context Engineering &amp; Long-Context Management</span>
+        <span class="related-title">What I Learned Filling 180k Tokens and Getting Garbage Back</span>
+      </a>
+      <a class="related-card" href="../posts/more-context-is-not-the-same-as-better-context.html">
+        <span class="related-technique">Context Engineering &amp; Long-Context Management</span>
+        <span class="related-title">More Context Is Not the Same as Better Context</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>

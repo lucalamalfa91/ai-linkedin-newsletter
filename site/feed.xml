@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Context Engineering: What You Put in the Window Is the Real Work</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html</guid>
+    <pubDate>Mon, 05 Oct 2026 12:05:53 +0000</pubDate>
+    <description>How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><category>retrieval</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>What Broke My Chatbot Before a Client Did</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/what-broke-my-chatbot-before-a-client-did.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-broke-my-chatbot-before-a-client-did.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 29 Aug 2026 11:30:40 +0000</pubDate>
     <description>How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.</description>
     <category>red-teaming</category><category>adversarial-testing</category><category>safety</category><category>agents</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>What a Production Incident Taught Me About LLM Tracing</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-a-production-incident-taught-me-about-llm-tracing.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-a-production-incident-taught-me-about-llm-tracing.html</guid>
-    <pubDate>Fri, 28 Aug 2026 17:11:31 +0000</pubDate>
-    <description>When your LLM pipeline breaks silently, you need traces — not logs, not vibes.</description>
-    <category>observability</category><category>tracing</category><category>production</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-a-production-incident-taught-me-about-llm-tracing-hero.png" type="image/png"/>
   </item>
 </channel></rss>
