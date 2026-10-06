@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Vector Search: Choosing Between Bare Embeddings and a Retrieval Framework</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework.html</guid>
+    <pubDate>Tue, 06 Oct 2026 11:50:36 +0000</pubDate>
+    <description>Two valid approaches to semantic search, one real trade-off — here's how to pick the right tool.</description>
+    <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Context Engineering: What You Put in the Window Is the Real Work</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 31 Aug 2026 11:24:33 +0000</pubDate>
     <description>Everyone is racing to stuff more tokens into the window. That is not context engineering.</description>
     <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>llm-architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-same-as-better-context-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Red-Teaming LLM Systems Before Your Users Do It for You</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-llm-systems-before-your-users-do-it-for-you.html</guid>
-    <pubDate>Sat, 29 Aug 2026 11:30:40 +0000</pubDate>
-    <description>How to run structured adversarial testing on prompts, agents, and RAG pipelines — and what to do with what you find.</description>
-    <category>red-teaming</category><category>adversarial-testing</category><category>safety</category><category>agents</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-llm-systems-before-your-users-do-it-for-you-hero.png" type="image/png"/>
   </item>
 </channel></rss>

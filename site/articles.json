@@ -4248,5 +4248,78 @@
       "source": "Simon Willison"
     },
     "og_image": "context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png"
+  },
+  {
+    "slug": "vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework",
+    "title": "Vector Search: Choosing Between Bare Embeddings and a Retrieval Framework",
+    "dek": "Two valid approaches to semantic search, one real trade-off — here's how to pick the right tool.",
+    "date": "2026-10-06",
+    "published_at": "2026-10-06T11:50:36.279033+00:00",
+    "technique": "Vector Search & Embeddings",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I work with reach for a retrieval framework on day one because it looks like it does more. And it does. That's also the problem. When you're still figuring out what your data looks like, what queries your users actually send, and how your embeddings behave on your specific domain, a framework's abstractions sit between you and the thing you need to understand. You end up tuning knobs without knowing what the knobs are connected to.</p><p>The real question isn't \"which tool is better\" — it's \"how much of the retrieval pipeline do I need to own right now?\" Bare embedding stores like Chroma give you direct control over indexing, querying, and result handling. Frameworks like LlamaIndex give you a pre-assembled pipeline with sensible defaults and a lot of surface area. Both are legitimate. They're just optimized for different moments in a project's life.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Embedding database and search infrastructure for AI applications."
+        },
+        "usage_note": "I reach for Chroma when I want to understand exactly what's being stored and retrieved, with no layer of abstraction between my embeddings and the query results.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.Client()\n\nef = embedding_functions.SentenceTransformerEmbeddingFunction(\n    model_name=\"all-MiniLM-L6-v2\"\n)\n\ncollection = client.create_collection(\n    name=\"contracts\",\n    embedding_function=ef\n)\n\ncollection.add(\n    documents=[\n        \"The vendor shall deliver within 30 days of invoice.\",\n        \"Payment terms are net 60 from receipt of goods.\",\n        \"Either party may terminate with 14 days written notice.\",\n    ],\n    ids=[\"clause-1\", \"clause-2\", \"clause-3\"]\n)\n\nresults = collection.query(\n    query_texts=[\"how long does delivery take?\"],\n    n_results=2\n)\n\nfor doc, dist in zip(results[\"documents\"][0], results[\"distances\"][0]):\n    print(f\"[{dist:.3f}] {doc}\")"
+        },
+        "example_output": "[0.312] The vendor shall deliver within 30 days of invoice.\n[0.581] Payment terms are net 60 from receipt of goods."
+      },
+      {
+        "type": "prose",
+        "html": "<p>With Chroma you see the raw distance scores, you control the embedding model directly, and adding metadata filters is explicit rather than inferred. That transparency is worth a lot when you're debugging why a query returns the wrong chunk. The downside is that everything past basic retrieval — chunking strategy, re-ranking, query rewriting, hybrid search — is your problem to build. Chroma doesn't care about your documents; it cares about your vectors.</p><p>LlamaIndex takes the opposite stance. It cares deeply about your documents. It has opinions about how to split them, how to index them, how to route queries, and how to synthesize answers. Those opinions are often reasonable. But they're baked in, and overriding them requires understanding the framework's internals, not just your own data. The first time a retrieval result surprises you, you'll spend time reading LlamaIndex source code rather than looking at your embeddings.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Indexing and retrieval framework built on top of embeddings."
+        },
+        "usage_note": "I use LlamaIndex when the project is past the exploration phase and I need a full pipeline — ingestion, indexing, retrieval, and synthesis — without assembling every piece by hand.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\nfrom llama_index.core import Settings\nfrom llama_index.embeddings.huggingface import HuggingFaceEmbedding\nfrom llama_index.llms.openai import OpenAI\n\nSettings.embed_model = HuggingFaceEmbedding(model_name=\"all-MiniLM-L6-v2\")\nSettings.llm = OpenAI(model=\"gpt-4o-mini\")\nSettings.node_parser = SentenceSplitter(chunk_size=256, chunk_overlap=32)\n\ndocuments = SimpleDirectoryReader(\"./contracts\").load_data()\nindex = VectorStoreIndex.from_documents(documents)\n\nquery_engine = index.as_query_engine(similarity_top_k=3)\nresponse = query_engine.query(\"What are the payment terms?\")\n\nprint(response)"
+        },
+        "example_output": "Based on the contract documents, payment terms are net 60 days from receipt of goods. Invoices should reference the purchase order number and be submitted to accounts@vendor.com."
+      },
+      {
+        "type": "diagram",
+        "heading": "Chroma vs. LlamaIndex: Where They Fit",
+        "image": "vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework-diagram-1.png",
+        "alt": "Comparison: Aspect, Chroma (bare store), LlamaIndex (framework)"
+      },
+      {
+        "type": "prose",
+        "html": "<p>A pattern that works well in practice: start with Chroma to validate that your embeddings actually capture what you need them to capture. Run queries by hand, look at the distances, swap embedding models if the results are poor. Once retrieval quality is established on real data, migrating to LlamaIndex — or wiring Chroma in as LlamaIndex's vector store backend — is straightforward. You're not choosing one forever; you're choosing which problem to solve first.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "code_project",
+      "diagram",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Qwen3.8 27B addition in words",
+      "url": "https://simonwillison.net/2026/Oct/4/qwen38-addition-in-words/",
+      "source": "Simon Willison"
+    },
+    "og_image": "vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework-hero.png"
   }
 ]
