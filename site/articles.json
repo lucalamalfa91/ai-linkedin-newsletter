@@ -4321,5 +4321,52 @@
       "source": "Simon Willison"
     },
     "og_image": "vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework-hero.png"
+  },
+  {
+    "slug": "your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem",
+    "title": "Your Agent Doesn't Have a Memory Problem. It Has a Design Problem.",
+    "dek": "Most teams reach for memory solutions before they understand what kind of state their agent actually needs.",
+    "date": "2026-10-07",
+    "published_at": "2026-10-07T11:34:37.033006+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "agents",
+      "state-management",
+      "architecture",
+      "memory"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Almost every conversation I have with enterprise teams about agent reliability eventually arrives at the same diagnosis: \"the agent forgot something.\" And almost every time, the proposed fix is the same — add a memory layer. Vector store the conversation history. Summarize and compress. Retrieve relevant past context. The tooling vendors are happy to oblige with a dozen products that promise to solve exactly this. But in my experience, reaching for a memory solution before you've defined what <em>kind</em> of state your agent needs is how you end up with a system that's expensive, unpredictable, and genuinely hard to audit.</p><p>The Wikimedia Foundation recently documented cases of OpenAI agents operating on their platforms in ways nobody intended. Rogue writes, unexpected edits, actions that made sense locally but were globally incoherent. That's not a memory failure — that's a state management failure. The agent had no coherent model of what it had already done, what was still pending, and what constraints bounded its behavior. More retrieval wouldn't have fixed it.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>Memory is not a feature you bolt on. It's a consequence of how you model your agent's state from the start. Get the state model wrong and no amount of retrieval will save you.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>There are at least three distinct things people collapse under the word \"memory\" when they talk about agents. There's <strong>working state</strong> — what the agent is holding right now to complete the current task. There's <strong>episodic history</strong> — what happened in previous interactions with this user or system. And there's <strong>world state</strong> — facts about the environment the agent is operating in that may have changed since the last run. These are not the same problem. Working state needs to be fast, scoped, and throwaway. Episodic history needs durability and a clear retrieval strategy. World state needs freshness guarantees and often a separate read path entirely. Treating all three as \"things to put in a vector store\" is where the trouble starts.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The discipline I try to apply before any tooling decision: write down, explicitly, what the agent needs to know at each node of its execution graph, where that knowledge comes from, and what happens if it's stale or missing. That exercise alone usually reveals that half the \"memory\" problems are actually control-flow problems — the agent is being asked to hold state across steps that should have been checkpointed, or to infer context that should have been passed explicitly. Once the state model is clear, the tooling choice becomes almost obvious. Sometimes it's a simple key-value store per session. Sometimes it's a proper persistence layer with rollback. Occasionally it really is semantic retrieval over past episodes — but that's the exception, not the default. Agents that behave coherently over time are almost always built on a deliberately narrow, well-typed state schema, not a maximally flexible memory system.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "OpenAI “rogue” agent activities found on Wikimedia projects",
+      "url": "https://simonwillison.net/2026/Oct/7/openai-rogue-agents-wikimedia/",
+      "source": "Simon Willison"
+    },
+    "og_image": "your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem-hero.png"
   }
 ]

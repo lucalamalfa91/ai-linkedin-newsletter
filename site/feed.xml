@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Your Agent Doesn't Have a Memory Problem. It Has a Design Problem.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem.html</guid>
+    <pubDate>Wed, 07 Oct 2026 11:34:37 +0000</pubDate>
+    <description>Most teams reach for memory solutions before they understand what kind of state their agent actually needs.</description>
+    <category>agents</category><category>state-management</category><category>architecture</category><category>memory</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Vector Search: Choosing Between Bare Embeddings and a Retrieval Framework</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 01 Sep 2026 09:48:28 +0000</pubDate>
     <description>Two tools, two philosophies — here's how to choose the right embedding approach for your production retrieval system.</description>
     <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>More Context Is Not the Same as Better Context</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-same-as-better-context.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/more-context-is-not-the-same-as-better-context.html</guid>
-    <pubDate>Mon, 31 Aug 2026 11:24:33 +0000</pubDate>
-    <description>Everyone is racing to stuff more tokens into the window. That is not context engineering.</description>
-    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>llm-architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/more-context-is-not-the-same-as-better-context-hero.png" type="image/png"/>
   </item>
 </channel></rss>
