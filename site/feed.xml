@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Engineering That Actually Holds Up in Production</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-that-actually-holds-up-in-production.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-that-actually-holds-up-in-production.html</guid>
+    <pubDate>Thu, 08 Oct 2026 11:49:39 +0000</pubDate>
+    <description>A practical workflow for designing, testing, and iterating prompts before they cause problems at scale.</description>
+    <category>prompt-engineering</category><category>llm</category><category>production</category><category>optimization</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-that-actually-holds-up-in-production-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Your Agent Doesn't Have a Memory Problem. It Has a Design Problem.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 02 Sep 2026 09:20:39 +0000</pubDate>
     <description>A concrete guide to structuring agent state so it survives across turns, sessions, and restarts.</description>
     <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-give-your-agents-memory-that-actually-persists-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Dense Retrieval vs. Structured Indexing: Picking Your Embedding Strategy</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy.html</guid>
-    <pubDate>Tue, 01 Sep 2026 09:48:28 +0000</pubDate>
-    <description>Two tools, two philosophies — here's how to choose the right embedding approach for your production retrieval system.</description>
-    <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/dense-retrieval-vs-structured-indexing-picking-your-embedding-strategy-hero.png" type="image/png"/>
   </item>
 </channel></rss>

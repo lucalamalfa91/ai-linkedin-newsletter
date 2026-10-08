@@ -4368,5 +4368,100 @@
       "source": "Simon Willison"
     },
     "og_image": "your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem-hero.png"
+  },
+  {
+    "slug": "prompt-engineering-that-actually-holds-up-in-production",
+    "title": "Prompt Engineering That Actually Holds Up in Production",
+    "dek": "A practical workflow for designing, testing, and iterating prompts before they cause problems at scale.",
+    "date": "2026-10-08",
+    "published_at": "2026-10-08T11:49:39.573593+00:00",
+    "technique": "Prompt Engineering & Optimization",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "prompt-engineering",
+      "llm",
+      "production",
+      "optimization"
+    ],
+    "blocks": [
+      {
+        "type": "diagram",
+        "heading": "Prompt Development Cycle",
+        "image": "prompt-engineering-that-actually-holds-up-in-production-diagram-1.png",
+        "alt": "Define Task → Draft Prompt → Build Eval Set → Score Outputs → Iterate & Lock"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Most prompt failures I see in enterprise projects share one root cause: the prompt was written once, tested informally against two or three examples, and shipped. That works until the distribution of real inputs turns out to be wider than anyone expected — which it always is. A systematic cycle fixes this, and it doesn't require anything exotic. You need a task definition, a representative eval set, and a scoring method. Everything else is iteration.</p><p>The trap is treating the prompt as the product. It isn't. The eval set is the product. A prompt you can't measure against a fixed set of test cases isn't a prompt — it's a guess. Build the evals first, even if they're rough, before you write a single line of instruction.</p>"
+      },
+      {
+        "type": "list",
+        "heading": "Rules I Follow on Every Prompt",
+        "items": [
+          {
+            "title": "State the output format explicitly",
+            "detail": "If you want JSON, show the exact schema. If you want a one-sentence answer, say so. Ambiguity here is the single most common source of downstream parsing failures."
+          },
+          {
+            "title": "Put constraints before examples",
+            "detail": "Models weight earlier content more heavily in long prompts. Constraints buried after five examples get ignored. Constraints stated up front, then reinforced by examples, stick."
+          },
+          {
+            "title": "Use at least 20 eval cases before declaring anything stable",
+            "detail": "Five examples feel representative. They aren't. Edge cases — negations, empty inputs, unusual formatting — don't show up until you have real volume."
+          },
+          {
+            "title": "Version your prompts like code",
+            "detail": "Store them in git with the eval results that validated them. When a model update breaks something, you need to know exactly what changed and what the baseline score was."
+          },
+          {
+            "title": "Test failure modes, not just happy paths",
+            "detail": "Deliberately include malformed inputs, off-topic queries, and adversarial phrasing in your eval set. A prompt that only handles clean input is not production-ready."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Worked prompt-design examples across classification, RAG, and summarization."
+        },
+        "usage_note": "I use the Claude Cookbooks as a starting point when onboarding a new task type — the classification and summarization examples are close enough to real client work that I can adapt them rather than starting from a blank file.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSYSTEM_PROMPT = \"\"\"\nYou are a document classifier. Given a support ticket, output a JSON object with:\n- category: one of ['billing', 'technical', 'account', 'other']\n- confidence: 'high' | 'medium' | 'low'\n- reason: one sentence explaining the classification\n\nOutput only valid JSON. No prose before or after.\n\"\"\"\n\ndef classify_ticket(ticket_text: str) -> dict:\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=256,\n        system=SYSTEM_PROMPT,\n        messages=[{\"role\": \"user\", \"content\": ticket_text}]\n    )\n    import json\n    return json.loads(response.content[0].text)\n\nticket = \"I was charged twice for my subscription this month and cannot log in.\"\nresult = classify_ticket(ticket)\nprint(result)"
+        },
+        "example_output": "{\n  \"category\": \"billing\",\n  \"confidence\": \"high\",\n  \"reason\": \"The ticket explicitly mentions a duplicate charge on a subscription.\"\n}"
+      },
+      {
+        "type": "list",
+        "heading": "Signs Your Prompt Needs a Rework",
+        "items": [
+          {
+            "title": "Output format breaks on roughly 5% of inputs",
+            "detail": "That rate sounds low. At a thousand calls a day it's fifty broken responses. Fix the format instruction or add an output validation layer."
+          },
+          {
+            "title": "You're patching with more examples instead of clearer rules",
+            "detail": "Adding a seventh few-shot example to cover a new edge case is a sign the core instruction is underspecified. Rewrite the rule; don't paper over it."
+          },
+          {
+            "title": "The prompt works on one model version and breaks on the next",
+            "detail": "Fragile prompts are usually over-fitted to a specific model's quirks. Prompts built on explicit reasoning instructions tend to transfer better across versions."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "diagram",
+      "prose",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "prompt-engineering-that-actually-holds-up-in-production-hero.png"
   }
 ]
