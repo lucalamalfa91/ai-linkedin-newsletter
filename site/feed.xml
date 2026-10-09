@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Fine-Tuning Is Not the Default Answer</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-the-default-answer.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-the-default-answer.html</guid>
+    <pubDate>Fri, 09 Oct 2026 11:42:14 +0000</pubDate>
+    <description>Most teams reach for fine-tuning too early. Here is how to know when prompting is actually enough.</description>
+    <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>cost</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-is-not-the-default-answer-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Engineering That Actually Holds Up in Production</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-that-actually-holds-up-in-production.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-that-actually-holds-up-in-production.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 03 Sep 2026 09:30:16 +0000</pubDate>
     <description>Prompt engineering has real structure — steal from the people who test it most.</description>
     <category>prompt-engineering</category><category>llm</category><category>claude</category><category>applied-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/write-better-prompts-by-reading-anthropic-s-own-work-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>How to Give Your Agents Memory That Actually Persists</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-give-your-agents-memory-that-actually-persists.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-give-your-agents-memory-that-actually-persists.html</guid>
-    <pubDate>Wed, 02 Sep 2026 09:20:39 +0000</pubDate>
-    <description>A concrete guide to structuring agent state so it survives across turns, sessions, and restarts.</description>
-    <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-give-your-agents-memory-that-actually-persists-hero.png" type="image/png"/>
   </item>
 </channel></rss>
