@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>What I Learned Letting Agents Run Unsupervised for a Week</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-letting-agents-run-unsupervised-for-a-week.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-letting-agents-run-unsupervised-for-a-week.html</guid>
+    <pubDate>Sat, 10 Oct 2026 10:59:36 +0000</pubDate>
+    <description>Multi-agent orchestration is less about AI magic and more about disciplined workflow design — here's what that looks like in practice.</description>
+    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-i-learned-letting-agents-run-unsupervised-for-a-week-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Fine-Tuning Is Not the Default Answer</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-the-default-answer.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-the-default-answer.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 04 Sep 2026 09:22:15 +0000</pubDate>
     <description>When to stop fighting your base model with clever prompts and actually commit to fine-tuning.</description>
     <category>fine-tuning</category><category>prompting</category><category>model-adaptation</category><category>llm-strategy</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-is-not-a-prompt-that-scales-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Write Better Prompts by Reading Anthropic's Own Work</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/write-better-prompts-by-reading-anthropic-s-own-work.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/write-better-prompts-by-reading-anthropic-s-own-work.html</guid>
-    <pubDate>Thu, 03 Sep 2026 09:30:16 +0000</pubDate>
-    <description>Prompt engineering has real structure — steal from the people who test it most.</description>
-    <category>prompt-engineering</category><category>llm</category><category>claude</category><category>applied-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/write-better-prompts-by-reading-anthropic-s-own-work-hero.png" type="image/png"/>
   </item>
 </channel></rss>

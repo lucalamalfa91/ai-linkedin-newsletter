@@ -4510,5 +4510,58 @@
     ],
     "inspired_by": null,
     "og_image": "fine-tuning-is-not-the-default-answer-hero.png"
+  },
+  {
+    "slug": "what-i-learned-letting-agents-run-unsupervised-for-a-week",
+    "title": "What I Learned Letting Agents Run Unsupervised for a Week",
+    "dek": "Multi-agent orchestration is less about AI magic and more about disciplined workflow design — here's what that looks like in practice.",
+    "date": "2026-10-10",
+    "published_at": "2026-10-10T10:59:36.338708+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "agentic-workflows",
+      "langgraph"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client engagement last autumn is what really changed how I think about this. We'd built a pipeline — research agent, summarisation agent, a final drafting agent — and handed it off to run overnight on a batch of competitive intelligence tasks. I came back in the morning expecting clean outputs. What I found was a mess: the research agent had looped on a rate-limited API, the summariser had started hallucinating source URLs because the context window was stuffed with garbage, and the drafter had cheerfully produced seven near-identical reports because nobody told it to stop. Total cost for the night: embarrassing. Useful output: close to zero.</p><p>That incident crystallised something I now tell every client before we touch multi-agent design: orchestration is not a feature you add on top of agents, it's the actual engineering problem. The agents are almost the easy part. Getting them to hand off work reliably, fail gracefully, and not spiral into expensive loops — that's where the real work lives.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "crewAIInc/crewAI",
+          "url": "https://github.com/crewAIInc/crewAI",
+          "note": "Framework for orchestrating role-playing, autonomous agent crews."
+        },
+        "usage_note": "I reach for crewAI when a client needs a quick proof-of-concept with clearly separated roles — the role-and-goal framing maps naturally to how non-technical stakeholders already think about team structure.",
+        "code_example": {
+          "language": "python",
+          "code": "from crewai import Agent, Task, Crew, Process\nfrom crewai_tools import SerperDevTool\n\nsearch_tool = SerperDevTool()\n\nresearcher = Agent(\n    role='Market Research Analyst',\n    goal='Find and summarise the three most relevant recent developments on a given topic',\n    backstory='You are a rigorous analyst who only cites sources you have actually retrieved.',\n    tools=[search_tool],\n    max_iter=4,\n    verbose=True\n)\n\nwriter = Agent(\n    role='Business Writer',\n    goal='Turn the analyst findings into a concise one-page briefing, no filler',\n    backstory='You write for busy executives; every sentence must earn its place.',\n    verbose=True\n)\n\nresearch_task = Task(\n    description='Research the competitive landscape for {topic} and list key findings with sources.',\n    expected_output='A bullet list of findings, each with a URL.',\n    agent=researcher\n)\n\nwrite_task = Task(\n    description='Using the research findings, produce a one-page executive briefing on {topic}.',\n    expected_output='A structured briefing under 400 words.',\n    agent=writer,\n    context=[research_task]\n)\n\ncrew = Crew(\n    agents=[researcher, writer],\n    tasks=[research_task, write_task],\n    process=Process.sequential,\n    verbose=True\n)\n\nresult = crew.kickoff(inputs={'topic': 'open-source LLM deployment in European banking'})\nprint(result)"
+        },
+        "example_output": "## Executive Briefing: Open-Source LLM Deployment in European Banking\n\nKey findings (researcher output):\n- BaFin issued updated AI guidance in Q1 2024 requiring audit trails for model decisions. [bafin.de/...]\n- Several tier-2 Swiss banks piloting Mistral 7B for internal document QA, citing data residency. [finews.ch/...]\n- LLaMA-3 adoption slowed by lack of SOC 2 certification from hosting providers. [source]\n\nBriefing (writer output, 310 words):\nEuropean banks are moving cautiously but deliberately toward open-source LLMs..."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The pattern I've settled on after a dozen of these projects: use crewAI to sketch out the agent roles and get stakeholder buy-in fast, then migrate the critical paths to LangGraph once you know where the failure modes actually live. They're not competing tools — they solve different parts of the problem. CrewAI gets you moving; LangGraph gives you control. The mistake is staying on the high-level abstraction too long and only discovering the edge cases in production, which is exactly what happened to me that autumn night.</p><p>One thing I still see underestimated: the cost of inter-agent communication. Every time one agent hands context to the next, you're potentially paying for a large prompt and risking information loss. Keeping task boundaries tight — so each agent gets only what it genuinely needs — is less glamorous than designing the agent roles, but it's where most of the efficiency gains come from. Treat the handoff schema as seriously as you'd treat a database schema. It deserves that level of attention.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "The agents are almost the easy part — the orchestration is the actual engineering problem, and most teams only discover that after their first expensive overnight run."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "what-i-learned-letting-agents-run-unsupervised-for-a-week-hero.png"
   }
 ]
