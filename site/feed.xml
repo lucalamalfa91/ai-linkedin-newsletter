@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>RAG: What It Actually Takes to Make Retrieval Work</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-what-it-actually-takes-to-make-retrieval-work.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-what-it-actually-takes-to-make-retrieval-work.html</guid>
+    <pubDate>Tue, 13 Oct 2026 12:30:23 +0000</pubDate>
+    <description>A systematic look at how Retrieval-Augmented Generation works, where it breaks, and how to build it right.</description>
+    <category>rag</category><category>retrieval</category><category>vector-search</category><category>llm</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-what-it-actually-takes-to-make-retrieval-work-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>What I Learned Letting Agents Run Unsupervised for a Week</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-letting-agents-run-unsupervised-for-a-week.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-letting-agents-run-unsupervised-for-a-week.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 07 Sep 2026 09:59:53 +0000</pubDate>
     <description>How to design agent systems that actually finish tasks reliably, and where the common patterns break down.</description>
     <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>llm-architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agentic-workflows-and-multi-agent-orchestration-done-right-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Fine-Tuning Is Not a Prompt That Scales</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-prompt-that-scales.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-prompt-that-scales.html</guid>
-    <pubDate>Fri, 04 Sep 2026 09:22:15 +0000</pubDate>
-    <description>When to stop fighting your base model with clever prompts and actually commit to fine-tuning.</description>
-    <category>fine-tuning</category><category>prompting</category><category>model-adaptation</category><category>llm-strategy</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-is-not-a-prompt-that-scales-hero.png" type="image/png"/>
   </item>
 </channel></rss>

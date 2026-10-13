@@ -4563,5 +4563,93 @@
     ],
     "inspired_by": null,
     "og_image": "what-i-learned-letting-agents-run-unsupervised-for-a-week-hero.png"
+  },
+  {
+    "slug": "rag-what-it-actually-takes-to-make-retrieval-work",
+    "title": "RAG: What It Actually Takes to Make Retrieval Work",
+    "dek": "A systematic look at how Retrieval-Augmented Generation works, where it breaks, and how to build it right.",
+    "date": "2026-10-13",
+    "published_at": "2026-10-13T12:30:23.871780+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "rag",
+      "retrieval",
+      "vector-search",
+      "llm",
+      "enterprise-ai"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most RAG systems I see in enterprise demos work fine on the happy path — clean PDF, obvious question, obvious answer. Then they hit production. Someone uploads a scanned contract with a two-column layout. Someone asks a question that spans three documents. Someone asks something the corpus doesn't cover at all, and the model hallucinates an answer anyway because retrieval returned something <em>adjacent</em> and the LLM was too polite to say it didn't know. RAG is not a plug-in feature. It's a pipeline, and every stage of that pipeline has failure modes that are genuinely distinct from each other.</p><p>The core idea is simple enough: instead of baking all knowledge into the model weights at training time, you retrieve relevant context at inference time and feed it into the prompt. This matters for two reasons. First, LLMs have a knowledge cutoff — they don't know what happened last quarter. Second, they can't memorize every internal document your company has ever produced. RAG solves both problems, but the word 'retrieval' is doing a lot of work in that sentence. Retrieval is not a solved problem. It's the part most teams underinvest in.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "The RAG Pipeline End to End",
+        "image": "rag-what-it-actually-takes-to-make-retrieval-work-diagram-1.png",
+        "alt": "User Query → Embed Query → Vector Search → Fetch Chunks → Build Prompt → Generate Answer"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Let's go stage by stage. Ingestion is where most teams take shortcuts they later regret. Chunking strategy matters enormously — fixed-size chunks with no overlap are fast to implement and mediocre in practice. A 512-token chunk that cuts a sentence in half at the boundary will produce an embedding that represents half a thought. Overlapping chunks, sentence-aware splitting, or document-structure-aware splitting (headers, sections, tables treated separately) all produce better retrieval, at the cost of more complexity and a larger index. The right choice depends on your document types, and you usually don't know what those are until you look at the actual data.</p><p>Embedding model choice is the next decision people underweight. OpenAI's <code>text-embedding-3-small</code> is convenient and good. But if your corpus is in German, or full of legal terminology, or highly domain-specific, a general-purpose embedding model trained on web text may not represent your documents well. There are domain-specific embedding models, multilingual models, and models fine-tuned on retrieval tasks specifically. Switching embedding models mid-project means re-embedding your entire corpus — which is why this decision deserves serious thought up front, not after you've already shipped.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Chunking Strategy Trade-offs",
+        "image": "rag-what-it-actually-takes-to-make-retrieval-work-diagram-2.png",
+        "alt": "Comparison: Aspect, Fixed-Size Chunks, Structure-Aware Chunks"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Retrieval itself is usually vector similarity search — cosine distance between the query embedding and the stored chunk embeddings. This works well when the question and the answer use similar vocabulary. It works badly when they don't. A user who asks 'what's our policy on remote work?' may not get back a document titled 'Flexible Working Arrangement Guidelines' if the semantic gap is large enough. Hybrid search — combining dense vector retrieval with sparse keyword retrieval (BM25) — closes this gap substantially. Most serious RAG deployments use hybrid search. Most tutorials don't mention it.</p><p>Then there's the generation side. Even with perfect retrieval, you can still get bad answers. The model may ignore retrieved context and answer from weights. It may correctly quote from one retrieved chunk while contradicting another. It may fail to say 'I don't know' when the retrieved documents don't actually answer the question. These are prompt engineering and output validation problems, not retrieval problems — but they're often blamed on retrieval. The diagnostic question is always: did retrieval return the right chunks? If yes and the answer is still wrong, look at the prompt and the model. If no, look at chunking, embedding, and search.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The part I always do first now",
+        "html": "<p>Before I write a single line of RAG code on a new project, I build a retrieval evaluation set. Twenty to fifty question-answer pairs, manually verified against the source documents. Then I measure retrieval recall at K — what fraction of the time does the correct chunk appear in the top K results? I run this after every change to chunking, embedding model, or search strategy. Teams that skip this step spend weeks debugging generation when the real problem is that retrieval recall is 40% and they never measured it. You can't improve what you haven't defined.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Data framework for building RAG pipelines over private data."
+        },
+        "usage_note": "I reach for LlamaIndex when a project needs more than a toy RAG setup — it handles document loaders, chunking, index management, and query pipelines in a way that's actually composable rather than just a thin wrapper.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings\nfrom llama_index.embeddings.openai import OpenAIEmbedding\nfrom llama_index.llms.openai import OpenAI\n\nSettings.llm = OpenAI(model=\"gpt-4o-mini\", temperature=0.1)\nSettings.embed_model = OpenAIEmbedding(model=\"text-embedding-3-small\")\n\ndocuments = SimpleDirectoryReader(\"./company_docs\").load_data()\n\nindex = VectorStoreIndex.from_documents(\n    documents,\n    show_progress=True,\n)\n\nquery_engine = index.as_query_engine(similarity_top_k=5)\n\nresponse = query_engine.query(\n    \"What is the reimbursement limit for home office equipment?\"\n)\n\nprint(response)\nfor node in response.source_nodes:\n    print(f\"[score={node.score:.3f}] {node.metadata.get('file_name')} — {node.text[:120]}\")"
+        },
+        "example_output": "The reimbursement limit for home office equipment is CHF 500 per calendar year, as stated in the Remote Work Policy updated January 2024.\n\n[score=0.912] remote_work_policy_2024.pdf — Employees are entitled to a one-time or annual reimbursement of up to CHF 500 for approved home office equipment\n[score=0.847] hr_handbook_v3.pdf — See Remote Work Policy section 4.2 for equipment reimbursement guidelines and the approval process\n[score=0.761] finance_guidelines.pdf — Reimbursement claims must be submitted within 60 days of purchase with original receipt attached"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Open-source embedding database used as a RAG retrieval store."
+        },
+        "usage_note": "Chroma is my default local vector store for early-stage projects and internal tools — no infrastructure to spin up, persistent storage out of the box, and the API is straightforward enough that I'm not fighting the library.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.PersistentClient(path=\"./chroma_store\")\n\nopenai_ef = embedding_functions.OpenAIEmbeddingFunction(\n    api_key=\"sk-...\",\n    model_name=\"text-embedding-3-small\",\n)\n\ncollection = client.get_or_create_collection(\n    name=\"company_docs\",\n    embedding_function=openai_ef,\n)\n\ncollection.add(\n    documents=[\n        \"Reimbursement for home office equipment is capped at CHF 500 per year.\",\n        \"All remote work equipment purchases require manager approval before buying.\",\n        \"Receipts must be submitted within 60 days via the HR portal.\",\n    ],\n    ids=[\"chunk_001\", \"chunk_002\", \"chunk_003\"],\n    metadatas=[\n        {\"source\": \"remote_work_policy_2024.pdf\", \"section\": \"4.2\"},\n        {\"source\": \"remote_work_policy_2024.pdf\", \"section\": \"4.1\"},\n        {\"source\": \"finance_guidelines.pdf\", \"section\": \"7\"},\n    ],\n)\n\nresults = collection.query(\n    query_texts=[\"What is the equipment reimbursement limit?\"],\n    n_results=3,\n)\n\nfor doc, meta, dist in zip(\n    results[\"documents\"][0],\n    results[\"metadatas\"][0],\n    results[\"distances\"][0],\n):\n    print(f\"[dist={dist:.4f}] ({meta['source']}) {doc}\")"
+        },
+        "example_output": "[dist=0.0812] (remote_work_policy_2024.pdf) Reimbursement for home office equipment is capped at CHF 500 per year.\n[dist=0.1943] (finance_guidelines.pdf) Receipts must be submitted within 60 days via the HR portal.\n[dist=0.2307] (remote_work_policy_2024.pdf) All remote work equipment purchases require manager approval before buying."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "prose",
+      "diagram",
+      "prose",
+      "callout",
+      "code_project",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "rag-what-it-actually-takes-to-make-retrieval-work-hero.png"
   }
 ]
