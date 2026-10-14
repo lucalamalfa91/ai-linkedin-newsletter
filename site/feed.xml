@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Caching Is Not a Feature. It Is a Design Constraint.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-is-not-a-feature-it-is-a-design-constraint.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-is-not-a-feature-it-is-a-design-constraint.html</guid>
+    <pubDate>Wed, 14 Oct 2026 09:57:17 +0000</pubDate>
+    <description>Most teams treat prompt caching as a nice-to-have optimization. They have it exactly backwards.</description>
+    <category>prompt-caching</category><category>cost-optimization</category><category>llm-infrastructure</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-is-not-a-feature-it-is-a-design-constraint-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>RAG: What It Actually Takes to Make Retrieval Work</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-what-it-actually-takes-to-make-retrieval-work.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-what-it-actually-takes-to-make-retrieval-work.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 08 Sep 2026 09:24:54 +0000</pubDate>
     <description>Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.</description>
     <category>rag</category><category>retrieval</category><category>architecture</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Agentic Workflows and Multi-Agent Orchestration Done Right</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/agentic-workflows-and-multi-agent-orchestration-done-right.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agentic-workflows-and-multi-agent-orchestration-done-right.html</guid>
-    <pubDate>Mon, 07 Sep 2026 09:59:53 +0000</pubDate>
-    <description>How to design agent systems that actually finish tasks reliably, and where the common patterns break down.</description>
-    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>llm-architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agentic-workflows-and-multi-agent-orchestration-done-right-hero.png" type="image/png"/>
   </item>
 </channel></rss>

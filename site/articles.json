@@ -4651,5 +4651,52 @@
     ],
     "inspired_by": null,
     "og_image": "rag-what-it-actually-takes-to-make-retrieval-work-hero.png"
+  },
+  {
+    "slug": "prompt-caching-is-not-a-feature-it-is-a-design-constraint",
+    "title": "Prompt Caching Is Not a Feature. It Is a Design Constraint.",
+    "dek": "Most teams treat prompt caching as a nice-to-have optimization. They have it exactly backwards.",
+    "date": "2026-10-14",
+    "published_at": "2026-10-14T09:57:17.555068+00:00",
+    "technique": "Prompt Caching & Cost Optimization",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "prompt-caching",
+      "cost-optimization",
+      "llm-infrastructure",
+      "architecture"
+    ],
+    "blocks": [
+      {
+        "type": "callout",
+        "label": "The claim I keep making to clients",
+        "html": "<p>If you are designing a system where prompt caching is optional, you have already made a structural mistake. Caching is not something you bolt on after the prototype works — it is a signal about whether your context architecture is coherent in the first place.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The conversation around prompt caching goes like this: you build the thing, you get the bill, and then someone says \"we should look into caching.\" At that point you discover your prompts are assembled dynamically in twelve different places, the system instruction changes slightly on every request because someone is interpolating a timestamp or a user-specific detail into it, and the cache hit rate is essentially zero. Congratulations — you have built a system that is architecturally hostile to caching, and no amount of post-hoc tuning will fix it without a rewrite.</p><p>The providers are not subtle about how this works. Anthropic's caching requires that the cacheable prefix be stable and placed correctly. OpenAI's automatic prompt caching rewards you for keeping the beginning of your context consistent across requests. The economics are real — cache hits can cut input token costs by 80–90% depending on the provider — but those economics only materialize if stability was baked into the design from the start. That is a design constraint, not an optimization pass.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>What this means in practice: your system prompt, your retrieved documents, your tool definitions — these should be treated as a stable layer that sits at the top of context and does not change between requests unless there is a genuine reason for it. User-specific state, conversation history, the actual query — those belong at the bottom, after the cacheable prefix. This is not a controversial architecture. It is just the one that costs a tenth as much to run. The failure mode I see most often is teams who put a user's name, their timezone, or some session metadata directly into the system prompt because it felt convenient at the time. That single decision can eliminate caching entirely for that user's requests.</p><p>There is a related trap worth naming: people sometimes treat the cache as a way to stuff more context in cheaply. The reasoning goes — if cached tokens are cheap, I can afford a massive system prompt. This is not wrong exactly, but it invites bloat. A 50,000-token system prompt that is 80% cached is still slower to process than a tight 5,000-token one. Cache hit rate reduces cost; it does not reduce latency to zero. On time-sensitive paths, the distinction matters.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The inspiration for thinking about this more carefully came from reading about how practitioners instrument their agent systems — the care they take to enforce structural invariants through pre-commit hooks and diagnostics modules rather than hoping developers remember the rules. The same discipline applies here. If your codebase has no enforced convention about where dynamic content is allowed to appear in a prompt, someone will break the cache prefix without realising it, and you will spend three weeks wondering why your costs climbed. The answer to that is not monitoring after the fact. It is making the violation impossible, or at least immediately visible, by treating prompt structure as a first-class architectural concern from day one.</p>"
+      }
+    ],
+    "block_signature": [
+      "callout",
+      "prose",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Quoting Geoffrey Huntley",
+      "url": "https://simonwillison.net/2026/Oct/13/geoffrey-huntley/",
+      "source": "Simon Willison"
+    },
+    "og_image": "prompt-caching-is-not-a-feature-it-is-a-design-constraint-hero.png"
   }
 ]
