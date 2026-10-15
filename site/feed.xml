@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Structured Outputs vs Tool Use: Choosing the Right Contract</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-choosing-the-right-contract.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-choosing-the-right-contract.html</guid>
+    <pubDate>Thu, 15 Oct 2026 09:39:26 +0000</pubDate>
+    <description>Two ways to constrain what an LLM returns — they solve different problems, and conflating them costs you.</description>
+    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-choosing-the-right-contract-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Caching Is Not a Feature. It Is a Design Constraint.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-is-not-a-feature-it-is-a-design-constraint.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-is-not-a-feature-it-is-a-design-constraint.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 09 Sep 2026 09:26:07 +0000</pubDate>
     <description>A concrete guide to structuring prompts so repeated context is cached and billed once, not every call.</description>
     <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-stop-paying-twice-for-the-same-tokens-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>RAG Is Not a Knowledge Problem. It Is a Retrieval Problem.</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem.html</guid>
-    <pubDate>Tue, 08 Sep 2026 09:24:54 +0000</pubDate>
-    <description>Most RAG failures happen before the LLM ever sees a document — here is what that means for how you build.</description>
-    <category>rag</category><category>retrieval</category><category>architecture</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-not-a-knowledge-problem-it-is-a-retrieval-problem-hero.png" type="image/png"/>
   </item>
 </channel></rss>

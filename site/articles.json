@@ -4698,5 +4698,84 @@
       "source": "Simon Willison"
     },
     "og_image": "prompt-caching-is-not-a-feature-it-is-a-design-constraint-hero.png"
+  },
+  {
+    "slug": "structured-outputs-vs-tool-use-choosing-the-right-contract",
+    "title": "Structured Outputs vs Tool Use: Choosing the Right Contract",
+    "dek": "Two ways to constrain what an LLM returns — they solve different problems, and conflating them costs you.",
+    "date": "2026-10-15",
+    "published_at": "2026-10-15T09:39:26.820052+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "structured-outputs",
+      "tool-use",
+      "agents",
+      "reliability",
+      "mcp"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Here is a distinction that trips up almost every team I work with at the start: structured outputs and tool use are not two names for the same thing. Structured outputs are about <em>what the model returns</em> — you hand it a JSON schema and the response is guaranteed to conform. Tool use is about <em>what the model can do</em> — you hand it a set of callable functions and the model decides when to invoke them. One is a formatting contract. The other is an action contract. Mixing up which one you need leads to architectures that are either over-engineered or brittle in subtle ways.</p><p>The practical difference shows up fast. If you need a model to extract entities from a document and deposit them into a database, structured outputs alone get you 80% of the way there — parse the response, write the rows, done. But if the model needs to look up a current stock price, run a SQL query, or call an internal API mid-reasoning, you need tool use. The model must be able to pause, fire an external call, and resume with the result. Structured outputs cannot do that. They are synchronous and self-contained by design.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."
+        },
+        "usage_note": "I reach for the Claude cookbooks when I need a battle-tested starting point for either pattern — the recipes are opinionated enough to be useful but not so wrapped in abstraction that I can't see what's actually happening.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\n# --- Structured Output: extract invoice fields with a guaranteed schema ---\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=512,\n    tools=[\n        {\n            \"name\": \"extract_invoice\",\n            \"description\": \"Extract structured invoice data from raw text.\",\n            \"input_schema\": {\n                \"type\": \"object\",\n                \"properties\": {\n                    \"vendor\": {\"type\": \"string\"},\n                    \"amount_chf\": {\"type\": \"number\"},\n                    \"due_date\": {\"type\": \"string\", \"format\": \"date\"}\n                },\n                \"required\": [\"vendor\", \"amount_chf\", \"due_date\"]\n            }\n        }\n    ],\n    tool_choice={\"type\": \"tool\", \"name\": \"extract_invoice\"},\n    messages=[{\"role\": \"user\", \"content\": \"Invoice from Swisscom AG, CHF 340.00, due 2025-08-01.\"}]\n)\n\nresult = json.loads(response.content[0].input)\nprint(result)"
+        },
+        "example_output": "{\n  \"vendor\": \"Swisscom AG\",\n  \"amount_chf\": 340.0,\n  \"due_date\": \"2025-08-01\"\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Notice the trick in that first example: I'm using a tool definition to enforce a schema, but <code>tool_choice</code> is pinned to a specific tool name. The model never actually calls an external function — it just fills in the input object. This is the idiomatic way to get structured outputs on the Anthropic API today, and it works reliably. The schema is validated server-side; you don't get a response that half-conforms. The downside is that you're borrowing the tool-use machinery for a purpose it wasn't originally designed for, which can confuse teammates who expect tools to <em>do</em> something.</p><p>Real tool use looks different. The model sees a set of functions, decides which one to call and with what arguments, and your code is responsible for executing that call and feeding the result back. The loop is explicit. This is where MCP (Model Context Protocol) becomes relevant — instead of hand-wiring each tool as a bespoke function in your application, you expose them as a server that any compliant client can discover and call. The protocol handles the plumbing; you focus on what each tool actually does.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference MCP server implementations that expose tools to LLMs."
+        },
+        "usage_note": "The MCP reference servers are where I send clients who want to see what a production-grade tool definition looks like before they write their own — the filesystem and database servers in particular show exactly how capability boundaries should be drawn.",
+        "code_example": {
+          "language": "python",
+          "code": "# Minimal MCP server exposing a 'query_orders' tool\nfrom mcp.server import Server\nfrom mcp.server.stdio import stdio_server\nfrom mcp import types\nimport asyncio, sqlite3\n\napp = Server(\"orders-db\")\n\n@app.list_tools()\nasync def list_tools() -> list[types.Tool]:\n    return [\n        types.Tool(\n            name=\"query_orders\",\n            description=\"Run a read-only SQL query against the orders database.\",\n            inputSchema={\n                \"type\": \"object\",\n                \"properties\": {\n                    \"sql\": {\"type\": \"string\", \"description\": \"SELECT statement only\"}\n                },\n                \"required\": [\"sql\"]\n            }\n        )\n    ]\n\n@app.call_tool()\nasync def call_tool(name: str, arguments: dict) -> list[types.TextContent]:\n    if name == \"query_orders\":\n        conn = sqlite3.connect(\"orders.db\")\n        rows = conn.execute(arguments[\"sql\"]).fetchall()\n        conn.close()\n        return [types.TextContent(type=\"text\", text=str(rows))]\n\nasync def main():\n    async with stdio_server() as (r, w):\n        await app.run(r, w, app.create_initialization_options())\n\nasyncio.run(main())"
+        },
+        "example_output": "Tool registered: query_orders\nServer listening on stdio\n[Tool call received] sql: SELECT id, total FROM orders WHERE status = 'pending'\n[Result] [(1042, 890.0), (1051, 340.0), (1063, 1200.0)]"
+      },
+      {
+        "type": "diagram",
+        "heading": "Structured Outputs vs Tool Use",
+        "image": "structured-outputs-vs-tool-use-choosing-the-right-contract-diagram-1.png",
+        "alt": "Comparison: Aspect, Structured Outputs, Tool Use"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The question I ask before any build is: does the model need to <em>wait for something</em> to happen before it can finish? If yes, you need tool use. If the model has everything it needs in context and you just want the output in a predictable shape, structured outputs are simpler and safer. Agents that mix both patterns — structured outputs for intermediate parsing steps, tool calls for side-effecting actions — tend to be the most maintainable, because each concern is handled by the mechanism actually designed for it. The failure modes are also cleaner: a schema violation is immediately obvious; a tool that silently returns stale data is not.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "code_project",
+      "diagram",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Tree Appreciator",
+      "url": "https://simonwillison.net/2026/Oct/14/tree-appreciator/",
+      "source": "Simon Willison"
+    },
+    "og_image": "structured-outputs-vs-tool-use-choosing-the-right-contract-hero.png"
   }
 ]
