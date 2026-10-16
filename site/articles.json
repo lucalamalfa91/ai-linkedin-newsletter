@@ -4777,5 +4777,100 @@
       "source": "Simon Willison"
     },
     "og_image": "structured-outputs-vs-tool-use-choosing-the-right-contract-hero.png"
+  },
+  {
+    "slug": "how-to-wire-your-ai-agent-to-the-real-world-with-mcp",
+    "title": "How to Wire Your AI Agent to the Real World with MCP",
+    "dek": "Model Context Protocol gives agents a standard way to call tools — here's how to set it up without the confusion.",
+    "date": "2026-10-16",
+    "published_at": "2026-10-16T09:32:16.987514+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "mcp",
+      "agents",
+      "tool-use",
+      "integration"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most agent tool integrations I see in production are bespoke glue code — a different shape for every data source, every API, every internal system. It works until you need to swap a model or add a new tool, and then you're rewriting plumbing. MCP is a bet that this layer can be standardized: one protocol for how a host (your LLM runtime) discovers and calls tools, and one protocol for how servers expose them. The trade-off is real — you're adding a network boundary and a spec to learn. But for anything beyond a single-tool demo, it pays off fast.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "How an MCP Request Flows",
+        "image": "how-to-wire-your-ai-agent-to-the-real-world-with-mcp-diagram-1.png",
+        "alt": "User Prompt → LLM Host → MCP Client → MCP Server → Tool / Data → Response Back"
+      },
+      {
+        "type": "list",
+        "heading": "Before You Write a Line of Code",
+        "items": [
+          {
+            "title": "Pick your transport",
+            "detail": "stdio for local tools running in the same machine, HTTP+SSE for anything remote or shared across services. Don't default to stdio just because the examples do."
+          },
+          {
+            "title": "Check the registry first",
+            "detail": "modelcontextprotocol/servers on GitHub has reference implementations for filesystems, databases, GitHub, Slack, and more. Clone one before you build from scratch."
+          },
+          {
+            "title": "Define your tool schema tightly",
+            "detail": "Every tool needs a JSON Schema for its inputs. Vague schemas produce vague model behavior — be explicit about types, required fields, and what errors can come back."
+          },
+          {
+            "title": "Handle errors at the server, not the host",
+            "detail": "Return structured error objects from your MCP server. If you let exceptions bubble up raw, the LLM will hallucinate a recovery that doesn't exist."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference implementations and community MCP servers."
+        },
+        "usage_note": "I start every new MCP integration by forking a reference server from this repo — the filesystem server alone has saved me hours of boilerplate.",
+        "code_example": {
+          "language": "python",
+          "code": "# Using the official MCP Python SDK (pip install mcp)\nfrom mcp.server import Server\nfrom mcp.server.stdio import stdio_server\nfrom mcp.types import Tool, TextContent\nimport asyncio\n\napp = Server(\"my-tool-server\")\n\n@app.list_tools()\nasync def list_tools():\n    return [\n        Tool(\n            name=\"get_record\",\n            description=\"Fetch a customer record by ID.\",\n            inputSchema={\n                \"type\": \"object\",\n                \"properties\": {\"customer_id\": {\"type\": \"string\"}},\n                \"required\": [\"customer_id\"]\n            }\n        )\n    ]\n\n@app.call_tool()\nasync def call_tool(name: str, arguments: dict):\n    if name == \"get_record\":\n        cid = arguments[\"customer_id\"]\n        # Replace with your real data fetch\n        return [TextContent(type=\"text\", text=f\"Record for {cid}: status=active, plan=pro\")]\n    raise ValueError(f\"Unknown tool: {name}\")\n\nasync def main():\n    async with stdio_server() as streams:\n        await app.run(streams[0], streams[1], app.create_initialization_options())\n\nasyncio.run(main())"
+        },
+        "example_output": "MCP server 'my-tool-server' started on stdio\nTool registered: get_record\n[call] get_record({\"customer_id\": \"acct_8821\"})\n-> Record for acct_8821: status=active, plan=pro"
+      },
+      {
+        "type": "list",
+        "heading": "Rules I Follow When Running MCP in Production",
+        "items": [
+          {
+            "title": "Version your tool schemas",
+            "detail": "Once an LLM is calling your tool, changing the schema without a version bump will silently break prompts that worked last week."
+          },
+          {
+            "title": "Log every tool call with its full arguments",
+            "detail": "Debugging agent behavior without this is guesswork. Store input, output, and latency for every invocation."
+          },
+          {
+            "title": "Rate-limit at the server boundary",
+            "detail": "The host model may call the same tool dozens of times in one agentic loop. Your MCP server should enforce limits, not rely on the caller to behave."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": {
+      "title": "Lab-in-the-Loop at Compute Speed — Ian Quigley, Leash Bio",
+      "url": "https://www.latent.space/p/lab-in-the-loop-at-compute-speed",
+      "source": "Latent Space"
+    },
+    "og_image": "how-to-wire-your-ai-agent-to-the-real-world-with-mcp-hero.png"
   }
 ]

@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Wire Your AI Agent to the Real World with MCP</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-wire-your-ai-agent-to-the-real-world-with-mcp.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-wire-your-ai-agent-to-the-real-world-with-mcp.html</guid>
+    <pubDate>Fri, 16 Oct 2026 09:32:16 +0000</pubDate>
+    <description>Model Context Protocol gives agents a standard way to call tools — here's how to set it up without the confusion.</description>
+    <category>mcp</category><category>agents</category><category>tool-use</category><category>integration</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-wire-your-ai-agent-to-the-real-world-with-mcp-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Structured Outputs vs Tool Use: Choosing the Right Contract</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-choosing-the-right-contract.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-choosing-the-right-contract.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 11 Sep 2026 09:24:12 +0000</pubDate>
     <description>Two ways to make LLMs behave predictably — and choosing wrong costs you more than just clean JSON.</description>
     <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-pick-the-right-constraint-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Prompt Caching: Stop Paying Twice for the Same Tokens</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html</guid>
-    <pubDate>Wed, 09 Sep 2026 09:26:07 +0000</pubDate>
-    <description>A concrete guide to structuring prompts so repeated context is cached and billed once, not every call.</description>
-    <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-stop-paying-twice-for-the-same-tokens-hero.png" type="image/png"/>
   </item>
 </channel></rss>
