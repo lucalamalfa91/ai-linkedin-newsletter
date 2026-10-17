@@ -4872,5 +4872,53 @@
       "source": "Latent Space"
     },
     "og_image": "how-to-wire-your-ai-agent-to-the-real-world-with-mcp-hero.png"
+  },
+  {
+    "slug": "stop-guessing-whether-your-llm-pipeline-actually-works",
+    "title": "Stop Guessing Whether Your LLM Pipeline Actually Works",
+    "dek": "Intuition is not a testing strategy — here's how to measure LLM quality the same way you'd measure any other software.",
+    "date": "2026-10-17",
+    "published_at": "2026-10-17T09:03:02.558405+00:00",
+    "technique": "LLM Evaluation & Testing",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "evaluation",
+      "testing",
+      "rag",
+      "reliability",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I talk to are still evaluating their LLM outputs by reading a few responses and deciding they feel right. That works until it doesn't — until a prompt change silently degrades retrieval quality in a RAG pipeline, or a model update shifts tone in ways nobody notices for two weeks. The core problem is that \"feels right\" doesn't version-control, doesn't run in CI, and doesn't catch regressions. You need numbers, and you need them to be reproducible.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>There are two distinct layers worth separating. The first is benchmark-level evaluation: does your system answer factual questions correctly, follow instructions, stay on topic? OpenAI's Evals framework gives you a structured way to define those checks and run them against any model or pipeline — you write an eval spec, point it at your completions, and get a score you can track over time. The second layer is RAG-specific: is your retrieval actually surfacing the right context, and is the model faithfully using it? That's where RAGAS comes in. It generates metrics like answer relevancy, faithfulness, and context precision from your own data, without needing a human to label every response. Neither tool is magic — RAGAS scores can be gamed by a model that's verbose and confident, and Evals requires you to write meaningful test cases in the first place — but both are a serious step up from manual spot-checking.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "openai/evals",
+          "url": "https://github.com/openai/evals",
+          "note": "Framework and open registry of benchmarks for evaluating LLM systems."
+        },
+        "usage_note": "I use openai/evals when I need a repeatable, version-controlled benchmark I can run after every model or prompt change.",
+        "code_example": {
+          "language": "yaml",
+          "code": "# evals/my_rag_eval.yaml\neval_id: my_rag_factual_v1\ndescription: \"Checks factual accuracy of RAG pipeline answers\"\n\nmetrics:\n  - name: match\n    type: includes-all\n\nsamples:\n  - input:\n      - role: system\n        content: \"Answer using only the provided context.\"\n      - role: user\n        content: \"What is the capital of Switzerland?\"\n    ideal: [\"Bern\"]\n  - input:\n      - role: system\n        content: \"Answer using only the provided context.\"\n      - role: user\n        content: \"Who chairs the Swiss Federal Council in 2024?\"\n    ideal: [\"Viola Amherd\"]"
+        },
+        "example_output": "Running eval: my_rag_factual_v1\nSamples: 2\nPassed: 2\nFailed: 0\nScore (match): 1.00"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "stop-guessing-whether-your-llm-pipeline-actually-works-hero.png"
   }
 ]
