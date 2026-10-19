@@ -4920,5 +4920,57 @@
     ],
     "inspired_by": null,
     "og_image": "stop-guessing-whether-your-llm-pipeline-actually-works-hero.png"
+  },
+  {
+    "slug": "what-happens-when-the-model-decides-to-invent-a-json-field",
+    "title": "What Happens When the Model Decides to Invent a JSON Field",
+    "dek": "A production incident taught me that validating LLM output isn't optional — here's how I do it now.",
+    "date": "2026-10-19",
+    "published_at": "2026-10-19T10:33:26.412920+00:00",
+    "technique": "Guardrails & Output Validation",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "guardrails",
+      "output-validation",
+      "reliability",
+      "structured-output"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Last autumn I was helping a Swiss fintech client wire up a document-processing pipeline. The model was supposed to extract a fixed set of fields — account number, transaction date, amount, currency — and return clean JSON. It worked beautifully in testing. Then, about two weeks into production, their downstream system started throwing foreign-key errors. The culprit: the model had started occasionally returning an extra field called <code>\"confidence\"</code> that nobody asked for, and on a few unlucky runs it had silently dropped <code>\"currency\"</code> altogether. The schema was never enforced anywhere. We were just doing <code>json.loads()</code> and passing the dict straight through. That was the last time I did that.</p><p>The thing people miss about LLM output validation is that it's not really about catching the model being \"wrong\" in some obvious way. It's about the fact that a language model is a probability distribution, and probability distributions occasionally produce low-probability events — especially when input documents are slightly out-of-distribution, context windows are near their limit, or the model version gets quietly swapped under you. You need a layer between the model's response and your application logic that can say, definitively, \"this output is not what we asked for\" and either repair it or reject it before anything downstream breaks.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "guardrails-ai/guardrails",
+          "url": "https://github.com/guardrails-ai/guardrails",
+          "note": "Input/output guards to detect and mitigate LLM risks, and enforce structure."
+        },
+        "usage_note": "I reach for Guardrails AI when I need to enforce a schema, run semantic checks, and get automatic reask behaviour all in one place — rather than gluing together a validator, a retry loop, and a Pydantic model by hand.",
+        "code_example": {
+          "language": "python",
+          "code": "import guardrails as gd\nfrom guardrails.hub import ValidRange, ValidChoices\nfrom pydantic import BaseModel, Field\nfrom typing import Literal\n\nclass TransactionExtraction(BaseModel):\n    account_number: str = Field(description=\"Account number as printed on document\")\n    transaction_date: str = Field(description=\"ISO 8601 date string, e.g. 2024-03-15\")\n    amount: float = Field(description=\"Transaction amount as a positive number\")\n    currency: Literal[\"CHF\", \"EUR\", \"USD\", \"GBP\"] = Field(description=\"ISO 4217 currency code\")\n\nguard = gd.Guard.for_pydantic(TransactionExtraction, num_reasks=2)\n\nraw_document = \"\"\"Kontoauszug: Konto 41-7823-9, Datum 15.03.2024, Betrag CHF 4'320.00\"\"\"\n\nresult = guard(\n    messages=[{\"role\": \"user\", \"content\": f\"Extract transaction fields from this document:\\n{raw_document}\"}],\n    model=\"gpt-4o-mini\",\n)\n\nprint(result.validated_output)\nprint(f\"Reask attempts: {result.reask_count}\")"
+        },
+        "example_output": "{\n  \"account_number\": \"41-7823-9\",\n  \"transaction_date\": \"2024-03-15\",\n  \"amount\": 4320.0,\n  \"currency\": \"CHF\"\n}\nReask attempts: 0"
+      },
+      {
+        "type": "prose",
+        "html": "<p>A few things I've learned running this in production. First, <code>num_reasks=2</code> is usually enough — if the model can't produce a valid output in three total attempts, something is structurally wrong with your prompt or your schema, and retrying more won't fix it. Second, Guardrails' reask mechanism works by feeding the validation error back to the model as a follow-up message, which is clever, but it also means you're spending extra tokens on failure cases. Log those reask counts. If they start climbing, it's a signal worth investigating before it becomes a support ticket. Third, Guardrails Hub validators like <code>ValidRange</code> or <code>TwoWords</code> are convenient, but don't let them replace thinking carefully about what your schema actually needs to express. A Pydantic model with <code>Literal</code> types and tight field descriptions will do more work than a pile of hub validators bolted on after the fact.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "The model is not your last line of defence — your validator is."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "what-happens-when-the-model-decides-to-invent-a-json-field-hero.png"
   }
 ]

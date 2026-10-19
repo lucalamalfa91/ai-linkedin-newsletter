@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>What Happens When the Model Decides to Invent a JSON Field</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-happens-when-the-model-decides-to-invent-a-json-field.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-happens-when-the-model-decides-to-invent-a-json-field.html</guid>
+    <pubDate>Mon, 19 Oct 2026 10:33:26 +0000</pubDate>
+    <description>A production incident taught me that validating LLM output isn't optional — here's how I do it now.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>structured-output</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-happens-when-the-model-decides-to-invent-a-json-field-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Stop Guessing Whether Your LLM Pipeline Actually Works</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-guessing-whether-your-llm-pipeline-actually-works.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-guessing-whether-your-llm-pipeline-actually-works.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 14 Sep 2026 10:22:22 +0000</pubDate>
     <description>A field note on building real evaluation pipelines — before a client demo forces you to.</description>
     <category>evaluation</category><category>testing</category><category>rag</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-i-stopped-trusting-my-gut-on-llm-output-quality-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>MCP: A Standard Plug Format for LLM Tool Access</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-a-standard-plug-format-for-llm-tool-access.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-a-standard-plug-format-for-llm-tool-access.html</guid>
-    <pubDate>Sat, 12 Sep 2026 09:03:07 +0000</pubDate>
-    <description>Model Context Protocol gives your LLM a consistent way to call tools without bespoke glue code for every integration.</description>
-    <category>mcp</category><category>tools</category><category>agents</category><category>integration</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-a-standard-plug-format-for-llm-tool-access-hero.png" type="image/png"/>
   </item>
 </channel></rss>
