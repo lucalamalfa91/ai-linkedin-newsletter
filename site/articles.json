@@ -4972,5 +4972,75 @@
     ],
     "inspired_by": null,
     "og_image": "what-happens-when-the-model-decides-to-invent-a-json-field-hero.png"
+  },
+  {
+    "slug": "llm-observability-tracing-what-your-models-actually-do",
+    "title": "LLM Observability: Tracing What Your Models Actually Do",
+    "dek": "Without proper tracing, you're flying blind — here's how to instrument your LLM stack so failures become diagnosable.",
+    "date": "2026-10-20",
+    "published_at": "2026-10-20T09:50:53.170204+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "observability",
+      "tracing",
+      "llm-ops",
+      "agents",
+      "debugging"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three weeks into a production deployment, a client called me. Their RAG pipeline was returning wrong answers on a specific category of questions — not always, not never, just enough to erode user trust. They had logs. They had error rates. What they didn't have was any visibility into what the model had actually <em>received</em> as context, what the retrieval step had pulled, how long each stage had taken, or whether the problem was in chunking, in embedding, or in the generation step itself. They were staring at outputs and guessing at causes. That's the default state for most LLM deployments, and it's a genuinely bad place to be.</p><p>LLM observability is the discipline of making your model pipeline inspectable after the fact — and sometimes in real time. It's not just logging the final response. It's capturing the full chain: the prompt that went in, the retrieved documents, the tool calls made, the token counts, the latency at each hop, and the model's intermediate reasoning if you're using something like chain-of-thought. Without this, debugging a multi-step agent is archaeology. With it, you can usually pinpoint a failure in minutes.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "What a Traced LLM Request Looks Like",
+        "image": "llm-observability-tracing-what-your-models-actually-do-diagram-1.png",
+        "alt": "User Input → Retrieval Step → Prompt Assembly → Model Call → Tool Execution → Trace Recorded"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The core primitive in any observability system is the <strong>trace</strong> — a structured record of a single end-to-end request, composed of <strong>spans</strong> that represent individual steps. This is borrowed from distributed systems tracing (OpenTelemetry, Jaeger, Zipkin), and the mental model maps well to LLM pipelines. A span might be \"retrieve documents,\" another might be \"call GPT-4o,\" another might be \"execute Python tool.\" Each span carries a start time, duration, inputs, outputs, and any metadata you choose to attach — model name, temperature, token usage, user ID. Stitched together, these spans give you the full execution tree of a request.</p><p>Where LLM observability diverges from classic APM is in what you need to capture. Latency and error rates matter, but so does the <em>content</em>. You need the actual prompt text, the actual completion, the retrieved chunks with their similarity scores. This creates a real tension: capturing all of that is expensive on storage, potentially sensitive under GDPR or similar frameworks, and can itself introduce latency if done naively. Every serious observability setup I've built has had to make explicit decisions about what to sample, what to redact, and where to store it. There's no free lunch — more visibility costs something.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>For agents specifically, observability becomes non-negotiable rather than just nice-to-have. An agent that runs ten tool calls before producing an answer has ten places where something can go wrong silently. I've seen agents loop, call the wrong tool with subtly wrong arguments, retrieve stale data, and then produce a confident-sounding answer that's completely wrong — all without a single exception being raised. The only way to catch this is to have every tool call, every LLM invocation, and every routing decision recorded as a span with its inputs and outputs intact. Geoffrey Huntley's point about enforcing observability at the commit level via pre-commit hooks is worth taking seriously: if your agent framework makes it easy to bypass the tracing layer, someone will, and you'll lose the data exactly when you need it most.</p><p>Evaluation is the other reason to care about tracing beyond pure debugging. Once you have traces, you have a dataset. You can run evals over historical traces — checking whether answers were grounded in the retrieved context, whether tool calls were appropriate, whether latency SLAs were met. This feedback loop between production traces and offline evaluation is how you actually improve a system over time, rather than just hoping the next model version fixes things. Tracing is infrastructure for learning, not just for firefighting.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The redaction decision I make first",
+        "html": "<p>Before I instrument anything, I decide what can and cannot be stored in plaintext. In Swiss enterprise contexts especially, personally identifiable information in prompt logs is a compliance problem waiting to happen. My default: hash or strip user identifiers at the SDK level before the trace is written, keep the structural data (token counts, latency, tool names, retrieval scores), and store full prompt/completion text only in a separate store with appropriate access controls and a shorter retention window. It's more setup upfront, but it prevents a much worse conversation later.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langfuse/langfuse",
+          "url": "https://github.com/langfuse/langfuse",
+          "note": "Open-source LLM observability platform: tracing, evals, prompt management."
+        },
+        "usage_note": "Langfuse is the tool I reach for when I need open-source tracing I can self-host — the Python SDK wraps cleanly around any LLM call and the UI gives clients something they can actually read.",
+        "code_example": {
+          "language": "python",
+          "code": "import os\nfrom langfuse import Langfuse\nfrom langfuse.decorators import observe, langfuse_context\nfrom openai import OpenAI\n\nlangfuse = Langfuse(\n    public_key=os.environ[\"LANGFUSE_PUBLIC_KEY\"],\n    secret_key=os.environ[\"LANGFUSE_SECRET_KEY\"],\n    host=os.environ.get(\"LANGFUSE_HOST\", \"https://cloud.langfuse.com\"),\n)\n\nclient = OpenAI()\n\n@observe()  # creates a span automatically; nests inside parent traces\ndef retrieve_context(query: str) -> list[str]:\n    # Simulated retrieval — replace with your vector store call\n    langfuse_context.update_current_observation(\n        input=query,\n        metadata={\"retriever\": \"pgvector\", \"top_k\": 3},\n    )\n    return [\n        \"Swiss contract law requires written form for certain agreements.\",\n        \"GDPR Article 17 covers the right to erasure.\",\n    ]\n\n@observe()  # root trace for the full request\ndef answer_question(user_query: str) -> str:\n    chunks = retrieve_context(user_query)\n    context_block = \"\\n\".join(f\"- {c}\" for c in chunks)\n\n    prompt = (\n        f\"Answer based only on the context below.\\n\\n\"\n        f\"Context:\\n{context_block}\\n\\n\"\n        f\"Question: {user_query}\"\n    )\n\n    response = client.chat.completions.create(\n        model=\"gpt-4o-mini\",\n        messages=[{\"role\": \"user\", \"content\": prompt}],\n    )\n    answer = response.choices[0].message.content\n\n    langfuse_context.update_current_observation(\n        output=answer,\n        usage={\"total_tokens\": response.usage.total_tokens},\n    )\n    return answer\n\nresult = answer_question(\"Does GDPR apply to Swiss companies?\")\nprint(result)\nlangfuse.flush()  # ensure all spans are sent before process exits"
+        },
+        "example_output": "Span 'retrieve_context' recorded — input: 'Does GDPR apply to Swiss companies?', metadata: {retriever: pgvector, top_k: 3}\nSpan 'answer_question' recorded — 2 child spans, total_tokens: 187, latency: 1.24s\n\nBased on the context provided: GDPR Article 17 covers the right to erasure.\nWhile Swiss law has its own framework (nDSG), Swiss companies processing\ndata of EU residents are subject to GDPR obligations directly.\n\nTrace visible at: https://cloud.langfuse.com/traces/a3f9c1d2-..."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "prose",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "Quoting Geoffrey Huntley",
+      "url": "https://simonwillison.net/2026/Oct/13/geoffrey-huntley/",
+      "source": "Simon Willison"
+    },
+    "og_image": "llm-observability-tracing-what-your-models-actually-do-hero.png"
   }
 ]

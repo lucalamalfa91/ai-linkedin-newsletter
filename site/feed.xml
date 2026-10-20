@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>LLM Observability: Tracing What Your Models Actually Do</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/llm-observability-tracing-what-your-models-actually-do.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/llm-observability-tracing-what-your-models-actually-do.html</guid>
+    <pubDate>Tue, 20 Oct 2026 09:50:53 +0000</pubDate>
+    <description>Without proper tracing, you're flying blind — here's how to instrument your LLM stack so failures become diagnosable.</description>
+    <category>observability</category><category>tracing</category><category>llm-ops</category><category>agents</category><category>debugging</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/llm-observability-tracing-what-your-models-actually-do-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>What Happens When the Model Decides to Invent a JSON Field</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/what-happens-when-the-model-decides-to-invent-a-json-field.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-happens-when-the-model-decides-to-invent-a-json-field.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 15 Sep 2026 09:49:07 +0000</pubDate>
     <description>Why validating what your LLM returns is as important as any other layer of your production stack.</description>
     <category>guardrails</category><category>output-validation</category><category>reliability</category><category>production-ai</category><category>safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-treating-llm-output-as-untrusted-input-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>How I Stopped Trusting My Gut on LLM Output Quality</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-trusting-my-gut-on-llm-output-quality.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-trusting-my-gut-on-llm-output-quality.html</guid>
-    <pubDate>Mon, 14 Sep 2026 10:22:22 +0000</pubDate>
-    <description>A field note on building real evaluation pipelines — before a client demo forces you to.</description>
-    <category>evaluation</category><category>testing</category><category>rag</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-i-stopped-trusting-my-gut-on-llm-output-quality-hero.png" type="image/png"/>
   </item>
 </channel></rss>
