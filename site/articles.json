@@ -5042,5 +5042,47 @@
       "source": "Simon Willison"
     },
     "og_image": "llm-observability-tracing-what-your-models-actually-do-hero.png"
+  },
+  {
+    "slug": "red-teaming-ai-systems-is-not-a-security-audit",
+    "title": "Red-Teaming AI Systems Is Not a Security Audit",
+    "dek": "Most teams treat adversarial testing as a compliance checkbox. Here is why that framing guarantees you miss the real failures.",
+    "date": "2026-10-21",
+    "published_at": "2026-10-21T09:52:03.215228+00:00",
+    "technique": "Red-Teaming & Adversarial Testing",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "red-teaming",
+      "adversarial-testing",
+      "reliability",
+      "safety"
+    ],
+    "blocks": [
+      {
+        "type": "callout",
+        "label": "The framing that keeps failing teams",
+        "html": "<p>Red-teaming an LLM is not about finding the jailbreak. It is about discovering what your system believes its job is — and whether that belief matches yours.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Most of the red-teaming conversation in the enterprise AI space is dominated by a narrow threat model: can someone trick the model into saying something bad? That is a real concern, but it is probably the fifth most important thing to test, not the first. The failures I see repeatedly in production are not dramatic jailbreaks. They are quiet, boring, systematic misbehaviors — a RAG pipeline that confidently cites documents it was never given, an agent that interprets an ambiguous instruction in a way that is technically compliant but operationally wrong, a system prompt that works perfectly in English and falls apart in German. None of those show up in a standard red-team session if the person running it is thinking primarily about adversarial users.</p><p>The terminology is part of the problem. \"Red-teaming\" carries military and security connotations that push practitioners toward attacker personas and exotic inputs. What you actually need, most of the time, is systematic coverage of the ordinary edge cases your real users will hit — and a way to detect regressions when you change the model, the prompt, or the retrieval layer. That is not glamorous. It is also not optional.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The discipline I have found useful is to separate three distinct activities that often get collapsed under the same label. First, behavioral coverage testing: does the system respond correctly across the range of inputs you actually expect? Second, adversarial probing: what happens when someone actively tries to subvert the system's intent? Third, regression testing: did the change you made last Tuesday break something that was working? Each of these requires a different mindset and, usually, different tooling. Running a batch of adversarial prompts through the system once before launch and calling it done addresses none of them properly. It gives you a snapshot of one small slice of the problem space, at one point in time, with no mechanism to catch drift.</p><p>The honest trade-off here is effort versus coverage. Automated adversarial testing at scale catches the systematic and the repeatable. It will not catch the clever, context-specific manipulation that a determined human attacker constructs in real time. But in practice, the vast majority of the damage done by poorly tested LLM systems is not caused by clever attackers — it is caused by ordinary users doing ordinary things that the builders did not anticipate. Invest accordingly.</p>"
+      }
+    ],
+    "block_signature": [
+      "callout",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "llm-echo 0.5",
+      "url": "https://simonwillison.net/2026/Oct/18/llm-echo/",
+      "source": "Simon Willison"
+    },
+    "og_image": "red-teaming-ai-systems-is-not-a-security-audit-hero.png"
   }
 ]

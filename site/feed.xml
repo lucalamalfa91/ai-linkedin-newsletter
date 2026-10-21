@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Red-Teaming AI Systems Is Not a Security Audit</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-ai-systems-is-not-a-security-audit.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-ai-systems-is-not-a-security-audit.html</guid>
+    <pubDate>Wed, 21 Oct 2026 09:52:03 +0000</pubDate>
+    <description>Most teams treat adversarial testing as a compliance checkbox. Here is why that framing guarantees you miss the real failures.</description>
+    <category>red-teaming</category><category>adversarial-testing</category><category>reliability</category><category>safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-ai-systems-is-not-a-security-audit-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>LLM Observability: Tracing What Your Models Actually Do</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/llm-observability-tracing-what-your-models-actually-do.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/llm-observability-tracing-what-your-models-actually-do.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 16 Sep 2026 09:43:45 +0000</pubDate>
     <description>Most teams instrument their AI pipelines for the wrong reasons — here's what observability actually tells you.</description>
     <category>observability</category><category>tracing</category><category>llm-ops</category><category>evaluation</category><category>production-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/tracing-your-llm-is-not-the-same-as-understanding-it-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Guardrails and Output Validation: Treating LLM Output as Untrusted Input</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-treating-llm-output-as-untrusted-input.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-treating-llm-output-as-untrusted-input.html</guid>
-    <pubDate>Tue, 15 Sep 2026 09:49:07 +0000</pubDate>
-    <description>Why validating what your LLM returns is as important as any other layer of your production stack.</description>
-    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>production-ai</category><category>safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-treating-llm-output-as-untrusted-input-hero.png" type="image/png"/>
   </item>
 </channel></rss>
