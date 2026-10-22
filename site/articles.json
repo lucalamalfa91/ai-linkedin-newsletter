@@ -5084,5 +5084,100 @@
       "source": "Simon Willison"
     },
     "og_image": "red-teaming-ai-systems-is-not-a-security-audit-hero.png"
+  },
+  {
+    "slug": "how-to-engineer-context-before-it-engineers-you",
+    "title": "How to Engineer Context Before It Engineers You",
+    "dek": "A practical guide to structuring what goes into your LLM's context window — and what stays out.",
+    "date": "2026-10-22",
+    "published_at": "2026-10-22T09:52:42.888574+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "agents"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most context window problems aren't token problems. They're curation problems. Engineers hit the limit and immediately think about chunking or summarization, when the real fix was deciding earlier what actually needed to be in context at all. Get that decision wrong and you're either stuffing irrelevant material that dilutes attention, or trimming things the model quietly needed. Both failure modes produce the same symptom: outputs that feel slightly off in ways that are hard to debug.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Context Engineering Pipeline",
+        "image": "how-to-engineer-context-before-it-engineers-you-diagram-1.png",
+        "alt": "Define task scope → Retrieve only relevant → Rank and prune → Structure and label → Route to model → Validate output"
+      },
+      {
+        "type": "list",
+        "heading": "Rules for what goes into context",
+        "items": [
+          {
+            "title": "State the task before the material",
+            "detail": "Put the instruction or question first. The model reads top-to-bottom during prefill — grounding it early changes how it weights everything that follows."
+          },
+          {
+            "title": "Label every section explicitly",
+            "detail": "Use clear XML-style tags or headers: <document>, <conversation_history>, <tool_output>. Unlabeled blobs get misread or ignored."
+          },
+          {
+            "title": "Prune before you summarize",
+            "detail": "Summarization compresses but introduces lossy paraphrasing. Deletion is lossless for anything genuinely irrelevant. Try pruning first."
+          },
+          {
+            "title": "Push the least-critical material to the middle",
+            "detail": "Empirically, models attend more strongly to the beginning and end of a long context. Sandwich your most important content at the edges."
+          },
+          {
+            "title": "Track token budget explicitly in code",
+            "detail": "Don't rely on feel. Count tokens before every model call and log how much headroom you had. You'll find patterns fast."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Long-context and context-management patterns (PDF uploads, sub-agents)."
+        },
+        "usage_note": "I use Claude's cookbooks when I need a reference implementation for multi-document ingestion or sub-agent context handoff — it's faster than reasoning from scratch.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport base64\n\nclient = anthropic.Anthropic()\n\ndef encode_pdf(path: str) -> str:\n    with open(path, \"rb\") as f:\n        return base64.standard_b64encode(f.read()).decode(\"utf-8\")\n\ndef analyze_documents(pdf_paths: list[str], question: str) -> str:\n    content = []\n    for path in pdf_paths:\n        content.append({\n            \"type\": \"document\",\n            \"source\": {\n                \"type\": \"base64\",\n                \"media_type\": \"application/pdf\",\n                \"data\": encode_pdf(path),\n            },\n        })\n    content.append({\"type\": \"text\", \"text\": question})\n\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=1024,\n        messages=[{\"role\": \"user\", \"content\": content}],\n    )\n    return response.content[0].text\n\nresult = analyze_documents(\n    [\"contract_v1.pdf\", \"contract_v2.pdf\"],\n    \"What are the material differences between these two contracts?\"\n)\nprint(result)"
+        },
+        "example_output": "Material differences between contract_v1.pdf and contract_v2.pdf:\n\n1. Liability cap: v1 sets a 12-month revenue cap; v2 introduces a hard ceiling of CHF 500,000.\n2. Termination clause: v2 adds a 30-day cure period absent in v1.\n3. Governing law: changed from English law (v1) to Swiss law, Canton of Zurich (v2).\n4. Data processing addendum: referenced in v2, not present in v1."
+      },
+      {
+        "type": "list",
+        "heading": "Sub-agent context handoff checklist",
+        "items": [
+          {
+            "title": "Pass summaries, not full histories",
+            "detail": "When spawning a sub-agent, synthesize what it needs to know — don't forward the entire parent conversation. Sub-agents accumulate context fast."
+          },
+          {
+            "title": "Include the original objective",
+            "detail": "Sub-agents drift. Always include the top-level goal in the handoff prompt, even if it seems redundant to you."
+          },
+          {
+            "title": "Return structured results only",
+            "detail": "Sub-agent outputs that come back as prose get re-parsed by the orchestrator with variable accuracy. Return JSON or a fixed schema and parse it deterministically."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "how-to-engineer-context-before-it-engineers-you-hero.png"
   }
 ]

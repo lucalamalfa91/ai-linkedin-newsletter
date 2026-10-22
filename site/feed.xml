@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Engineer Context Before It Engineers You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-engineer-context-before-it-engineers-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-engineer-context-before-it-engineers-you.html</guid>
+    <pubDate>Thu, 22 Oct 2026 09:52:42 +0000</pubDate>
+    <description>A practical guide to structuring what goes into your LLM's context window — and what stays out.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-engineer-context-before-it-engineers-you-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Red-Teaming AI Systems Is Not a Security Audit</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-ai-systems-is-not-a-security-audit.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-ai-systems-is-not-a-security-audit.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 17 Sep 2026 09:51:51 +0000</pubDate>
     <description>A concrete process for finding prompt injection, jailbreaks, and policy failures before they reach production.</description>
     <category>red-teaming</category><category>adversarial-testing</category><category>reliability</category><category>prompt-injection</category><category>safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-red-team-your-llm-before-your-users-do-it-for-you-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Tracing Your LLM Is Not the Same as Understanding It</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/tracing-your-llm-is-not-the-same-as-understanding-it.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/tracing-your-llm-is-not-the-same-as-understanding-it.html</guid>
-    <pubDate>Wed, 16 Sep 2026 09:43:45 +0000</pubDate>
-    <description>Most teams instrument their AI pipelines for the wrong reasons — here's what observability actually tells you.</description>
-    <category>observability</category><category>tracing</category><category>llm-ops</category><category>evaluation</category><category>production-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/tracing-your-llm-is-not-the-same-as-understanding-it-hero.png" type="image/png"/>
   </item>
 </channel></rss>
