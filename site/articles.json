@@ -5179,5 +5179,79 @@
     ],
     "inspired_by": null,
     "og_image": "how-to-engineer-context-before-it-engineers-you-hero.png"
+  },
+  {
+    "slug": "dense-retrieval-vs-keyword-search-choosing-your-embedding-strategy",
+    "title": "Dense Retrieval vs. Keyword Search: Choosing Your Embedding Strategy",
+    "dek": "Vector search and BM25 solve different problems — here's how to pick the right one, or combine both.",
+    "date": "2026-10-23",
+    "published_at": "2026-10-23T09:58:01.152898+00:00",
+    "technique": "Vector Search & Embeddings",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "vector-search",
+      "embeddings",
+      "retrieval",
+      "rag"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams reach for vector search the moment someone says \"semantic search\" or \"RAG,\" and they do it without asking whether their problem actually needs it. I've seen this go wrong in both directions: a team spending weeks tuning embedding models when a simple keyword index would have been faster and more accurate for their structured product catalog, and another team stubbornly sticking with BM25 for a multilingual support corpus where vocabulary mismatch was killing recall. The honest answer is that dense retrieval and sparse retrieval are genuinely different tools, and the choice between them shapes everything downstream — latency, cost, maintenance burden, and ultimately whether your LLM gets the right context.</p><p>Dense retrieval encodes meaning into a fixed-size vector and finds neighbors by geometric proximity. That's great when the user's words don't match the document's words but the intent does. Sparse retrieval — BM25, TF-IDF, the classics — rewards exact and near-exact term overlap. That's great when precision matters more than recall, when your corpus is domain-specific with controlled vocabulary, or when you simply can't afford to embed and index millions of documents on a tight inference budget. Neither is universally better. The failure mode of dense retrieval is subtle: it confidently retrieves plausible-sounding but wrong documents because the embedding space conflates topics that share surface-level semantic neighborhoods. The failure mode of sparse retrieval is obvious: it misses everything the user didn't phrase exactly right.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Embedding database and search infrastructure for AI applications."
+        },
+        "usage_note": "I reach for Chroma when I need a self-contained embedding store I can run locally or in a container without standing up a separate vector database service — it's the fastest way to validate whether dense retrieval actually improves retrieval quality for a specific corpus before committing to infrastructure.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.Client()\n\nsentence_ef = embedding_functions.SentenceTransformerEmbeddingFunction(\n    model_name=\"all-MiniLM-L6-v2\"\n)\n\ncollection = client.create_collection(\n    name=\"support_docs\",\n    embedding_function=sentence_ef\n)\n\ncollection.add(\n    documents=[\n        \"How to reset your account password via email\",\n        \"Billing cycle and invoice generation schedule\",\n        \"Two-factor authentication setup and recovery codes\",\n        \"Refund policy for annual subscription plans\",\n    ],\n    ids=[\"doc1\", \"doc2\", \"doc3\", \"doc4\"]\n)\n\nresults = collection.query(\n    query_texts=[\"I forgot how to get back into my account\"],\n    n_results=2\n)\n\nfor doc, dist in zip(results[\"documents\"][0], results[\"distances\"][0]):\n    print(f\"[{dist:.3f}] {doc}\")"
+        },
+        "example_output": "[0.312] How to reset your account password via email\n[0.581] Two-factor authentication setup and recovery codes"
+      },
+      {
+        "type": "prose",
+        "html": "<p>That result is the case for dense retrieval in one line: the user wrote \"forgot how to get back into my account\" and the top hit is the password reset doc, which shares zero keywords with the query. BM25 would have scored that document near zero. But notice the second result — 2FA setup — is plausible but probably not what the user needs. That's the conflation problem in action. Dense retrieval casts a wider net, which is good for recall and dangerous for precision. If your downstream LLM prompt is short and you can only afford two retrieved chunks, that second slot matters enormously.</p><p>LlamaIndex sits one layer above the raw embedding store. It gives you abstractions for chunking, indexing, and retrieval strategies — including hybrid retrieval that blends dense and sparse scores. That's where things get genuinely interesting, and also where you can waste a lot of time tuning weights if you're not disciplined about measuring what actually changes answer quality. My rule: always establish a BM25 baseline first, measure it against your eval set, then add dense retrieval and measure again. If the hybrid doesn't beat both individually on your specific corpus, you've added complexity for nothing.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Indexing and retrieval framework built on top of embeddings."
+        },
+        "usage_note": "I use LlamaIndex when the retrieval problem has grown past \"find similar documents\" into something that needs chunking strategies, metadata filters, or hybrid scoring — it handles the plumbing so I can focus on what the retrieval pipeline actually needs to get right.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings\nfrom llama_index.core.retrievers import VectorIndexRetriever\nfrom llama_index.core.query_engine import RetrieverQueryEngine\nfrom llama_index.embeddings.huggingface import HuggingFaceEmbedding\nfrom llama_index.llms.openai import OpenAI\n\nSettings.embed_model = HuggingFaceEmbedding(model_name=\"BAAI/bge-small-en-v1.5\")\nSettings.llm = OpenAI(model=\"gpt-4o-mini\")\n\ndocuments = SimpleDirectoryReader(\"./support_docs\").load_data()\n\nindex = VectorStoreIndex.from_documents(documents)\n\nretriever = VectorIndexRetriever(index=index, similarity_top_k=4)\nquery_engine = RetrieverQueryEngine(retriever=retriever)\n\nresponse = query_engine.query(\n    \"What happens to my data if I cancel my subscription?\"\n)\n\nprint(response)"
+        },
+        "example_output": "Based on the retrieved documents: your data is retained for 30 days after\ncancellation, after which it is permanently deleted. You can export all\nyour data at any time from the account settings panel before cancellation\ntakes effect."
+      },
+      {
+        "type": "diagram",
+        "heading": "Dense vs. Sparse Retrieval: When Each Wins",
+        "image": "dense-retrieval-vs-keyword-search-choosing-your-embedding-strategy-diagram-1.png",
+        "alt": "Comparison: Aspect, Dense (Embeddings), Sparse (BM25/TF-IDF)"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The practical upshot: if you're building a RAG system over internal documentation or a support knowledge base, start with BM25. It's free, interpretable, and fast to debug. Add dense retrieval when you have evidence — from real user queries that returned nothing useful — that vocabulary mismatch is actually your problem. And if you go hybrid, weight the sparse score higher than you think you should. In my experience, teams consistently over-index on the semantic side because it feels more sophisticated, and then wonder why retrieval precision dropped.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "code_project",
+      "diagram",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "dense-retrieval-vs-keyword-search-choosing-your-embedding-strategy-hero.png"
   }
 ]
