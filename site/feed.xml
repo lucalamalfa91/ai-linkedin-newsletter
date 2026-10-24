@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Agent Memory Is Architecture, Not an Afterthought</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-architecture-not-an-afterthought.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-architecture-not-an-afterthought.html</guid>
+    <pubDate>Sat, 24 Oct 2026 09:19:58 +0000</pubDate>
+    <description>How you store and retrieve agent state determines whether your system is reliable or just demo-ware.</description>
+    <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-is-architecture-not-an-afterthought-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Dense Retrieval vs. Keyword Search: Choosing Your Embedding Strategy</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-keyword-search-choosing-your-embedding-strategy.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-keyword-search-choosing-your-embedding-strategy.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 19 Sep 2026 09:13:48 +0000</pubDate>
     <description>Choosing between a bare embedding database and a full retrieval framework shapes everything downstream — here is how to think about that trade-off.</description>
     <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Stop Stuffing the Context Window — Manage It Instead</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-stuffing-the-context-window-manage-it-instead.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-stuffing-the-context-window-manage-it-instead.html</guid>
-    <pubDate>Fri, 18 Sep 2026 09:25:30 +0000</pubDate>
-    <description>More tokens does not mean better answers. Here's how to be deliberate about what you put in context.</description>
-    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-stuffing-the-context-window-manage-it-instead-hero.png" type="image/png"/>
   </item>
 </channel></rss>

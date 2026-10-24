@@ -5253,5 +5253,56 @@
     ],
     "inspired_by": null,
     "og_image": "dense-retrieval-vs-keyword-search-choosing-your-embedding-strategy-hero.png"
+  },
+  {
+    "slug": "agent-memory-is-architecture-not-an-afterthought",
+    "title": "Agent Memory Is Architecture, Not an Afterthought",
+    "dek": "How you store and retrieve agent state determines whether your system is reliable or just demo-ware.",
+    "date": "2026-10-24",
+    "published_at": "2026-10-24T09:19:58.498895+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "agents",
+      "memory",
+      "state-management",
+      "langgraph"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most agent failures I debug in production aren't model failures — they're memory failures. The agent loses track of what it already tried, repeats a tool call it made three steps ago, or contradicts a decision it made earlier in the same session. The model is fine. The state design is broken. And nine times out of ten, the developer treated memory as something they'd figure out later, after they got the \"core logic\" working. That's backwards. Memory <em>is</em> the core logic for any agent that runs more than two steps.</p><p>There are really only three questions worth answering up front: What gets persisted between steps? What gets persisted between sessions? And what gets summarized or discarded to keep the context window from bloating? If you can't answer all three before you write the first tool, you're going to rebuild your state layer at least twice. LangGraph is the tool I reach for here because it forces you to define your state schema explicitly — as a typed object — before you wire up any nodes. That constraint feels annoying for five minutes and then saves you hours.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Stateful agent graphs with built-in persistence and memory."
+        },
+        "usage_note": "I use LangGraph's built-in checkpointing when I need an agent that can pause mid-run, resume after a crash, or let a human review state before continuing — things you simply can't bolt on later.",
+        "code_example": {
+          "language": "python",
+          "code": "from langgraph.graph import StateGraph, END\nfrom langgraph.checkpoint.sqlite import SqliteSaver\nfrom typing import TypedDict, Annotated\nimport operator\n\nclass AgentState(TypedDict):\n    messages: Annotated[list[str], operator.add]\n    attempts: int\n    last_tool_result: str\n\ndef call_tool(state: AgentState) -> AgentState:\n    # Simulate a tool call; real impl would hit an API\n    result = f\"result_after_{state['attempts']}_attempts\"\n    return {\"last_tool_result\": result, \"attempts\": state[\"attempts\"] + 1}\n\ndef should_continue(state: AgentState):\n    return END if state[\"attempts\"] >= 3 else \"call_tool\"\n\nbuilder = StateGraph(AgentState)\nbuilder.add_node(\"call_tool\", call_tool)\nbuilder.set_entry_point(\"call_tool\")\nbuilder.add_conditional_edges(\"call_tool\", should_continue)\n\nmemory = SqliteSaver.from_conn_string(\"agent_state.db\")\ngraph = builder.compile(checkpointer=memory)\n\nconfig = {\"configurable\": {\"thread_id\": \"session-42\"}}\nresult = graph.invoke({\"messages\": [], \"attempts\": 0, \"last_tool_result\": \"\"}, config)"
+        },
+        "example_output": "# After first run:\n# state saved to agent_state.db under thread_id 'session-42'\n# attempts: 3, last_tool_result: 'result_after_2_attempts'\n\n# On resume after crash, graph picks up from last checkpoint:\n# attempts: 3 -> condition returns END, no redundant tool calls"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The <code>thread_id</code> in that config is doing more work than it looks like. Every invocation with the same thread ID replays from the last persisted checkpoint — which means a crash, a timeout, or a deliberate human-in-the-loop pause doesn't lose progress. Swap SQLite for Postgres in production and the behavior is identical. What I'd warn against: storing everything in state indefinitely. Attempts, tool results, and intermediate reasoning accumulate fast. Build a summarization step or a rolling window trim into your graph from day one, not when you hit a context limit three weeks into production.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Donating Agent Skills to the Agentic AI Foundation",
+      "url": "https://simonwillison.net/2026/Oct/22/donating-agent-skills/",
+      "source": "Simon Willison"
+    },
+    "og_image": "agent-memory-is-architecture-not-an-afterthought-hero.png"
   }
 ]
