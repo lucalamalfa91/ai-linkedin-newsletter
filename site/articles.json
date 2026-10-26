@@ -5304,5 +5304,66 @@
       "source": "Simon Willison"
     },
     "og_image": "agent-memory-is-architecture-not-an-afterthought-hero.png"
+  },
+  {
+    "slug": "how-i-stopped-guessing-and-started-engineering-my-prompts",
+    "title": "How I Stopped Guessing and Started Engineering My Prompts",
+    "dek": "A field note on treating prompts like code — with iteration, structure, and a healthy skepticism toward your first draft.",
+    "date": "2026-10-26",
+    "published_at": "2026-10-26T10:48:05.985304+00:00",
+    "technique": "Prompt Engineering & Optimization",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "prompt-engineering",
+      "llm",
+      "workflow",
+      "reliability"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client in Geneva last spring asked me why their summarization pipeline kept producing outputs that were technically correct but completely useless — too long, wrong register, burying the key number every time. I asked to see the prompt. It was one sentence. One. They'd written it in five minutes, it worked well enough in a quick test, and then it went straight to production. Six weeks later, their analysts were manually editing every single summary before sending it to the board.</p><p>That moment stuck with me, because it wasn't unusual. Most teams treat the prompt as an afterthought — something you dash off before getting to the \"real\" engineering. What I've come to believe, after doing this work for a few years now, is that the prompt <em>is</em> the engineering. The model weights are fixed. The only lever you have is the text you send in. So you'd better take it seriously.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>What prompt engineering actually looks like in practice — not the blog-post version — is closer to debugging than writing. You form a hypothesis about why the model is behaving a certain way, you change one thing, you run it against a set of representative inputs, and you look at what changed. The mistake most people make is changing three things at once and then not knowing what actually moved the needle. The other mistake is testing on two examples and calling it done. I keep a small eval set for every prompt I care about: usually 15–30 examples that cover the edge cases, the adversarial inputs, and the boring normal cases. If a prompt change doesn't improve the score on that set, it doesn't ship — no matter how good it sounds in my head.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Worked prompt-design examples across classification, RAG, and summarization."
+        },
+        "usage_note": "I reach for the Claude Cookbooks when I need a concrete, worked example to anchor a prompt design session — the classification and RAG examples in particular have saved me from reinventing the wheel on structured-output formatting.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\nSYSTEM_PROMPT = \"\"\"\nYou are a document classifier. Given a support ticket, return a JSON object with:\n- category: one of [billing, technical, account, other]\n- confidence: high | medium | low\n- reason: one sentence explaining the classification\n\nReturn only valid JSON. No explanation outside the JSON object.\n\"\"\"\n\ndef classify_ticket(ticket_text: str) -> dict:\n    message = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=256,\n        system=SYSTEM_PROMPT,\n        messages=[\n            {\"role\": \"user\", \"content\": ticket_text}\n        ]\n    )\n    import json\n    return json.loads(message.content[0].text)\n\nresult = classify_ticket(\n    \"I was charged twice for my subscription this month and need a refund.\"\n)\nprint(result)"
+        },
+        "example_output": "{\n  \"category\": \"billing\",\n  \"confidence\": \"high\",\n  \"reason\": \"The ticket explicitly mentions a duplicate charge and requests a refund.\"\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The thing the cookbooks do well — and the thing I try to carry into my own work — is showing that a prompt has <em>structure</em>. There's a role definition, a format constraint, an output schema, and examples if the task is ambiguous. You don't need all four every time, but you need to consciously decide which ones to include and why. The failure mode I see most often is a prompt that defines the role but says nothing about format, and then the developer is surprised when the model sometimes returns a bullet list and sometimes a paragraph. That's not the model being inconsistent — that's an underspecified prompt. The model is filling in the gaps you left open, and it's doing so differently each time because you gave it room to. Close the room."
+      },
+      {
+        "type": "quote",
+        "text": "The prompt is the engineering — everything else is just infrastructure around a decision you already made in plain text."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "battledrones v14: Compass Rose, a four player map",
+      "url": "https://simonwillison.net/2026/Oct/24/battledrones/",
+      "source": "Simon Willison"
+    },
+    "og_image": "how-i-stopped-guessing-and-started-engineering-my-prompts-hero.png"
   }
 ]

@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How I Stopped Guessing and Started Engineering My Prompts</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-guessing-and-started-engineering-my-prompts.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-guessing-and-started-engineering-my-prompts.html</guid>
+    <pubDate>Mon, 26 Oct 2026 10:48:05 +0000</pubDate>
+    <description>A field note on treating prompts like code — with iteration, structure, and a healthy skepticism toward your first draft.</description>
+    <category>prompt-engineering</category><category>llm</category><category>workflow</category><category>reliability</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-i-stopped-guessing-and-started-engineering-my-prompts-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Agent Memory Is Architecture, Not an Afterthought</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-architecture-not-an-afterthought.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-is-architecture-not-an-afterthought.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 21 Sep 2026 10:26:40 +0000</pubDate>
     <description>How to design agent state that actually persists across turns, restarts, and failures.</description>
     <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-agent-has-no-memory-that-s-your-fault-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Vector Search Done Right: Raw Embeddings vs. Retrieval Frameworks</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks.html</guid>
-    <pubDate>Sat, 19 Sep 2026 09:13:48 +0000</pubDate>
-    <description>Choosing between a bare embedding database and a full retrieval framework shapes everything downstream — here is how to think about that trade-off.</description>
-    <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-done-right-raw-embeddings-vs-retrieval-frameworks-hero.png" type="image/png"/>
   </item>
 </channel></rss>
