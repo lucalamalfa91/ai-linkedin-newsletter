@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fine-Tuning vs. Prompting: How to Choose the Right Lever — The AI Architect</title>
+  <meta name="description" content="Most teams reach for fine-tuning too early. Here&#x27;s a systematic way to decide which approach actually fits your problem.">
+  <meta property="og:title" content="Fine-Tuning vs. Prompting: How to Choose the Right Lever">
+  <meta property="og:description" content="Most teams reach for fine-tuning too early. Here&#x27;s a systematic way to decide which approach actually fits your problem.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-the-right-lever-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Fine-Tuning vs. Prompting: How to Choose the Right Lever">
+  <meta name="twitter:description" content="Most teams reach for fine-tuning too early. Here&#x27;s a systematic way to decide which approach actually fits your problem.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-the-right-lever-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Fine-Tuning vs. Prompting: How to Choose the Right Lever", "description": "Most teams reach for fine-tuning too early. Here's a systematic way to decide which approach actually fits your problem.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-the-right-lever-hero.png", "datePublished": "2026-10-27T10:15:11.854437+00:00", "dateModified": "2026-10-27T10:15:11.854437+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "fine-tuning, prompting, model-adaptation, llm-ops, cost"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Fine-Tuning vs. Prompting</span>
+      <h1 class="article-title">Fine-Tuning vs. Prompting: How to Choose the Right Lever</h1>
+      <p class="article-dek">Most teams reach for fine-tuning too early. Here&#x27;s a systematic way to decide which approach actually fits your problem.</p>
+      <p class="article-date">October 27, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>There&#x27;s a decision I see enterprises get wrong constantly: they frame fine-tuning as the &quot;serious&quot; solution and prompting as the quick-and-dirty shortcut. That framing is backwards. Prompting is not a stepping stone to fine-tuning — it&#x27;s a different tool solving a different class of problem. Conflating them costs time, money, and often produces a worse result than if the team had just written a better system prompt in the first place.</p><p>Let me be concrete about what each approach actually changes. A prompt shapes the model&#x27;s behavior at inference time — it sets context, constraints, tone, format, and task framing. Fine-tuning changes the model&#x27;s weights — it bakes in patterns that the model should apply without being told. That distinction sounds obvious, but its implications are not. If the behavior you want can be expressed as an instruction, prompting is almost certainly the faster, cheaper, and more maintainable path. Fine-tuning earns its cost when the behavior you want cannot be reliably expressed as an instruction, or when expressing it as an instruction every time is itself the bottleneck.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/fine-tuning-vs-prompting-how-to-choose-the-right-lever-diagram-1.png" alt="Comparison: Aspect, Prompting, Fine-Tuning" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>The honest failure mode of fine-tuning is one that rarely gets discussed openly: it can make a model worse at things it was previously good at. This is called catastrophic forgetting, and while modern techniques like LoRA mitigate it, they don&#x27;t eliminate it. I&#x27;ve seen teams fine-tune a model to produce tightly structured JSON output, only to discover that the model&#x27;s ability to reason through edge cases — which they needed for exception handling — had quietly degraded. They had optimized for format at the cost of reasoning quality. A well-crafted prompt with output validation would have given them both.</p><p>There&#x27;s also a data problem that teams consistently underestimate. Fine-tuning requires curated, high-quality labeled examples — not just a dump of historical outputs. If your existing data reflects inconsistent human behavior, edge cases without coverage, or labels that were applied sloppily, you are training the model to reproduce that inconsistency at scale. Garbage in, garbage out applies here more brutally than almost anywhere else in machine learning, because the errors are subtle and the model will confidently reproduce them. Building the dataset is often 70% of the actual work, and it&#x27;s work that doesn&#x27;t feel like AI work, which is why it gets underscoped.</p>
+    </div>
+    <div class="prose-block">
+<p>So when does fine-tuning actually make sense? I think about three genuine use cases. First: latency and token budget. If your system prompt is 4,000 tokens of instructions and examples that you&#x27;re paying for on every single call, fine-tuning that knowledge into the model and shrinking the prompt to 200 tokens can be economically justified at high volume. Second: style and voice consistency that resists instruction. Some organizations have a writing style so specific — legal tone, brand voice, regulatory register — that no prompt reliably reproduces it across varied inputs. Fine-tuning on approved outputs is the right call there. Third: task-specific capability that the base model genuinely lacks. If you&#x27;re doing something narrow and specialized — classifying medical codes, extracting entities in a domain-specific schema — and you have thousands of clean labeled examples, supervised fine-tuning on a smaller model can outperform prompting a much larger one at a fraction of the inference cost.</p><p>Outside those three cases, I default to prompting. Not because it&#x27;s easier (a good prompt for a complex task takes real craft), but because it keeps the system observable and modifiable. When a fine-tuned model misbehaves, diagnosing whether the problem is in the weights, the prompt, or the data pipeline is genuinely hard. When a prompted model misbehaves, you can usually read the prompt, form a hypothesis, and test it in ten minutes. Operational simplicity is underrated in AI system design.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/fine-tuning-vs-prompting-how-to-choose-the-right-lever-diagram-2.png" alt="Define behavior → Prompt + few-shot → Evaluate gaps → Assess data quality → Fine-tune if justified → Monitor outputs" loading="lazy">
+    </figure>
+    <div class="callout-box">
+      <p class="callout-label">My rule before touching training</p>
+<p>I have a personal rule: before any fine-tuning discussion goes further than a whiteboard, the team must show me a prompt-based baseline with at least 50 evaluated examples and a documented failure analysis. Not because I&#x27;m skeptical of fine-tuning — I use it — but because that exercise almost always reveals that the problem was underspecified, not that the model needed retraining. We&#x27;ve saved months of work this way. The baseline also gives you something to actually beat, which turns fine-tuning from a leap of faith into a measurable experiment.</p>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/anthropics/claude-cookbooks" target="_blank" rel="noopener noreferrer">anthropics/claude-cookbooks</a> &mdash; Examples showing when prompting/tool use suffice vs. when they don't.</p>
+    </div>
+
+
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/fine-tuning.html">fine-tuning</a>
+      <a class="tag-chip" href="../tags/prompting.html">prompting</a>
+      <a class="tag-chip" href="../tags/model-adaptation.html">model-adaptation</a>
+      <a class="tag-chip" href="../tags/llm-ops.html">llm-ops</a>
+      <a class="tag-chip" href="../tags/cost.html">cost</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Fine-Tuning%20vs.%20Prompting%3A%20How%20to%20Choose%20the%20Right%20Lever&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html&amp;t=Fine-Tuning%20vs.%20Prompting%3A%20How%20to%20Choose%20the%20Right%20Lever" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Fine-Tuning%20vs.%20Prompting%3A%20How%20to%20Choose%20the%20Right%20Lever&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/fine-tuning-is-not-the-default-answer.html">
+        <span class="related-technique">Fine-Tuning vs. Prompting</span>
+        <span class="related-title">Fine-Tuning Is Not the Default Answer</span>
+      </a>
+      <a class="related-card" href="../posts/fine-tuning-is-not-a-prompt-that-scales.html">
+        <span class="related-technique">Fine-Tuning vs. Prompting</span>
+        <span class="related-title">Fine-Tuning Is Not a Prompt That Scales</span>
+      </a>
+      <a class="related-card" href="../posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit.html">
+        <span class="related-technique">Fine-Tuning vs. Prompting</span>
+        <span class="related-title">Fine-Tuning vs. Prompting: How to Choose Before You Commit</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>

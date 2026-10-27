@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Fine-Tuning vs. Prompting: How to Choose the Right Lever</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html</guid>
+    <pubDate>Tue, 27 Oct 2026 10:15:11 +0000</pubDate>
+    <description>Most teams reach for fine-tuning too early. Here's a systematic way to decide which approach actually fits your problem.</description>
+    <category>fine-tuning</category><category>prompting</category><category>model-adaptation</category><category>llm-ops</category><category>cost</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-the-right-lever-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How I Stopped Guessing and Started Engineering My Prompts</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-guessing-and-started-engineering-my-prompts.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-i-stopped-guessing-and-started-engineering-my-prompts.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 22 Sep 2026 09:40:12 +0000</pubDate>
     <description>How to move from intuitive prompt tweaking to a disciplined optimization process that actually holds up in production.</description>
     <category>prompt-engineering</category><category>llm-optimization</category><category>production-ai</category><category>evaluation</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-not-guessing-a-systematic-method-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Your Agent Has No Memory. That's Your Fault.</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/your-agent-has-no-memory-that-s-your-fault.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-agent-has-no-memory-that-s-your-fault.html</guid>
-    <pubDate>Mon, 21 Sep 2026 10:26:40 +0000</pubDate>
-    <description>How to design agent state that actually persists across turns, restarts, and failures.</description>
-    <category>agents</category><category>memory</category><category>state-management</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-agent-has-no-memory-that-s-your-fault-hero.png" type="image/png"/>
   </item>
 </channel></rss>
