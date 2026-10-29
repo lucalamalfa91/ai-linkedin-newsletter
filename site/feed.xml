@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Most Multi-Agent Systems Are Just Complicated Pipelines With Extra Steps</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/most-multi-agent-systems-are-just-complicated-pipelines-with-extra-steps.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/most-multi-agent-systems-are-just-complicated-pipelines-with-extra-steps.html</guid>
+    <pubDate>Thu, 29 Oct 2026 11:20:32 +0000</pubDate>
+    <description>The agentic AI hype is real, but most implementations don't need orchestration — they need clarity.</description>
+    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>architecture</category><category>agentic-workflows</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/most-multi-agent-systems-are-just-complicated-pipelines-with-extra-steps-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Fine-Tuning vs. Prompting: How to Choose the Right Lever</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-the-right-lever.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 23 Sep 2026 09:47:16 +0000</pubDate>
     <description>Most teams reach for fine-tuning too early and prompting too late — here's why that instinct is backwards.</description>
     <category>fine-tuning</category><category>prompting</category><category>llm-strategy</category><category>model-selection</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Prompt Engineering Is Not Guessing: A Systematic Method</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-guessing-a-systematic-method.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-guessing-a-systematic-method.html</guid>
-    <pubDate>Tue, 22 Sep 2026 09:40:12 +0000</pubDate>
-    <description>How to move from intuitive prompt tweaking to a disciplined optimization process that actually holds up in production.</description>
-    <category>prompt-engineering</category><category>llm-optimization</category><category>production-ai</category><category>evaluation</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-not-guessing-a-systematic-method-hero.png" type="image/png"/>
   </item>
 </channel></rss>
