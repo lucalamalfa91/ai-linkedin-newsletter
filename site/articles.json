@@ -5481,5 +5481,97 @@
       "source": "Simon Willison"
     },
     "og_image": "most-multi-agent-systems-are-just-complicated-pipelines-with-extra-steps-hero.png"
+  },
+  {
+    "slug": "how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things",
+    "title": "How to Build a RAG Pipeline That Actually Retrieves the Right Things",
+    "dek": "A practical walkthrough of RAG — from chunking your documents to wiring retrieval into a generation call.",
+    "date": "2026-10-30",
+    "published_at": "2026-10-30T11:12:58.430784+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "rag",
+      "retrieval",
+      "vector-search",
+      "llm-pipelines",
+      "knowledge-bases"
+    ],
+    "blocks": [
+      {
+        "type": "diagram",
+        "heading": "RAG Pipeline: End to End",
+        "image": "how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things-diagram-1.png",
+        "alt": "Raw Documents → Chunk & Embed → Vector Store → Query Retrieval → LLM Generation → Grounded Answer"
+      },
+      {
+        "type": "prose",
+        "html": "<p>RAG is not complicated in principle — you embed your documents, store the vectors, retrieve the most relevant chunks at query time, and pass them to the model as context. The implementation is where things go wrong. Bad chunking strategies, mismatched embedding models, and retrieving too many or too few chunks are responsible for most of the failures I see in enterprise RAG deployments. The model is rarely the bottleneck. The retrieval quality is.</p>"
+      },
+      {
+        "type": "list",
+        "heading": "Before You Write a Line of Code",
+        "items": [
+          {
+            "title": "Know your document structure",
+            "detail": "PDFs with headers and tables chunk differently than markdown or plain prose. Decide on your chunking unit — sentence, paragraph, fixed token window — before anything else."
+          },
+          {
+            "title": "Match your embedding model to your domain",
+            "detail": "A general-purpose model works for general text. For legal, medical, or technical corpora, a fine-tuned or domain-specific encoder will consistently outperform it on retrieval recall."
+          },
+          {
+            "title": "Set a retrieval budget and test it",
+            "detail": "Start with top-5 chunks. Measure whether the correct chunk appears in that set for a sample of real queries. If recall is low, increase k or revisit chunk size — don't just prompt-engineer your way around bad retrieval."
+          },
+          {
+            "title": "Keep metadata on every chunk",
+            "detail": "Source file, page number, section title. Without it, you can't filter by date, department, or document type — and you can't debug why a retrieval went wrong."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Data framework for building RAG pipelines over private data."
+        },
+        "usage_note": "I reach for LlamaIndex when the document sources are varied — PDFs, databases, APIs — because its abstractions handle ingestion and index management without me writing the plumbing from scratch.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.core import Settings\n\nSettings.llm = OpenAI(model=\"gpt-4o\", temperature=0)\nSettings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)\n\ndocuments = SimpleDirectoryReader(\"./docs\").load_data()\nindex = VectorStoreIndex.from_documents(documents)\n\nquery_engine = index.as_query_engine(similarity_top_k=5)\nresponse = query_engine.query(\n    \"What are the data retention obligations under our privacy policy?\"\n)\nprint(response)"
+        },
+        "example_output": "Data must be retained for no longer than 36 months from the date of collection,\nunless a legal hold is in place (Section 4.2, privacy_policy_2024.pdf, p. 11).\nAfter the retention period, records must be deleted or anonymized in accordance\nwith the procedures outlined in the Data Disposal Standard."
+      },
+      {
+        "type": "list",
+        "heading": "Rules of Thumb for Production RAG",
+        "items": [
+          {
+            "title": "Retrieval and generation are separate problems",
+            "detail": "Tune them separately. A better prompt won't fix poor retrieval, and better retrieval won't fix a model that ignores the context it's given."
+          },
+          {
+            "title": "Re-rank after retrieval when precision matters",
+            "detail": "A cross-encoder re-ranker (e.g. Cohere Rerank, a local BGE model) applied to your top-20 candidates before passing top-5 to the LLM consistently improves answer quality in my experience."
+          },
+          {
+            "title": "Log the retrieved chunks in production",
+            "detail": "Every answer should be traceable back to the exact chunks that generated it. This is non-negotiable in regulated industries, and it's the only way to diagnose hallucinations quickly."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "diagram",
+      "prose",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things-hero.png"
   }
 ]

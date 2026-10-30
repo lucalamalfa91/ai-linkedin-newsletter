@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Build a RAG Pipeline That Actually Retrieves the Right Things</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things.html</guid>
+    <pubDate>Fri, 30 Oct 2026 11:12:58 +0000</pubDate>
+    <description>A practical walkthrough of RAG — from chunking your documents to wiring retrieval into a generation call.</description>
+    <category>rag</category><category>retrieval</category><category>vector-search</category><category>llm-pipelines</category><category>knowledge-bases</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Most Multi-Agent Systems Are Just Complicated Pipelines With Extra Steps</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/most-multi-agent-systems-are-just-complicated-pipelines-with-extra-steps.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/most-multi-agent-systems-are-just-complicated-pipelines-with-extra-steps.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 24 Sep 2026 09:44:36 +0000</pubDate>
     <description>A practical guide to orchestrating multi-agent systems without losing control of state, cost, or correctness.</description>
     <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-structure-agentic-workflows-before-they-structure-you-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Fine-Tuning Is Not a Promotion. Prompting Is Not a Shortcut.</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut.html</guid>
-    <pubDate>Wed, 23 Sep 2026 09:47:16 +0000</pubDate>
-    <description>Most teams reach for fine-tuning too early and prompting too late — here's why that instinct is backwards.</description>
-    <category>fine-tuning</category><category>prompting</category><category>llm-strategy</category><category>model-selection</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-is-not-a-promotion-prompting-is-not-a-shortcut-hero.png" type="image/png"/>
   </item>
 </channel></rss>
