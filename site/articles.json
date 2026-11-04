@@ -5573,5 +5573,56 @@
     ],
     "inspired_by": null,
     "og_image": "how-to-build-a-rag-pipeline-that-actually-retrieves-the-right-things-hero.png"
+  },
+  {
+    "slug": "prompt-caching-the-simplest-way-to-cut-your-api-bill",
+    "title": "Prompt Caching: The Simplest Way to Cut Your API Bill",
+    "dek": "Most teams overpay on inference because they resend the same context on every call — here's how to stop.",
+    "date": "2026-11-04",
+    "published_at": "2026-11-04T12:48:56.336454+00:00",
+    "technique": "Prompt Caching & Cost Optimization",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "prompt-caching",
+      "cost-optimization",
+      "anthropic",
+      "inference"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A significant share of the inference cost I see in enterprise deployments comes from one habit: stuffing the same large system prompt, document corpus, or few-shot examples into every single API call, as if the model has never seen them before. At scale — say, a workflow that runs hundreds of times a day against the same policy documents — that's not a design decision, it's a billing problem. Anthropic's prompt caching lets you mark a prefix of your prompt as cacheable, and subsequent calls that share that prefix pay a fraction of the input token price. The cache hit rate on a well-structured workflow can push 90%+, and the latency drop on long prompts is noticeable too.</p><p>The catch is that cache keys are positional and exact. If anything before the <code>cache_control</code> breakpoint changes between calls — even whitespace — you get a cache miss and pay full price. This means you have to think structurally about your prompt: stable content (instructions, reference documents, examples) goes first and gets marked for caching; dynamic content (the user's actual query, runtime variables) goes last. It's a discipline most teams don't apply until they see the invoice.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Includes worked examples of prompt caching to cut latency and cost."
+        },
+        "usage_note": "I reach for the Claude cookbooks repo whenever I'm wiring up caching on a new project — the worked examples show the exact placement of cache_control breakpoints, which is the part most people get wrong on the first attempt.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\n# Load a large, stable reference document once\nwith open(\"policy_handbook.txt\") as f:\n    policy_text = f.read()\n\ndef answer_policy_question(user_question: str) -> str:\n    response = client.messages.create(\n        model=\"claude-opus-4-5\",\n        max_tokens=512,\n        system=[\n            {\n                \"type\": \"text\",\n                \"text\": f\"You are a compliance assistant. Use the following policy handbook to answer questions accurately.\\n\\n{policy_text}\",\n                \"cache_control\": {\"type\": \"ephemeral\"}  # cache this prefix\n            }\n        ],\n        messages=[\n            {\"role\": \"user\", \"content\": user_question}  # dynamic — stays outside the cache\n        ]\n    )\n    usage = response.usage\n    print(f\"Input tokens: {usage.input_tokens} | Cache read: {usage.cache_read_input_tokens}\")\n    return response.content[0].text\n\nprint(answer_policy_question(\"What is the escalation process for a data breach?\"))\nprint(answer_policy_question(\"How many days notice is required before a policy change?\"))"
+        },
+        "example_output": "Input tokens: 4201 | Cache read: 0\nFor a data breach, the escalation process requires...\n\nInput tokens: 312 | Cache read: 3889\nPolicy changes require a minimum of 30 days written notice..."
+      },
+      {
+        "type": "prose",
+        "html": "<p>Notice what the usage numbers show on the second call: 3,889 tokens served from cache at roughly 10% of the normal input price, and only 312 new tokens billed at full rate. That ratio improves further as you add more calls in the same session. The structural lesson from the financial agent work that's become common in enterprise settings — where the same context window persists across dozens of model calls over hours or days — is that caching isn't a micro-optimization. It's the difference between an agentic workflow that's economically viable and one that quietly costs a fortune to run.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Agents Prompt People: Using Agents for Long-Horizon Financial Work",
+      "url": "https://latent.space/p/arca/",
+      "source": "Latent Space"
+    },
+    "og_image": "prompt-caching-the-simplest-way-to-cut-your-api-bill-hero.png"
   }
 ]
