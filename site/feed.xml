@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Structured Outputs vs Tool Use: Pick the Right Contract</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract-2.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract-2.html</guid>
+    <pubDate>Thu, 05 Nov 2026 12:58:40 +0000</pubDate>
+    <description>Two ways to make LLMs behave predictably — they solve different problems and mixing them up costs you.</description>
+    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-pick-the-right-contract-2-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Caching: The Simplest Way to Cut Your API Bill</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-the-simplest-way-to-cut-your-api-bill.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-the-simplest-way-to-cut-your-api-bill.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 26 Sep 2026 09:44:09 +0000</pubDate>
     <description>How prompt caching works in practice, and why most teams leave serious money on the table by ignoring it.</description>
     <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/the-invoice-that-taught-me-to-stop-resending-the-same-tokens-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>RAG Is a Data Pipeline Problem, Not a Prompt Problem</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-pipeline-problem-not-a-prompt-problem.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-a-data-pipeline-problem-not-a-prompt-problem.html</guid>
-    <pubDate>Fri, 25 Sep 2026 10:02:18 +0000</pubDate>
-    <description>Most RAG failures happen before the LLM ever sees a token — here's where to look first.</description>
-    <category>rag</category><category>retrieval</category><category>embeddings</category><category>data-pipelines</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-is-a-data-pipeline-problem-not-a-prompt-problem-hero.png" type="image/png"/>
   </item>
 </channel></rss>

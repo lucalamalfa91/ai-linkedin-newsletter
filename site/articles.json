@@ -5624,5 +5624,79 @@
       "source": "Latent Space"
     },
     "og_image": "prompt-caching-the-simplest-way-to-cut-your-api-bill-hero.png"
+  },
+  {
+    "slug": "structured-outputs-vs-tool-use-pick-the-right-contract-2",
+    "title": "Structured Outputs vs Tool Use: Pick the Right Contract",
+    "dek": "Two ways to make LLMs behave predictably — they solve different problems and mixing them up costs you.",
+    "date": "2026-11-05",
+    "published_at": "2026-11-05T12:58:40.090463+00:00",
+    "technique": "Structured Outputs & Tool Use",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "structured-outputs",
+      "tool-use",
+      "agents",
+      "reliability",
+      "mcp"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Here is a distinction that gets collapsed in almost every 'intro to agentic AI' talk: structured outputs and tool use are not the same thing, and treating them as interchangeable will cause you real pain in production. Structured outputs is a contract about <em>shape</em> — you tell the model to return JSON that conforms to a schema, and you get back data you can parse without writing defensive string-munging code. Tool use is a contract about <em>action</em> — the model decides to invoke a capability, passes arguments, and something actually happens in the world. One is about representation. The other is about side effects.</p><p>The confusion is understandable. Both involve schemas. Both feel like 'getting the model to behave.' But if you reach for tool use when you just need structured data extraction, you're adding a round-trip and a layer of indirection that serves no one. And if you reach for structured outputs when you actually need the model to call an API or run a query, you're going to end up writing a parser that reads the model's 'output' and manually dispatches to functions — which is just tool use with extra steps and none of the framework support.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Tool-use and structured-output recipes (calculators, SQL, customer service agents)."
+        },
+        "usage_note": "I use the Claude cookbooks repo as a reference when scoping a new integration — it's one of the few places where the distinction between extraction and action is made explicit in working code.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport json\n\nclient = anthropic.Anthropic()\n\n# Structured output: extract data, no side effects\nextraction_response = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    tools=[\n        {\n            \"name\": \"record_customer_intent\",\n            \"description\": \"Record the structured intent extracted from a customer message.\",\n            \"input_schema\": {\n                \"type\": \"object\",\n                \"properties\": {\n                    \"intent\": {\"type\": \"string\", \"enum\": [\"refund\", \"shipping_query\", \"product_info\", \"complaint\"]},\n                    \"urgency\": {\"type\": \"string\", \"enum\": [\"low\", \"medium\", \"high\"]},\n                    \"order_id\": {\"type\": \"string\"}\n                },\n                \"required\": [\"intent\", \"urgency\"]\n            }\n        }\n    ],\n    tool_choice={\"type\": \"tool\", \"name\": \"record_customer_intent\"},\n    messages=[{\"role\": \"user\", \"content\": \"My order #4821 still hasn't arrived and I need it for tomorrow!\"}]\n)\n\nextracted = extraction_response.content[0].input\nprint(json.dumps(extracted, indent=2))"
+        },
+        "example_output": "{\n  \"intent\": \"shipping_query\",\n  \"urgency\": \"high\",\n  \"order_id\": \"4821\"\n}"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Notice what happened there: a tool schema was used, but <code>tool_choice</code> is forced — the model has no decision to make. That's structured output dressed in tool clothing. It works well on Anthropic's API because Claude doesn't have a native 'respond with JSON schema' parameter the way OpenAI does, so you force a single tool call and read <code>input</code> off the result. The model never 'decides' to call anything; the schema is just the shape enforcer. This is fine, and it's often the right call for classification, extraction, and routing tasks. The moment you let the model <em>choose</em> which tool to call, and when, you've crossed into genuine tool use — and that's a different design problem entirely.</p><p>Real tool use means the model is an agent making decisions: it sees a set of capabilities, reasons about which ones apply, calls them in sequence, incorporates results, and eventually produces a final answer. The failure modes are different too. With structured outputs the risk is schema drift — your schema doesn't match reality anymore and extractions silently go wrong. With tool use the risks are compounding errors across steps, tools being called in the wrong order, and runaway loops if you don't put hard limits on iterations. Neither approach is inherently safer. They're just dangerous in different ways.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Structured Outputs vs Tool Use",
+        "image": "structured-outputs-vs-tool-use-pick-the-right-contract-2-diagram-1.png",
+        "alt": "Comparison: Aspect, Structured Outputs, Tool Use"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference MCP server implementations that expose tools to LLMs."
+        },
+        "usage_note": "When I need the model to actually do things — query a database, fetch a file, call a service — I wire it to MCP servers; the reference implementations here show exactly what a well-formed tool boundary looks like.",
+        "code_example": {
+          "language": "python",
+          "code": "# Connecting to an MCP server and letting the model drive tool selection\nimport asyncio\nfrom mcp import ClientSession, StdioServerParameters\nfrom mcp.client.stdio import stdio_client\nimport anthropic\n\nasync def run_agent_with_mcp():\n    server_params = StdioServerParameters(\n        command=\"uvx\",\n        args=[\"mcp-server-sqlite\", \"--db-path\", \"orders.db\"]\n    )\n    async with stdio_client(server_params) as (read, write):\n        async with ClientSession(read, write) as session:\n            await session.initialize()\n            tools = await session.list_tools()\n\n            client = anthropic.Anthropic()\n            response = client.messages.create(\n                model=\"claude-opus-4-5\",\n                max_tokens=2048,\n                tools=[t.model_dump() for t in tools.tools],\n                messages=[{\"role\": \"user\", \"content\": \"How many high-urgency orders came in this week?\"}]\n            )\n\n            # Model decides to call query_database — we didn't force it\n            for block in response.content:\n                if block.type == \"tool_use\":\n                    result = await session.call_tool(block.name, block.input)\n                    print(f\"Tool: {block.name}\")\n                    print(f\"Result: {result.content[0].text}\")\n\nasyncio.run(run_agent_with_mcp())"
+        },
+        "example_output": "Tool: query_database\nResult: [\n  {\"count\": 47, \"week\": \"2025-W28\"}\n]"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "diagram",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "llm 0.37",
+      "url": "https://simonwillison.net/2026/Nov/2/llm/",
+      "source": "Simon Willison"
+    },
+    "og_image": "structured-outputs-vs-tool-use-pick-the-right-contract-2-hero.png"
   }
 ]
