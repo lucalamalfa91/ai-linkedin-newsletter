@@ -5698,5 +5698,62 @@
       "source": "Simon Willison"
     },
     "og_image": "structured-outputs-vs-tool-use-pick-the-right-contract-2-hero.png"
+  },
+  {
+    "slug": "mcp-one-protocol-to-stop-reinventing-tool-plumbing",
+    "title": "MCP: One Protocol to Stop Reinventing Tool Plumbing",
+    "dek": "How Model Context Protocol finally separates the 'what tools exist' problem from the 'which model runs' problem.",
+    "date": "2026-11-06",
+    "published_at": "2026-11-06T12:45:05.682123+00:00",
+    "technique": "Model Context Protocol (MCP)",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "mcp",
+      "agents",
+      "tool-use",
+      "integrations",
+      "architecture"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client asked me last autumn to wire their internal knowledge base into a chat assistant. Straightforward enough — until I looked at what they already had running: one team had built a custom Slack bot with its own search connector, another had a Python script that hit the same API but formatted results differently for a different LLM, and a third had just started doing the whole thing again from scratch because they didn't know the other two existed. Three integrations, same data source, zero reuse. That's the situation MCP is designed to kill.</p><p>Model Context Protocol is an open standard — originally from Anthropic, but now with broader adoption — that defines a single, consistent way for a model host (whatever is running the LLM) to discover and call external tools, read resources, and get context. The point isn't the protocol itself; it's the separation it enforces. You write a tool once, as an MCP server. Any MCP-compatible client — Claude Desktop, a custom agent loop, an IDE plugin — can call it without you touching the server code again. That's the trade-off worth naming: you pay an upfront cost in learning the protocol and standing up a server, and in return you stop writing bespoke glue code every time someone wants to connect a new model to an existing capability.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "modelcontextprotocol/servers",
+          "url": "https://github.com/modelcontextprotocol/servers",
+          "note": "Reference implementations and community MCP servers."
+        },
+        "usage_note": "I start every new MCP integration by cloning the official reference servers repo — it has production-quality examples for filesystems, databases, and web search that I can read, strip down, or fork rather than guessing at conventions.",
+        "code_example": {
+          "language": "python",
+          "code": "# Minimal MCP server exposing a single 'search_docs' tool\n# Based on patterns from modelcontextprotocol/servers\n\nfrom mcp.server import Server\nfrom mcp.server.stdio import stdio_server\nfrom mcp.types import Tool, TextContent\nimport json\n\napp = Server(\"docs-search\")\n\n@app.list_tools()\nasync def list_tools() -> list[Tool]:\n    return [\n        Tool(\n            name=\"search_docs\",\n            description=\"Search internal documentation by keyword.\",\n            inputSchema={\n                \"type\": \"object\",\n                \"properties\": {\"query\": {\"type\": \"string\"}},\n                \"required\": [\"query\"],\n            },\n        )\n    ]\n\n@app.call_tool()\nasync def call_tool(name: str, arguments: dict) -> list[TextContent]:\n    if name == \"search_docs\":\n        query = arguments[\"query\"]\n        # Replace with your real search logic\n        results = [{\"title\": \"Deploy guide\", \"snippet\": f\"Results for '{query}'\"}]\n        return [TextContent(type=\"text\", text=json.dumps(results, indent=2))]\n    raise ValueError(f\"Unknown tool: {name}\")\n\nif __name__ == \"__main__\":\n    import asyncio\n    asyncio.run(stdio_server(app))"
+        },
+        "example_output": "[\n  {\n    \"title\": \"Deploy guide\",\n    \"snippet\": \"Results for 'kubernetes rollout'\"\n  }\n]"
+      },
+      {
+        "type": "prose",
+        "html": "<p>What I've found in practice is that the real value shows up the second time you need to connect something. The first MCP server you write feels like overhead. The second one, you're copying the scaffold and just swapping in the business logic — maybe twenty minutes of work. By the third, your colleagues are doing it without asking you. That compounding is the actual argument for adopting a standard over rolling your own function-calling convention. The failure mode to watch for is treating MCP as a magic interoperability layer when your tools have wildly different latency profiles or auth schemes — the protocol doesn't solve those mismatches, it just makes them show up in a consistent place, which is still better than before, but it's not free.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "A protocol you adopt once beats a convention you re-negotiate with every new model."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "How big is the open model economy today?",
+      "url": "https://www.interconnects.ai/p/how-well-can-we-measure-open-model",
+      "source": "Interconnects"
+    },
+    "og_image": "mcp-one-protocol-to-stop-reinventing-tool-plumbing-hero.png"
   }
 ]

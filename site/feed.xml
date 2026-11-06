@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>MCP: One Protocol to Stop Reinventing Tool Plumbing</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-one-protocol-to-stop-reinventing-tool-plumbing.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-one-protocol-to-stop-reinventing-tool-plumbing.html</guid>
+    <pubDate>Fri, 06 Nov 2026 12:45:05 +0000</pubDate>
+    <description>How Model Context Protocol finally separates the 'what tools exist' problem from the 'which model runs' problem.</description>
+    <category>mcp</category><category>agents</category><category>tool-use</category><category>integrations</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/mcp-one-protocol-to-stop-reinventing-tool-plumbing-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Structured Outputs vs Tool Use: Pick the Right Contract</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract-2.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract-2.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 28 Sep 2026 11:29:53 +0000</pubDate>
     <description>Two ways to constrain what an LLM returns — they look similar but fail in completely different ways.</description>
     <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-pick-the-right-contract-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>The Invoice That Taught Me to Stop Resending the Same Tokens</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html</guid>
-    <pubDate>Sat, 26 Sep 2026 09:44:09 +0000</pubDate>
-    <description>How prompt caching works in practice, and why most teams leave serious money on the table by ignoring it.</description>
-    <category>prompt-caching</category><category>cost-optimization</category><category>anthropic</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/the-invoice-that-taught-me-to-stop-resending-the-same-tokens-hero.png" type="image/png"/>
   </item>
 </channel></rss>
