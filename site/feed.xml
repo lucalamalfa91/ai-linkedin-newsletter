@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Actually Know If Your LLM System Is Working</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-is-working.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-is-working.html</guid>
+    <pubDate>Sat, 07 Nov 2026 11:33:35 +0000</pubDate>
+    <description>A systematic approach to evaluating LLM outputs so you can ship with confidence, not hope.</description>
+    <category>evaluation</category><category>testing</category><category>rag</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-actually-know-if-your-llm-system-is-working-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>MCP: One Protocol to Stop Reinventing Tool Plumbing</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/mcp-one-protocol-to-stop-reinventing-tool-plumbing.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/mcp-one-protocol-to-stop-reinventing-tool-plumbing.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 29 Sep 2026 11:10:58 +0000</pubDate>
     <description>MCP gives AI agents a structured way to talk to external tools — here's how it actually works and when to use it.</description>
     <category>mcp</category><category>agents</category><category>tool-use</category><category>integration</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-a-standard-worth-taking-seriously-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Structured Outputs vs Tool Use: Pick the Right Contract</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/structured-outputs-vs-tool-use-pick-the-right-contract.html</guid>
-    <pubDate>Mon, 28 Sep 2026 11:29:53 +0000</pubDate>
-    <description>Two ways to constrain what an LLM returns — they look similar but fail in completely different ways.</description>
-    <category>structured-outputs</category><category>tool-use</category><category>agents</category><category>reliability</category><category>mcp</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/structured-outputs-vs-tool-use-pick-the-right-contract-hero.png" type="image/png"/>
   </item>
 </channel></rss>

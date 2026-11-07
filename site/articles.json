@@ -5755,5 +5755,93 @@
       "source": "Interconnects"
     },
     "og_image": "mcp-one-protocol-to-stop-reinventing-tool-plumbing-hero.png"
+  },
+  {
+    "slug": "how-to-actually-know-if-your-llm-system-is-working",
+    "title": "How to Actually Know If Your LLM System Is Working",
+    "dek": "A systematic approach to evaluating LLM outputs so you can ship with confidence, not hope.",
+    "date": "2026-11-07",
+    "published_at": "2026-11-07T11:33:35.181110+00:00",
+    "technique": "LLM Evaluation & Testing",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [
+      "evaluation",
+      "testing",
+      "rag",
+      "reliability",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I work with ship their first LLM feature the same way: they try it manually a few dozen times, it feels good, they go live. That works right up until the moment a real user finds a prompt that makes it hallucinate, or the retrieval pipeline starts returning stale chunks, or someone changes the system prompt and breaks a behavior nobody had written down. Then they're debugging production with no baseline to compare against. Evaluation is what separates a prototype from something you can actually maintain.</p><p>The frustrating thing is that LLM evaluation has a reputation for being unsolved or too expensive to bother with. That reputation is mostly wrong. There are parts that are genuinely hard — judging open-ended creative outputs, for instance — but the majority of enterprise use cases (document Q&A, structured extraction, classification, RAG-based assistants) are far more tractable than people assume. The tooling has also matured enough that you can build a meaningful eval harness in an afternoon.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The first thing to get clear on is the difference between <strong>offline evaluation</strong> and <strong>online monitoring</strong>. Offline eval runs before you ship: you have a fixed dataset of inputs and expected outputs, you run your system against them, you measure. Online monitoring runs in production: you sample real traffic, apply heuristics or LLM-as-judge scoring, and alert when quality degrades. Both matter. Most teams skip the offline step and then wonder why they have no signal when something goes wrong in prod. Start with offline. Build a golden dataset of 50–200 representative examples, with expected outputs or at least expected properties, and make running it part of your deployment gate.</p><p>What you actually measure depends on your task. For classification and structured extraction, exact-match or field-level accuracy is perfectly fine — don't overcomplicate it. For RAG systems, you need to decompose quality into at least three separate signals: whether the retrieved context was relevant, whether the answer faithfully uses that context, and whether the answer actually addresses the question. Treating RAG output quality as a single score loses too much information to be actionable. When a score drops, you need to know whether to fix retrieval or fix generation.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Offline Eval Pipeline",
+        "image": "how-to-actually-know-if-your-llm-system-is-working-diagram-1.png",
+        "alt": "Golden Dataset → Run System → Score Outputs → Compare Baseline → Ship or Block"
+      },
+      {
+        "type": "prose",
+        "html": "<p>LLM-as-judge — using a capable model to score another model's outputs — is the technique that makes evaluation scale. The pattern is simple: you write a rubric, you pass the rubric plus the input and output to a judge model, and you get a score back. The failure mode people run into is writing vague rubrics. A rubric that says 'rate the answer on accuracy from 1 to 5' produces inconsistent scores because different inputs trigger different implicit standards in the judge. A rubric that says 'the answer must not introduce any claim not present in the provided context — score 1 if it does, 0 if it does not' is specific enough to be reliable. Binary or 3-point scales are more consistent than 5- or 10-point scales. When in doubt, go coarser.</p><p>One more thing worth naming plainly: your eval set will rot if you don't maintain it. As your system evolves and you encounter new failure modes in production, you add those cases to the golden dataset. Eval is not a one-time artifact — it's a living test suite, same as unit tests for regular software. The teams that treat it that way are the ones who can actually refactor their prompts without fear.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Choosing a Scoring Approach",
+        "image": "how-to-actually-know-if-your-llm-system-is-working-diagram-2.png",
+        "alt": "Comparison: Aspect, Deterministic Metrics, LLM-as-Judge"
+      },
+      {
+        "type": "callout",
+        "label": "My non-negotiable eval habit",
+        "html": "<p>Before any prompt change goes to production, I run the full golden dataset and diff the scores against the last passing run. I don't care if the change 'feels' like an improvement — I need the numbers to agree. I've been surprised too many times by a prompt tweak that improved one behavior and quietly broke another. The diff catches it. This takes maybe three minutes once the harness is in place, and it has saved me from at least a dozen silent regressions.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "openai/evals",
+          "url": "https://github.com/openai/evals",
+          "note": "Framework and open registry of benchmarks for evaluating LLM systems."
+        },
+        "usage_note": "I use openai/evals when I need a structured registry of test cases I can run repeatedly against different model versions — it keeps eval runs reproducible and easy to share with the rest of the team.",
+        "code_example": {
+          "language": "python",
+          "code": "import openai\nfrom evals.api import CompletionFn\nfrom evals.base import RunSpec\nfrom evals.record import RecorderBase\nimport evals.metrics as metrics\n\n# Define a simple match eval inline (normally lives in a YAML spec)\ntest_cases = [\n    {\"input\": \"What is the capital of Switzerland?\", \"ideal\": \"Bern\"},\n    {\"input\": \"What currency does Switzerland use?\", \"ideal\": \"Swiss franc\"},\n    {\"input\": \"How many cantons does Switzerland have?\", \"ideal\": \"26\"},\n]\n\nclient = openai.OpenAI()\n\nresults = []\nfor case in test_cases:\n    response = client.chat.completions.create(\n        model=\"gpt-4o-mini\",\n        messages=[{\"role\": \"user\", \"content\": case[\"input\"]}],\n        temperature=0,\n    )\n    answer = response.choices[0].message.content.strip()\n    match = case[\"ideal\"].lower() in answer.lower()\n    results.append({\"input\": case[\"input\"], \"ideal\": case[\"ideal\"], \"got\": answer, \"match\": match})\n    print(f\"[{'PASS' if match else 'FAIL'}] {case['input']}\")\n    print(f\"  Expected: {case['ideal']} | Got: {answer}\")\n\naccuracy = sum(r[\"match\"] for r in results) / len(results)\nprint(f\"\\nAccuracy: {accuracy:.0%} ({sum(r['match'] for r in results)}/{len(results)})\")"
+        },
+        "example_output": "[PASS] What is the capital of Switzerland?\n  Expected: Bern | Got: The capital of Switzerland is Bern.\n[PASS] What currency does Switzerland use?\n  Expected: Swiss franc | Got: Switzerland uses the Swiss franc (CHF).\n[PASS] How many cantons does Switzerland have?\n  Expected: 26 | Got: Switzerland has 26 cantons.\n\nAccuracy: 100% (3/3)"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "vibrantlabsai/ragas",
+          "url": "https://github.com/vibrantlabsai/ragas",
+          "note": "Objective metrics and test-data generation for evaluating RAG/LLM apps."
+        },
+        "usage_note": "I reach for ragas specifically when evaluating RAG pipelines — it gives me decomposed scores for retrieval and generation separately, which is the only way to know where to actually fix things.",
+        "code_example": {
+          "language": "python",
+          "code": "from datasets import Dataset\nfrom ragas import evaluate\nfrom ragas.metrics import faithfulness, answer_relevancy, context_precision\n\n# Simulated RAG outputs — in practice these come from your pipeline\ndata = {\n    \"question\": [\n        \"What does the AI Act require for high-risk systems?\",\n        \"When does the EU AI Act come into full effect?\",\n    ],\n    \"answer\": [\n        \"High-risk AI systems must undergo conformity assessments and maintain technical documentation.\",\n        \"The majority of the AI Act's obligations apply from August 2026.\",\n    ],\n    \"contexts\": [\n        [\"High-risk AI systems are subject to strict requirements including conformity assessments, \"\n         \"transparency obligations, and detailed technical documentation before market placement.\"],\n        [\"The EU AI Act entered into force in August 2024. Most obligations for high-risk systems \"\n         \"will apply 24 months after entry into force, meaning August 2026.\"],\n    ],\n    \"ground_truth\": [\n        \"High-risk AI systems require conformity assessments and technical documentation.\",\n        \"Full obligations apply from August 2026.\",\n    ],\n}\n\ndataset = Dataset.from_dict(data)\nresult = evaluate(\n    dataset,\n    metrics=[faithfulness, answer_relevancy, context_precision],\n)\nprint(result)"
+        },
+        "example_output": "Evaluating: 100%|████████████| 6/6 [00:08<00:00]\n{'faithfulness': 0.9583, 'answer_relevancy': 0.9211, 'context_precision': 1.0000}\n\nAll three metrics above 0.90 — retrieval and generation both look solid for this sample.\nDrop in faithfulness below ~0.80 typically signals the generator is going off-context."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "diagram",
+      "prose",
+      "diagram",
+      "callout",
+      "code_project",
+      "code_project"
+    ],
+    "inspired_by": null,
+    "og_image": "how-to-actually-know-if-your-llm-system-is-working-hero.png"
   }
 ]
