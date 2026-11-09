@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Guardrails Are Not a Safety Net. They Are a Contract.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract-2.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract-2.html</guid>
+    <pubDate>Mon, 09 Nov 2026 13:39:48 +0000</pubDate>
+    <description>Most teams bolt on output validation as an afterthought. That's the wrong mental model entirely.</description>
+    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-safety</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-are-not-a-safety-net-they-are-a-contract-2-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Actually Know If Your LLM System Is Working</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-is-working.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-actually-know-if-your-llm-system-is-working.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 30 Sep 2026 10:56:34 +0000</pubDate>
     <description>Most teams ship LLM features without real evaluation. Here's why that's a structural problem, not a laziness problem.</description>
     <category>evaluation</category><category>testing</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-pretending-vibes-are-evaluation-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Model Context Protocol: A Standard Worth Taking Seriously</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/model-context-protocol-a-standard-worth-taking-seriously.html</guid>
-    <pubDate>Tue, 29 Sep 2026 11:10:58 +0000</pubDate>
-    <description>MCP gives AI agents a structured way to talk to external tools — here's how it actually works and when to use it.</description>
-    <category>mcp</category><category>agents</category><category>tool-use</category><category>integration</category><category>architecture</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/model-context-protocol-a-standard-worth-taking-seriously-hero.png" type="image/png"/>
   </item>
 </channel></rss>
