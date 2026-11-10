@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>How to Add Tracing to Your LLM Pipeline Before It Burns You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you.html</guid>
+    <pubDate>Tue, 10 Nov 2026 13:17:40 +0000</pubDate>
+    <description>A practical guide to instrumenting LLM calls so you can debug failures, measure latency, and catch regressions before users do.</description>
+    <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><category>production</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Guardrails Are Not a Safety Net. They Are a Contract.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract-2.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-are-not-a-safety-net-they-are-a-contract-2.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 01 Oct 2026 11:25:37 +0000</pubDate>
     <description>How to catch bad LLM output before it reaches your users, with concrete steps and real code.</description>
     <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-a-practical-how-to-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Stop Pretending Vibes Are Evaluation</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/stop-pretending-vibes-are-evaluation.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/stop-pretending-vibes-are-evaluation.html</guid>
-    <pubDate>Wed, 30 Sep 2026 10:56:34 +0000</pubDate>
-    <description>Most teams ship LLM features without real evaluation. Here's why that's a structural problem, not a laziness problem.</description>
-    <category>evaluation</category><category>testing</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/stop-pretending-vibes-are-evaluation-hero.png" type="image/png"/>
   </item>
 </channel></rss>

@@ -5890,5 +5890,105 @@
       "source": "Latent Space"
     },
     "og_image": "guardrails-are-not-a-safety-net-they-are-a-contract-2-hero.png"
+  },
+  {
+    "slug": "how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you",
+    "title": "How to Add Tracing to Your LLM Pipeline Before It Burns You",
+    "dek": "A practical guide to instrumenting LLM calls so you can debug failures, measure latency, and catch regressions before users do.",
+    "date": "2026-11-10",
+    "published_at": "2026-11-10T13:17:40.505021+00:00",
+    "technique": "LLM Observability & Tracing",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "observability",
+      "tracing",
+      "llm-ops",
+      "debugging",
+      "production"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three weeks into production, a client's RAG pipeline started returning hallucinated answers. Nobody noticed for five days. There were no traces, no span-level timing, no record of what the retriever had actually returned versus what the model had generated. We were flying blind. That situation is entirely avoidable — and the tooling to avoid it is mature enough now that there's no good excuse not to use it.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "LLM Observability Pipeline",
+        "image": "how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you-diagram-1.png",
+        "alt": "User Request → Trace Ingestion → Span Capture → Eval & Scoring → Dashboard Review"
+      },
+      {
+        "type": "list",
+        "heading": "What to instrument at minimum",
+        "items": [
+          {
+            "title": "Every LLM call gets a span",
+            "detail": "Log the model name, input tokens, output tokens, latency, and the full prompt — not just a summary. You will need the raw prompt when debugging."
+          },
+          {
+            "title": "Retrieval steps are separate spans",
+            "detail": "In a RAG setup, the retriever and the generator are two distinct failure points. Treat them as separate spans so you can isolate which one broke."
+          },
+          {
+            "title": "Tag by session and user",
+            "detail": "Without a session ID, you can't reconstruct a conversation thread after the fact. Add it at trace creation time, not later."
+          },
+          {
+            "title": "Score outputs automatically",
+            "detail": "Even a simple heuristic — response length, keyword presence, latency threshold — gives you a signal to alert on. Don't wait for manual review."
+          },
+          {
+            "title": "Version your prompts",
+            "detail": "If you change a prompt and don't record which version was active for which traces, you cannot do a before/after comparison when something regresses."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langfuse/langfuse",
+          "url": "https://github.com/langfuse/langfuse",
+          "note": "Open-source LLM observability platform: tracing, evals, prompt management."
+        },
+        "usage_note": "I reach for Langfuse when a client needs open-source tracing they can self-host — the decorator-based SDK means you can instrument an existing pipeline in an afternoon without restructuring anything.",
+        "code_example": {
+          "language": "python",
+          "code": "from langfuse.decorators import observe, langfuse_context\nfrom langfuse import Langfuse\nimport openai\n\nlangfuse = Langfuse()  # reads LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY from env\nclient = openai.OpenAI()\n\n@observe()  # creates a trace automatically\ndef retrieve_context(query: str) -> str:\n    # simulate retrieval — replace with your actual vector search\n    return f\"Relevant doc chunk for: {query}\"\n\n@observe()  # nested span inside the parent trace\ndef generate_answer(query: str, context: str) -> str:\n    response = client.chat.completions.create(\n        model=\"gpt-4o-mini\",\n        messages=[\n            {\"role\": \"system\", \"content\": \"Answer using only the provided context.\"},\n            {\"role\": \"user\", \"content\": f\"Context: {context}\\n\\nQuestion: {query}\"}\n        ]\n    )\n    answer = response.choices[0].message.content\n    langfuse_context.update_current_observation(\n        output=answer,\n        usage={\"input\": response.usage.prompt_tokens, \"output\": response.usage.completion_tokens}\n    )\n    return answer\n\n@observe(name=\"rag-pipeline\")\ndef rag_pipeline(query: str) -> str:\n    context = retrieve_context(query)\n    return generate_answer(query, context)\n\nif __name__ == \"__main__\":\n    result = rag_pipeline(\"What is the refund policy?\")\n    print(result)\n    langfuse.flush()  # ensure all spans are sent before process exits"
+        },
+        "example_output": "Trace created: https://cloud.langfuse.com/trace/abc123\nSpans recorded: rag-pipeline > retrieve_context, generate_answer\nTokens: 84 input / 31 output\nLatency: 1.23s total (0.01s retrieval, 1.22s generation)\nAnswer: Based on the provided context, the refund policy allows returns within 30 days."
+      },
+      {
+        "type": "list",
+        "heading": "Rules of thumb before going to production",
+        "items": [
+          {
+            "title": "Flush before process exit",
+            "detail": "Most tracing SDKs buffer spans and send them asynchronously. If your script exits before the buffer drains, you lose data silently. Call flush() explicitly."
+          },
+          {
+            "title": "Don't log PII in spans by default",
+            "detail": "Full prompt logging is valuable, but if user messages contain personal data you need a redaction step or a clear data retention policy before traces hit any cloud endpoint."
+          },
+          {
+            "title": "Set a sampling rate on high-volume endpoints",
+            "detail": "Tracing 100% of requests on a busy endpoint gets expensive fast. Decide on a sampling strategy early — 10-20% with full capture on errors is a reasonable starting point."
+          },
+          {
+            "title": "Wire alerts to your existing channels",
+            "detail": "A dashboard nobody checks is not observability. Connect latency and error-rate metrics to whatever alerting tool the team already uses — Slack, PagerDuty, doesn't matter."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "diagram",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you-hero.png"
   }
 ]
