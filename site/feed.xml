@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Red-Teaming Your LLM Before Someone Else Does It For You</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-llm-before-someone-else-does-it-for-you.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-llm-before-someone-else-does-it-for-you.html</guid>
+    <pubDate>Wed, 11 Nov 2026 12:28:17 +0000</pubDate>
+    <description>Adversarial testing is not a compliance checkbox — here is how to run it systematically against real prompts.</description>
+    <category>red-teaming</category><category>safety</category><category>testing</category><category>prompt-engineering</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/red-teaming-your-llm-before-someone-else-does-it-for-you-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>How to Add Tracing to Your LLM Pipeline Before It Burns You</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Fri, 02 Oct 2026 10:55:07 +0000</pubDate>
     <description>LLM observability is not monitoring — here's the specific difference that changes how you instrument your code.</description>
     <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Guardrails and Output Validation: A Practical How-To</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-a-practical-how-to.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/guardrails-and-output-validation-a-practical-how-to.html</guid>
-    <pubDate>Thu, 01 Oct 2026 11:25:37 +0000</pubDate>
-    <description>How to catch bad LLM output before it reaches your users, with concrete steps and real code.</description>
-    <category>guardrails</category><category>output-validation</category><category>reliability</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/guardrails-and-output-validation-a-practical-how-to-hero.png" type="image/png"/>
   </item>
 </channel></rss>

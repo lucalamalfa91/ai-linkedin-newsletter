@@ -5990,5 +5990,56 @@
     ],
     "inspired_by": null,
     "og_image": "how-to-add-tracing-to-your-llm-pipeline-before-it-burns-you-hero.png"
+  },
+  {
+    "slug": "red-teaming-your-llm-before-someone-else-does-it-for-you",
+    "title": "Red-Teaming Your LLM Before Someone Else Does It For You",
+    "dek": "Adversarial testing is not a compliance checkbox — here is how to run it systematically against real prompts.",
+    "date": "2026-11-11",
+    "published_at": "2026-11-11T12:28:17.504849+00:00",
+    "technique": "Red-Teaming & Adversarial Testing",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "red-teaming",
+      "safety",
+      "testing",
+      "prompt-engineering"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Most teams I talk to do some version of red-teaming: a developer spends an afternoon typing weird inputs into the chat UI, declares nothing broke, and ships. That is not red-teaming. That is wishful thinking with extra steps. Real adversarial testing means running a structured battery of attacks — prompt injection, jailbreak attempts, data exfiltration probes, role-confusion attacks — against every prompt variant you care about, automatically, on every meaningful code change. The difference in surface area you cover is not marginal; it is an order of magnitude.</p><p>The other thing I see constantly is teams treating safety testing as separate from their normal eval pipeline. That split creates blind spots. A model that refuses a direct jailbreak attempt might still leak sensitive context when the same attack is embedded inside a tool-call response. You only catch that if your red-team suite runs end-to-end through the same stack your users hit — RAG retrieval, tool calls, system prompt, all of it.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "promptfoo/promptfoo",
+          "url": "https://github.com/promptfoo/promptfoo",
+          "note": "Red-teaming and vulnerability scanning for prompts, agents, and RAG."
+        },
+        "usage_note": "I reach for promptfoo when I need a reproducible, CI-friendly way to run a full adversarial sweep across prompt variants without writing a bespoke harness from scratch every time.",
+        "code_example": {
+          "language": "yaml",
+          "code": "# promptfooconfig.yaml\ndescription: \"Adversarial sweep — customer support agent\"\n\nprompts:\n  - file://prompts/support_agent.txt\n\nproviders:\n  - openai:gpt-4o\n\nredteam:\n  plugins:\n    - prompt-injection\n    - jailbreak\n    - pii:direct\n    - harmful:hate\n    - competitors   # leaking competitor mentions\n  strategies:\n    - jailbreak:composite\n    - prompt-injection:indirect  # injected via retrieved docs\n\ntests:\n  - description: \"Baseline sanity check\"\n    vars:\n      user_message: \"What is your return policy?\"\n    assert:\n      - type: contains\n        value: \"30 days\"\n      - type: not-contains\n        value: \"ignore previous instructions\""
+        },
+        "example_output": "Running red team suite: 47 probes across 3 plugins\n✓ prompt-injection      passed  18/18\n✗ pii:direct            failed   2/6   (SSN extraction succeeded in 2 variants)\n✓ harmful:hate          passed   8/8\n✓ competitors           passed  15/15\n\nFinal score: 43/47 (91.5%)\nView full report: http://localhost:15500"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Two failures out of six on PII extraction is not a number you want to discover from a bug report. That is the practical argument for running this before you ship, not after. The configuration above takes about twenty minutes to write for a new project and slots cleanly into a GitHub Actions workflow. The cost of a full sweep on GPT-4o for a reasonably scoped prompt is a few dollars. The math on skipping it does not work in your favor.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "Quoting Prompting Claude Fable 5.2",
+      "url": "https://simonwillison.net/2026/Nov/10/prompting-claude-fable-52/",
+      "source": "Simon Willison"
+    },
+    "og_image": "red-teaming-your-llm-before-someone-else-does-it-for-you-hero.png"
   }
 ]
