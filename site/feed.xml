@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Your Context Window Is a Workspace, Not a Dump</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/your-context-window-is-a-workspace-not-a-dump.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-context-window-is-a-workspace-not-a-dump.html</guid>
+    <pubDate>Thu, 12 Nov 2026 13:33:54 +0000</pubDate>
+    <description>How I stopped stuffing prompts and started engineering context — and what changed when I did.</description>
+    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-context-window-is-a-workspace-not-a-dump-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Red-Teaming Your LLM Before Someone Else Does It For You</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-llm-before-someone-else-does-it-for-you.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/red-teaming-your-llm-before-someone-else-does-it-for-you.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Sat, 03 Oct 2026 10:15:19 +0000</pubDate>
     <description>Red-teaming your AI system yourself, before anyone else does, is the only honest quality check.</description>
     <category>red-teaming</category><category>adversarial-testing</category><category>reliability</category><category>prompt-security</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-broke-my-chatbot-before-a-client-did-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>You Cannot Debug What You Cannot See in Your LLM Pipeline</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline.html</guid>
-    <pubDate>Fri, 02 Oct 2026 10:55:07 +0000</pubDate>
-    <description>LLM observability is not monitoring — here's the specific difference that changes how you instrument your code.</description>
-    <category>observability</category><category>tracing</category><category>llm-ops</category><category>debugging</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/you-cannot-debug-what-you-cannot-see-in-your-llm-pipeline-hero.png" type="image/png"/>
   </item>
 </channel></rss>

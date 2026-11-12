@@ -6041,5 +6041,61 @@
       "source": "Simon Willison"
     },
     "og_image": "red-teaming-your-llm-before-someone-else-does-it-for-you-hero.png"
+  },
+  {
+    "slug": "your-context-window-is-a-workspace-not-a-dump",
+    "title": "Your Context Window Is a Workspace, Not a Dump",
+    "dek": "How I stopped stuffing prompts and started engineering context — and what changed when I did.",
+    "date": "2026-11-12",
+    "published_at": "2026-11-12T13:33:54.298575+00:00",
+    "technique": "Context Engineering & Long-Context Management",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "context-engineering",
+      "long-context",
+      "prompt-design",
+      "agents"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A few months ago I was debugging a retrieval pipeline for a client in Zurich — a legal firm processing multilingual contracts. The model kept hallucinating clause numbers. We'd stuffed the entire 80-page PDF into the context, added the user's question, and called it a day. The answer looked confident and was wrong about 30% of the time. My first instinct was to blame the model. My second instinct — the correct one — was to look at what we'd actually handed it.</p><p>The problem wasn't the model's capability. The problem was that we'd treated the context window like a trash bag: everything goes in, hope for the best. Eighty pages of boilerplate, recitals, and definitions, followed by one specific question about indemnity clauses buried at the end. Of course it struggled. The signal-to-noise ratio was terrible. That incident is what pushed me to start thinking about context as something you <em>design</em>, not something you <em>fill</em>.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Long-context and context-management patterns (PDF uploads, sub-agents)."
+        },
+        "usage_note": "I reach for the Anthropic cookbooks as a reference implementation when I need to show a client's team the difference between naive document stuffing and structured context management — the PDF and sub-agent patterns in particular map directly to the kind of multi-document workflows I run into most.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\nimport base64\nfrom pathlib import Path\n\nclient = anthropic.Anthropic()\n\ndef build_context_block(pdf_path: str, section_hint: str) -> list:\n    \"\"\"Load a PDF and prepend a scoped instruction — don't just dump it raw.\"\"\"\n    pdf_bytes = Path(pdf_path).read_bytes()\n    encoded = base64.standard_b64encode(pdf_bytes).decode(\"utf-8\")\n    return [\n        {\n            \"type\": \"text\",\n            \"text\": f\"The document below is a contract. Focus only on sections related to: {section_hint}. Ignore preamble and definitions unless directly relevant.\"\n        },\n        {\n            \"type\": \"document\",\n            \"source\": {\"type\": \"base64\", \"media_type\": \"application/pdf\", \"data\": encoded}\n        }\n    ]\n\ncontent = build_context_block(\"contract.pdf\", \"indemnity and liability\")\ncontent.append({\"type\": \"text\", \"text\": \"List every indemnity clause with its article number and a one-sentence summary.\"})\n\nresponse = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=1024,\n    messages=[{\"role\": \"user\", \"content\": content}]\n)\n\nprint(response.content[0].text)"
+        },
+        "example_output": "Article 8.1 — Indemnity for Breach: The supplier shall indemnify the client for direct losses arising from a material breach of this agreement.\nArticle 12.3 — IP Indemnity: Each party indemnifies the other against third-party IP infringement claims caused by its own materials.\nArticle 15.2 — Limitation of Liability: Indemnification obligations are capped at the total fees paid in the preceding twelve months."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The key move in that code isn't the base64 encoding — that's just plumbing. It's the scoping instruction placed <em>before</em> the document. You're telling the model where to direct its attention before it reads anything. This matters more than people think. A long context isn't a flat memory; position and framing still influence what the model treats as salient. Putting a focused instruction first, then the document, then the specific question at the end creates a deliberate reading path. Compare that to question-first, then 80 pages, then nothing — the model has to hold an unanswered question in mind while wading through noise.</p><p>The other thing I've changed in my own work: I stopped treating context management as a retrieval problem and started treating it as an editorial problem. Retrieval is about finding the right chunks. Editing is about deciding what earns its place in the window at all — and in what order. For long documents, that means pre-filtering by section relevance before anything hits the API. For multi-turn conversations, it means summarizing or dropping earlier turns that are no longer load-bearing. Every token you include is a claim on the model's attention. Make that claim count.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "The context window is not a bucket — it's a brief, and you're the editor responsible for it."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": {
+      "title": "Quoting Prompting Claude Fable 5.2",
+      "url": "https://simonwillison.net/2026/Nov/10/prompting-claude-fable-52/",
+      "source": "Simon Willison"
+    },
+    "og_image": "your-context-window-is-a-workspace-not-a-dump-hero.png"
   }
 ]
