@@ -6097,5 +6097,83 @@
       "source": "Simon Willison"
     },
     "og_image": "your-context-window-is-a-workspace-not-a-dump-hero.png"
+  },
+  {
+    "slug": "dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy",
+    "title": "Dense Retrieval vs. Semantic Index: Choosing Your Embedding Strategy",
+    "dek": "Raw vector search and a full retrieval framework solve different problems — here's how to pick the right one.",
+    "date": "2026-11-13",
+    "published_at": "2026-11-13T12:53:58.045228+00:00",
+    "technique": "Vector Search & Embeddings",
+    "archetype": "comparison",
+    "skin": "side-by-side",
+    "tags": [
+      "vector-search",
+      "embeddings",
+      "retrieval",
+      "rag"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>There are two numbers I keep coming back to when clients ask about vector search. First: the median enterprise knowledge base I see has somewhere between 50,000 and 500,000 documents. Second: the difference in query latency between a bare-metal embedding store and a full retrieval framework, at that scale, is often less than 80ms. Those two facts together are why I think most teams are making the wrong call — in both directions — when they choose their retrieval stack.</p><p>The real trade-off isn't \"simple vs. complex.\" It's about where you want to own the complexity. Chroma gives you a tight, explicit loop: you embed, you store, you query. You see every moving part. LlamaIndex gives you a higher abstraction — document ingestion pipelines, chunking strategies, re-ranking, metadata filtering — but that abstraction has weight. If you don't need it, you'll spend more time reading source code than shipping.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "chroma-core/chroma",
+          "url": "https://github.com/chroma-core/chroma",
+          "note": "Embedding database and search infrastructure for AI applications."
+        },
+        "usage_note": "I reach for Chroma when I want full control over the embedding pipeline and the retrieval logic needs to stay auditable — no magic happening between the query and the results.",
+        "code_example": {
+          "language": "python",
+          "code": "import chromadb\nfrom chromadb.utils import embedding_functions\n\nclient = chromadb.Client()\n\nopenai_ef = embedding_functions.OpenAIEmbeddingFunction(\n    api_key=\"sk-...\",\n    model_name=\"text-embedding-3-small\"\n)\n\ncollection = client.create_collection(\n    name=\"internal_docs\",\n    embedding_function=openai_ef\n)\n\ncollection.add(\n    documents=[\n        \"Q3 revenue targets are set at 4.2M CHF.\",\n        \"The deployment window is every Tuesday at 22:00 CET.\",\n        \"Data residency must comply with Swiss nDSG requirements.\"\n    ],\n    ids=[\"doc1\", \"doc2\", \"doc3\"]\n)\n\nresults = collection.query(\n    query_texts=[\"When can we deploy to production?\"],\n    n_results=2\n)\n\nprint(results[\"documents\"])"
+        },
+        "example_output": "[['The deployment window is every Tuesday at 22:00 CET.',\n  'Data residency must comply with Swiss nDSG requirements.']]"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Chroma's explicitness is also its limitation. You're responsible for chunking strategy, metadata schema, embedding refresh when documents update, and any re-ranking logic you want on top. For a focused use case — a single document corpus, a known query pattern — that's fine. But once you have mixed content types, dynamic sources, and users asking questions that span multiple domains, you're essentially rebuilding what LlamaIndex already provides. I've done that rebuild once. I wouldn't do it again.</p><p>LlamaIndex inverts the trade-off. The ingestion pipeline handles chunking, metadata extraction, and index construction. The query engine layers in retrieval modes — dense, sparse, hybrid — and you can add re-rankers without rewiring everything. The cost is opacity: when retrieval quality drops, there are more layers to inspect. That's not a reason to avoid it, but it's a reason to instrument it carefully from day one, not as an afterthought.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Chroma vs. LlamaIndex: Where the Complexity Lives",
+        "image": "dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy-diagram-1.png",
+        "alt": "Comparison: Aspect, Chroma (bare store), LlamaIndex (retrieval framework)"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Indexing and retrieval framework built on top of embeddings."
+        },
+        "usage_note": "I switch to LlamaIndex when the document set is heterogeneous or when the client needs to iterate on retrieval quality without me rewriting plumbing every sprint.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\nfrom llama_index.core import Settings\nfrom llama_index.embeddings.openai import OpenAIEmbedding\nfrom llama_index.llms.openai import OpenAI\n\nSettings.embed_model = OpenAIEmbedding(model=\"text-embedding-3-small\")\nSettings.llm = OpenAI(model=\"gpt-4o-mini\")\nSettings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)\n\ndocuments = SimpleDirectoryReader(\"./internal_docs\").load_data()\n\nindex = VectorStoreIndex.from_documents(documents)\n\nquery_engine = index.as_query_engine(similarity_top_k=4)\nresponse = query_engine.query(\n    \"What are the data residency obligations for Swiss customers?\"\n)\n\nprint(response.source_nodes[0].get_content())\nprint(str(response))"
+        },
+        "example_output": "Source: nDSG_compliance_guide.pdf, page 3\nChunk: 'Personal data of Swiss residents must be stored within Switzerland\nor in countries with an equivalent level of protection as defined\nby the FDPIC adequacy list...'\n\nResponse: Swiss customers require data storage in Switzerland or in\nan FDPIC-approved jurisdiction. Cross-border transfers need either\nan adequacy decision or appropriate safeguards such as SCCs."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The question I ask before picking a stack: do I need retrieval to be a feature, or retrieval to be infrastructure? If it's infrastructure — a stable component that other systems call — Chroma's explicitness pays off over time. If retrieval is a feature that will keep evolving as users discover what they actually need to ask, LlamaIndex's abstractions will save you from a lot of tedious rewiring. Neither answer is wrong. But conflating the two questions is how teams end up with a retrieval framework they're fighting against, or a bare vector store they've slowly grown into a worse version of LlamaIndex.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "diagram",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "llm-gemini 0.37",
+      "url": "https://simonwillison.net/2026/Nov/12/llm-gemini/",
+      "source": "Simon Willison"
+    },
+    "og_image": "dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy-hero.png"
   }
 ]

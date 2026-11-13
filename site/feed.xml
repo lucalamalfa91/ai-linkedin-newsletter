@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Dense Retrieval vs. Semantic Index: Choosing Your Embedding Strategy</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy.html</guid>
+    <pubDate>Fri, 13 Nov 2026 12:53:58 +0000</pubDate>
+    <description>Raw vector search and a full retrieval framework solve different problems — here's how to pick the right one.</description>
+    <category>vector-search</category><category>embeddings</category><category>retrieval</category><category>rag</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Your Context Window Is a Workspace, Not a Dump</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/your-context-window-is-a-workspace-not-a-dump.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-context-window-is-a-workspace-not-a-dump.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Mon, 05 Oct 2026 12:05:53 +0000</pubDate>
     <description>How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.</description>
     <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><category>retrieval</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>What Broke My Chatbot Before a Client Did</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-broke-my-chatbot-before-a-client-did.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-broke-my-chatbot-before-a-client-did.html</guid>
-    <pubDate>Sat, 03 Oct 2026 10:15:19 +0000</pubDate>
-    <description>Red-teaming your AI system yourself, before anyone else does, is the only honest quality check.</description>
-    <category>red-teaming</category><category>adversarial-testing</category><category>reliability</category><category>prompt-security</category><category>agents</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-broke-my-chatbot-before-a-client-did-hero.png" type="image/png"/>
   </item>
 </channel></rss>
