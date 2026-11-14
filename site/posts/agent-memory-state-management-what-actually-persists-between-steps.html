@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Memory &amp; State Management: What Actually Persists Between Steps — The AI Architect</title>
+  <meta name="description" content="Most agent failures trace back to bad memory design, not bad models — here&#x27;s how to fix that.">
+  <meta property="og:title" content="Agent Memory &amp; State Management: What Actually Persists Between Steps">
+  <meta property="og:description" content="Most agent failures trace back to bad memory design, not bad models — here&#x27;s how to fix that.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-state-management-what-actually-persists-between-steps-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Agent Memory &amp; State Management: What Actually Persists Between Steps">
+  <meta name="twitter:description" content="Most agent failures trace back to bad memory design, not bad models — here&#x27;s how to fix that.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-state-management-what-actually-persists-between-steps-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Agent Memory & State Management: What Actually Persists Between Steps", "description": "Most agent failures trace back to bad memory design, not bad models — here's how to fix that.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-state-management-what-actually-persists-between-steps-hero.png", "datePublished": "2026-11-14T11:58:21.915674+00:00", "dateModified": "2026-11-14T11:58:21.915674+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": ""}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Agent Memory &amp; State Management</span>
+      <h1 class="article-title">Agent Memory &amp; State Management: What Actually Persists Between Steps</h1>
+      <p class="article-dek">Most agent failures trace back to bad memory design, not bad models — here&#x27;s how to fix that.</p>
+      <p class="article-date">November 14, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>29,684 commits in three weeks. That&#x27;s roughly what a swarm of agents produced building the AWS emulator. I don&#x27;t cite this to marvel at the volume — I cite it because it raises an obvious question nobody asks loudly enough: what did those agents <em>remember</em> between steps? What state did they share? Who tracked which file had already been touched, which interface contract had been agreed on, which decision had been made three hundred commits ago? If the answer is &quot;nothing systematic,&quot; the output is either a miracle or a mess. Usually both.</p><p>Memory is the part of agent architecture that practitioners consistently underdesign. Everyone spends time on the model, the tools, the routing logic. Then they wire up a simple list of messages as &quot;context&quot; and call it done. That works fine for a single-turn demo. It falls apart the moment your agent runs more than a handful of steps, touches external state, or needs to be resumed after a failure.</p>
+    </div>
+    <div class="prose-block">
+<p>There are four distinct kinds of memory an agent can use, and conflating them is the root of most production problems I&#x27;ve debugged. The first is <strong>in-context memory</strong> — the messages or scratchpad sitting inside the active prompt window. Fast, zero-latency, but ephemeral and capacity-limited. The second is <strong>external short-term memory</strong> — a key-value store, a vector index, or a simple database that the agent reads and writes during a session. The third is <strong>long-term memory</strong> — retrieved from persistent storage across sessions, often via semantic search. The fourth, and most underused, is <strong>procedural memory</strong> — the agent&#x27;s instructions, tool definitions, and workflow structure itself, which encodes what the agent knows how to <em>do</em> rather than what it knows.</p><p>Each of these has a different access pattern, a different failure mode, and a different cost. In-context memory gets stale or truncated. External short-term memory introduces consistency bugs when two agent branches write concurrently. Long-term memory retrieval can silently surface irrelevant chunks that steer the agent wrong. Procedural memory is the one people forget to version. Knowing which layer to put information on is a design decision, not a default.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/agent-memory-state-management-what-actually-persists-between-steps-diagram-1.png" alt="Comparison: Layer, Scope &amp; Lifetime, Main Failure Mode" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>State management adds another axis on top of memory: not just what the agent knows, but what it&#x27;s <em>doing</em>. A stateful agent graph tracks where in a workflow execution currently sits — which nodes have run, what their outputs were, which branches were taken. This is distinct from memory because it&#x27;s about control flow, not information. Without explicit state tracking, you can&#x27;t pause and resume a long run, you can&#x27;t retry a failed step without re-running everything before it, and you can&#x27;t audit what actually happened after the fact.</p><p>The practical implication is that any agent doing non-trivial work needs a state schema — an explicit definition of every field that must survive between steps. Treat it like a database schema, not an afterthought. Define types. Define defaults. Define which fields are append-only (event logs, tool outputs) versus mutable (current plan, working memory). If you can&#x27;t write down your state schema on a whiteboard in five minutes, your agent&#x27;s memory design isn&#x27;t finished.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/agent-memory-state-management-what-actually-persists-between-steps-diagram-2.png" alt="User Input → Load State → Run Node/Tool → Write State → Route Next → Return Output" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>One thing I&#x27;ve learned the hard way: checkpointing is not optional for anything that runs longer than thirty seconds or touches external APIs. A checkpointer saves the full state snapshot after each node completes. If the run fails at node seven, you resume from node six&#x27;s snapshot — not from scratch. This sounds obvious, but most teams don&#x27;t build it until after their first painful production incident where a three-minute agent run died at the last step and had to be restarted entirely, re-running all the expensive API calls along the way.</p><p>The other discipline that matters is separating <em>read</em> state from <em>write</em> state in your node design. Each node should declare what it reads from the state and what it writes back. Nodes that read and write the same fields they didn&#x27;t own are where race conditions and hard-to-trace bugs live in multi-agent or parallel-branch graphs. If you enforce this separation even informally, debugging becomes dramatically faster because you can trace any state field back to exactly one owner.</p>
+    </div>
+    <div class="callout-box">
+      <p class="callout-label">The schema rule I enforce first</p>
+<p>Before I write a single node, I write the state TypedDict (or Pydantic model). Every field gets a name, a type, and a one-line comment on who owns it. Then I pass that schema around to every collaborator or client before we touch code. This single habit has caught more design problems earlier than any other practice I&#x27;ve adopted — because the moment you try to name every field, you discover the fields you hadn&#x27;t thought about yet.</p>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/langchain-ai/langgraph" target="_blank" rel="noopener noreferrer">langchain-ai/langgraph</a> &mdash; Stateful agent graphs with built-in persistence and memory.</p>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://simonwillison.net/2026/Nov/11/aws-emulator/" target="_blank" rel="noopener noreferrer">aws-emulator</a> (Simon Willison)</p>
+
+    <div class="tag-row">
+
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Agent%20Memory%20%26%20State%20Management%3A%20What%20Actually%20Persists%20Between%20Steps&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html&amp;t=Agent%20Memory%20%26%20State%20Management%3A%20What%20Actually%20Persists%20Between%20Steps" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Agent%20Memory%20%26%20State%20Management%3A%20What%20Actually%20Persists%20Between%20Steps&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy.html">
+        <span class="related-technique">Vector Search &amp; Embeddings</span>
+        <span class="related-title">Dense Retrieval vs. Semantic Index: Choosing Your Embedding Strategy</span>
+      </a>
+      <a class="related-card" href="../posts/your-context-window-is-a-workspace-not-a-dump.html">
+        <span class="related-technique">Context Engineering &amp; Long-Context Management</span>
+        <span class="related-title">Your Context Window Is a Workspace, Not a Dump</span>
+      </a>
+      <a class="related-card" href="../posts/red-teaming-your-llm-before-someone-else-does-it-for-you.html">
+        <span class="related-technique">Red-Teaming &amp; Adversarial Testing</span>
+        <span class="related-title">Red-Teaming Your LLM Before Someone Else Does It For You</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>

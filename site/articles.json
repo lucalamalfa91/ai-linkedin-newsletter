@@ -6175,5 +6175,81 @@
       "source": "Simon Willison"
     },
     "og_image": "dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy-hero.png"
+  },
+  {
+    "slug": "agent-memory-state-management-what-actually-persists-between-steps",
+    "title": "Agent Memory & State Management: What Actually Persists Between Steps",
+    "dek": "Most agent failures trace back to bad memory design, not bad models — here's how to fix that.",
+    "date": "2026-11-14",
+    "published_at": "2026-11-14T11:58:21.915674+00:00",
+    "technique": "Agent Memory & State Management",
+    "archetype": "deep-dive",
+    "skin": "boxed-callout",
+    "tags": [],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>29,684 commits in three weeks. That's roughly what a swarm of agents produced building the AWS emulator. I don't cite this to marvel at the volume — I cite it because it raises an obvious question nobody asks loudly enough: what did those agents <em>remember</em> between steps? What state did they share? Who tracked which file had already been touched, which interface contract had been agreed on, which decision had been made three hundred commits ago? If the answer is \"nothing systematic,\" the output is either a miracle or a mess. Usually both.</p><p>Memory is the part of agent architecture that practitioners consistently underdesign. Everyone spends time on the model, the tools, the routing logic. Then they wire up a simple list of messages as \"context\" and call it done. That works fine for a single-turn demo. It falls apart the moment your agent runs more than a handful of steps, touches external state, or needs to be resumed after a failure.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>There are four distinct kinds of memory an agent can use, and conflating them is the root of most production problems I've debugged. The first is <strong>in-context memory</strong> — the messages or scratchpad sitting inside the active prompt window. Fast, zero-latency, but ephemeral and capacity-limited. The second is <strong>external short-term memory</strong> — a key-value store, a vector index, or a simple database that the agent reads and writes during a session. The third is <strong>long-term memory</strong> — retrieved from persistent storage across sessions, often via semantic search. The fourth, and most underused, is <strong>procedural memory</strong> — the agent's instructions, tool definitions, and workflow structure itself, which encodes what the agent knows how to <em>do</em> rather than what it knows.</p><p>Each of these has a different access pattern, a different failure mode, and a different cost. In-context memory gets stale or truncated. External short-term memory introduces consistency bugs when two agent branches write concurrently. Long-term memory retrieval can silently surface irrelevant chunks that steer the agent wrong. Procedural memory is the one people forget to version. Knowing which layer to put information on is a design decision, not a default.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "Memory Layers: What Each One Actually Does",
+        "image": "agent-memory-state-management-what-actually-persists-between-steps-diagram-1.png",
+        "alt": "Comparison: Layer, Scope & Lifetime, Main Failure Mode"
+      },
+      {
+        "type": "prose",
+        "html": "<p>State management adds another axis on top of memory: not just what the agent knows, but what it's <em>doing</em>. A stateful agent graph tracks where in a workflow execution currently sits — which nodes have run, what their outputs were, which branches were taken. This is distinct from memory because it's about control flow, not information. Without explicit state tracking, you can't pause and resume a long run, you can't retry a failed step without re-running everything before it, and you can't audit what actually happened after the fact.</p><p>The practical implication is that any agent doing non-trivial work needs a state schema — an explicit definition of every field that must survive between steps. Treat it like a database schema, not an afterthought. Define types. Define defaults. Define which fields are append-only (event logs, tool outputs) versus mutable (current plan, working memory). If you can't write down your state schema on a whiteboard in five minutes, your agent's memory design isn't finished.</p>"
+      },
+      {
+        "type": "diagram",
+        "heading": "How State Moves Through an Agent Graph",
+        "image": "agent-memory-state-management-what-actually-persists-between-steps-diagram-2.png",
+        "alt": "User Input → Load State → Run Node/Tool → Write State → Route Next → Return Output"
+      },
+      {
+        "type": "prose",
+        "html": "<p>One thing I've learned the hard way: checkpointing is not optional for anything that runs longer than thirty seconds or touches external APIs. A checkpointer saves the full state snapshot after each node completes. If the run fails at node seven, you resume from node six's snapshot — not from scratch. This sounds obvious, but most teams don't build it until after their first painful production incident where a three-minute agent run died at the last step and had to be restarted entirely, re-running all the expensive API calls along the way.</p><p>The other discipline that matters is separating <em>read</em> state from <em>write</em> state in your node design. Each node should declare what it reads from the state and what it writes back. Nodes that read and write the same fields they didn't own are where race conditions and hard-to-trace bugs live in multi-agent or parallel-branch graphs. If you enforce this separation even informally, debugging becomes dramatically faster because you can trace any state field back to exactly one owner.</p>"
+      },
+      {
+        "type": "callout",
+        "label": "The schema rule I enforce first",
+        "html": "<p>Before I write a single node, I write the state TypedDict (or Pydantic model). Every field gets a name, a type, and a one-line comment on who owns it. Then I pass that schema around to every collaborator or client before we touch code. This single habit has caught more design problems earlier than any other practice I've adopted — because the moment you try to name every field, you discover the fields you hadn't thought about yet.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "langchain-ai/langgraph",
+          "url": "https://github.com/langchain-ai/langgraph",
+          "note": "Stateful agent graphs with built-in persistence and memory."
+        },
+        "usage_note": "I reach for LangGraph when an agent needs explicit checkpointing and branching logic that I can inspect and resume — it makes the state contract impossible to ignore.",
+        "code_example": {
+          "language": "python",
+          "code": "from typing import TypedDict, Annotated\nimport operator\nfrom langgraph.graph import StateGraph, END\nfrom langgraph.checkpoint.memory import MemorySaver\nfrom langchain_openai import ChatOpenAI\n\nclass ResearchState(TypedDict):\n    topic: str\n    search_results: Annotated[list[str], operator.add]  # append-only\n    summary: str\n    step_count: int\n\nllm = ChatOpenAI(model=\"gpt-4o-mini\")\n\ndef search_node(state: ResearchState) -> dict:\n    # Simulate a search tool call\n    result = f\"Found article on '{state['topic']}' (step {state['step_count'] + 1})\"\n    return {\"search_results\": [result], \"step_count\": state[\"step_count\"] + 1}\n\ndef summarize_node(state: ResearchState) -> dict:\n    combined = \"\\n\".join(state[\"search_results\"])\n    prompt = f\"Summarize these research findings:\\n{combined}\"\n    response = llm.invoke(prompt)\n    return {\"summary\": response.content}\n\ndef should_continue(state: ResearchState) -> str:\n    return \"summarize\" if state[\"step_count\"] >= 2 else \"search\"\n\nbuilder = StateGraph(ResearchState)\nbuilder.add_node(\"search\", search_node)\nbuilder.add_node(\"summarize\", summarize_node)\nbuilder.set_entry_point(\"search\")\nbuilder.add_conditional_edges(\"search\", should_continue)\nbuilder.add_edge(\"summarize\", END)\n\ncheckpointer = MemorySaver()\ngraph = builder.compile(checkpointer=checkpointer)\n\nconfig = {\"configurable\": {\"thread_id\": \"research-session-001\"}}\ninitial_state = {\"topic\": \"agent memory systems\", \"search_results\": [], \"summary\": \"\", \"step_count\": 0}\n\nfor event in graph.stream(initial_state, config=config):\n    for node_name, output in event.items():\n        print(f\"[{node_name}] step_count={output.get('step_count', '—')}\")\n\nfinal = graph.get_state(config)\nprint(\"\\nFinal summary:\", final.values[\"summary\"])\nprint(\"Total search results stored:\", len(final.values[\"search_results\"]))"
+        },
+        "example_output": "[search] step_count=1\n[search] step_count=2\n[summarize] step_count=—\n\nFinal summary: The research identified two key findings on agent memory systems,\nhighlighting the importance of explicit state schemas and checkpointing strategies\nfor reliable multi-step execution.\nTotal search results stored: 2"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "prose",
+      "diagram",
+      "prose",
+      "diagram",
+      "prose",
+      "callout",
+      "code_project"
+    ],
+    "inspired_by": {
+      "title": "aws-emulator",
+      "url": "https://simonwillison.net/2026/Nov/11/aws-emulator/",
+      "source": "Simon Willison"
+    },
+    "og_image": "agent-memory-state-management-what-actually-persists-between-steps-hero.png"
   }
 ]

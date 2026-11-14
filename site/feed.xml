@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Agent Memory &amp; State Management: What Actually Persists Between Steps</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html</guid>
+    <pubDate>Sat, 14 Nov 2026 11:58:21 +0000</pubDate>
+    <description>Most agent failures trace back to bad memory design, not bad models — here's how to fix that.</description>
+    <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/agent-memory-state-management-what-actually-persists-between-steps-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Dense Retrieval vs. Semantic Index: Choosing Your Embedding Strategy</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/dense-retrieval-vs-semantic-index-choosing-your-embedding-strategy.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 06 Oct 2026 11:50:36 +0000</pubDate>
     <description>Two valid approaches to semantic search, one real trade-off — here's how to pick the right tool.</description>
     <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Context Engineering: What You Put in the Window Is the Real Work</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/context-engineering-what-you-put-in-the-window-is-the-real-work.html</guid>
-    <pubDate>Mon, 05 Oct 2026 12:05:53 +0000</pubDate>
-    <description>How you structure, select, and sequence information for a long-context model matters more than almost any other architectural decision.</description>
-    <category>context-engineering</category><category>long-context</category><category>prompt-design</category><category>agents</category><category>retrieval</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/context-engineering-what-you-put-in-the-window-is-the-real-work-hero.png" type="image/png"/>
   </item>
 </channel></rss>
