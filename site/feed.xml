@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Engineering Is Not a Skill Gap. It's a Design Problem.</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem.html</guid>
+    <pubDate>Mon, 16 Nov 2026 13:23:59 +0000</pubDate>
+    <description>Most teams treat prompts as afterthoughts. Here's why that framing costs you more than any model upgrade ever will.</description>
+    <category>prompt-engineering</category><category>llm-design</category><category>reliability</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Agent Memory &amp; State Management: What Actually Persists Between Steps</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/agent-memory-state-management-what-actually-persists-between-steps.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Wed, 07 Oct 2026 11:34:37 +0000</pubDate>
     <description>Most teams reach for memory solutions before they understand what kind of state their agent actually needs.</description>
     <category>agents</category><category>state-management</category><category>architecture</category><category>memory</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Vector Search: Choosing Between Bare Embeddings and a Retrieval Framework</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework.html</guid>
-    <pubDate>Tue, 06 Oct 2026 11:50:36 +0000</pubDate>
-    <description>Two valid approaches to semantic search, one real trade-off — here's how to pick the right tool.</description>
-    <enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/vector-search-choosing-between-bare-embeddings-and-a-retrieval-framework-hero.png" type="image/png"/>
   </item>
 </channel></rss>

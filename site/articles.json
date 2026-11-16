@@ -6251,5 +6251,52 @@
       "source": "Simon Willison"
     },
     "og_image": "agent-memory-state-management-what-actually-persists-between-steps-hero.png"
+  },
+  {
+    "slug": "prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem",
+    "title": "Prompt Engineering Is Not a Skill Gap. It's a Design Problem.",
+    "dek": "Most teams treat prompts as afterthoughts. Here's why that framing costs you more than any model upgrade ever will.",
+    "date": "2026-11-16",
+    "published_at": "2026-11-16T13:23:59.648504+00:00",
+    "technique": "Prompt Engineering & Optimization",
+    "archetype": "contrarian-take",
+    "skin": "quote-early",
+    "tags": [
+      "prompt-engineering",
+      "llm-design",
+      "reliability",
+      "enterprise-ai"
+    ],
+    "blocks": [
+      {
+        "type": "callout",
+        "label": "The claim I'll defend here",
+        "html": "<p>The reason your prompts underperform has almost nothing to do with the words you chose and almost everything to do with the fact that you never treated the prompt as a designed artifact with a spec, a failure mode, and an owner.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Prompt engineering gets talked about like it's a vocabulary problem — pick the right magic phrase, add \"think step by step,\" sprinkle in some XML tags, and the model will finally behave. This is wrong, and it leads teams down a very expensive path. They iterate endlessly on phrasing while the real issues — ambiguous task definition, missing context, no evaluation loop — go completely unaddressed. The prompt gets longer. The behavior stays unpredictable. Someone concludes that LLMs are just inherently unreliable, which is also wrong.</p><p>What I actually see in enterprise engagements is this: the prompt was written by whoever first prototyped the feature, never reviewed again, and lives in a config file with no version history. When output quality degrades — because the model was updated, or the input distribution shifted, or a new edge case appeared — nobody knows where to start. That's not a prompt engineering failure. That's a software engineering failure applied to a new kind of artifact.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The discipline worth building is closer to interface design than to copywriting. A well-designed prompt has a clear contract: here is the input shape, here is the expected output shape, here are the cases I explicitly handle, here are the cases I explicitly reject. It has a test suite — even a crude one, even just twenty representative inputs with expected outputs. It has an owner who gets paged when eval scores drop. None of this is glamorous. None of it requires knowing the latest prompting paper. All of it is more valuable than any clever phrasing trick.</p><p>The hardest part is usually the task definition, not the prompt text. I've sat in rooms where a team spent an hour debating whether to use \"concise\" or \"brief\" in an instruction, while the underlying question — what does a correct output actually look like for this task? — had never been written down anywhere. Get the spec right first. The words follow naturally.</p>"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Anthropic's Claude Cookbooks are worth keeping bookmarked specifically because they model this design-first approach across real task types — classification, retrieval-augmented generation, summarization. The value isn't in copying the prompts verbatim; it's in seeing how a task gets decomposed, where the failure modes are called out explicitly, and how evaluation is wired in from the start. Use them as a structural reference, not a template library. The moment you copy-paste without understanding the contract you're inheriting, you're back to the vocabulary problem — and you'll spend the next month wondering why it doesn't quite work for your data.</p>"
+      }
+    ],
+    "block_signature": [
+      "callout",
+      "prose",
+      "prose",
+      "prose"
+    ],
+    "inspired_by": {
+      "title": "datasette-agent 0.6a0",
+      "url": "https://simonwillison.net/2026/Nov/15/datasette-agent/",
+      "source": "Simon Willison"
+    },
+    "og_image": "prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem-hero.png"
   }
 ]
