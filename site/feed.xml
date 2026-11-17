@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Fine-Tuning vs. Prompting: How to Choose Before You Commit</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit-2.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/fine-tuning-vs-prompting-how-to-choose-before-you-commit-2.html</guid>
+    <pubDate>Tue, 17 Nov 2026 14:09:21 +0000</pubDate>
+    <description>A practical decision framework so you stop reaching for fine-tuning when a well-structured prompt would do the job.</description>
+    <category>fine-tuning</category><category>prompting</category><category>model-selection</category><category>llm-ops</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/fine-tuning-vs-prompting-how-to-choose-before-you-commit-2-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>Prompt Engineering Is Not a Skill Gap. It's a Design Problem.</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Thu, 08 Oct 2026 11:49:39 +0000</pubDate>
     <description>A practical workflow for designing, testing, and iterating prompts before they cause problems at scale.</description>
     <category>prompt-engineering</category><category>llm</category><category>production</category><category>optimization</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-engineering-that-actually-holds-up-in-production-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>Your Agent Doesn't Have a Memory Problem. It Has a Design Problem.</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem.html</guid>
-    <pubDate>Wed, 07 Oct 2026 11:34:37 +0000</pubDate>
-    <description>Most teams reach for memory solutions before they understand what kind of state their agent actually needs.</description>
-    <category>agents</category><category>state-management</category><category>architecture</category><category>memory</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/your-agent-doesn-t-have-a-memory-problem-it-has-a-design-problem-hero.png" type="image/png"/>
   </item>
 </channel></rss>

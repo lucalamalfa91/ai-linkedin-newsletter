@@ -6298,5 +6298,100 @@
       "source": "Simon Willison"
     },
     "og_image": "prompt-engineering-is-not-a-skill-gap-it-s-a-design-problem-hero.png"
+  },
+  {
+    "slug": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-2",
+    "title": "Fine-Tuning vs. Prompting: How to Choose Before You Commit",
+    "dek": "A practical decision framework so you stop reaching for fine-tuning when a well-structured prompt would do the job.",
+    "date": "2026-11-17",
+    "published_at": "2026-11-17T14:09:21.891033+00:00",
+    "technique": "Fine-Tuning vs. Prompting",
+    "archetype": "how-to",
+    "skin": "checklist",
+    "tags": [
+      "fine-tuning",
+      "prompting",
+      "model-selection",
+      "llm-ops"
+    ],
+    "blocks": [
+      {
+        "type": "diagram",
+        "heading": "Prompting vs. Fine-Tuning at a Glance",
+        "image": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-2-diagram-1.png",
+        "alt": "Comparison: Aspect, Prompting, Fine-Tuning"
+      },
+      {
+        "type": "prose",
+        "html": "<p>Most teams I see reach for fine-tuning too early. They hit a prompt that's getting inconsistent results, spend two weeks curating training data, run a fine-tune, and end up with a model that's marginally better — and now locked to a specific checkpoint they have to maintain. The real question to ask first: <em>is the model capable of this behaviour at all, or is it just not being asked correctly?</em> If it can do it when prompted carefully, you don't need fine-tuning yet.</p><p>Fine-tuning earns its place in specific situations: when you need a consistent output format across thousands of calls and token costs matter, when you're teaching the model a proprietary style or domain vocabulary it has genuinely never seen, or when you need to strip out capabilities to reduce surface area. Everything else is a prompting problem.</p>"
+      },
+      {
+        "type": "list",
+        "heading": "Before You Fine-Tune, Run This Checklist",
+        "items": [
+          {
+            "title": "Exhaust few-shot examples first",
+            "detail": "Add 5–10 high-quality input/output examples directly in the prompt. If performance jumps, you have a data problem, not a model problem."
+          },
+          {
+            "title": "Check if tool use or retrieval solves it",
+            "detail": "Grounding the model with real data via RAG or function calls fixes most 'the model doesn't know X' complaints without touching weights."
+          },
+          {
+            "title": "Measure the actual gap",
+            "detail": "Run an eval on 50–100 representative inputs. If accuracy is above 80% with prompting, fine-tuning will likely get you to 85% — decide if that delta is worth the cost."
+          },
+          {
+            "title": "Confirm you have clean labelled data",
+            "detail": "You need at minimum a few hundred consistent, high-quality examples. If you're starting from scratch, building that dataset takes longer than people expect."
+          },
+          {
+            "title": "Plan for version maintenance",
+            "detail": "A fine-tuned model is a dependency. When the base model updates, you re-run the fine-tune. Budget that ongoing cost before you start."
+          }
+        ]
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "anthropics/claude-cookbooks",
+          "url": "https://github.com/anthropics/claude-cookbooks",
+          "note": "Examples showing when prompting/tool use suffice vs. when they don't."
+        },
+        "usage_note": "I use the Claude cookbooks to stress-test whether tool use or plain prompting can handle a task before I even open a fine-tuning console.",
+        "code_example": {
+          "language": "python",
+          "code": "import anthropic\n\nclient = anthropic.Anthropic()\n\n# Step 1: Try zero-shot — does the model already do this?\nzero_shot = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=256,\n    messages=[{\"role\": \"user\", \"content\": \"Classify this support ticket as BILLING, TECHNICAL, or GENERAL: 'My invoice shows double charge for March.'\"}]\n)\nprint(\"Zero-shot:\", zero_shot.content[0].text)\n\n# Step 2: Add few-shot examples — does accuracy improve?\nfew_shot_prompt = \"\"\"Classify support tickets. Examples:\nTicket: 'Card declined at checkout.' -> BILLING\nTicket: 'App crashes on login.' -> TECHNICAL\nTicket: 'What are your hours?' -> GENERAL\n\nTicket: 'My invoice shows double charge for March.' ->\"\"\"\n\nfew_shot = client.messages.create(\n    model=\"claude-opus-4-5\",\n    max_tokens=16,\n    messages=[{\"role\": \"user\", \"content\": few_shot_prompt}]\n)\nprint(\"Few-shot:\", few_shot.content[0].text)\n# If few-shot nails it consistently -> stay with prompting, skip fine-tuning"
+        },
+        "example_output": "Zero-shot: BILLING\nFew-shot: BILLING\n\n# Both correct here — no fine-tuning needed for this task.\n# Reserve fine-tuning for cases where even 10-shot prompting\n# fails consistently across your eval set."
+      },
+      {
+        "type": "list",
+        "heading": "When Fine-Tuning Actually Makes Sense",
+        "items": [
+          {
+            "title": "Consistent structured output at volume",
+            "detail": "If you're parsing thousands of documents into JSON daily and prompt length is inflating costs, a fine-tuned model on that exact schema pays off within weeks."
+          },
+          {
+            "title": "Proprietary style or tone that can't be described",
+            "detail": "Some brand voices are easier to demonstrate than to explain. If your style guide runs to 20 pages and still misses the mark, show the model instead."
+          },
+          {
+            "title": "Latency-sensitive, short-context tasks",
+            "detail": "Fine-tuned smaller models can outperform prompted larger ones on narrow tasks with much lower latency — useful for real-time applications."
+          }
+        ]
+      }
+    ],
+    "block_signature": [
+      "diagram",
+      "prose",
+      "list",
+      "code_project",
+      "list"
+    ],
+    "inspired_by": null,
+    "og_image": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-2-hero.png"
   }
 ]
