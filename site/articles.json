@@ -6393,5 +6393,52 @@
     ],
     "inspired_by": null,
     "og_image": "fine-tuning-vs-prompting-how-to-choose-before-you-commit-2-hero.png"
+  },
+  {
+    "slug": "multi-agent-orchestration-what-actually-breaks-in-practice",
+    "title": "Multi-Agent Orchestration: What Actually Breaks in Practice",
+    "dek": "Most agentic workflows fail at coordination, not capability — here's how to structure them so they don't.",
+    "date": "2026-11-19",
+    "published_at": "2026-11-19T14:10:11.047681+00:00",
+    "technique": "Agentic Workflows & Multi-Agent Orchestration",
+    "archetype": "quick-hit",
+    "skin": "minimal",
+    "tags": [
+      "agents",
+      "multi-agent",
+      "orchestration",
+      "agentic-workflows"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>Three agents. A planner, a researcher, a writer. On paper it looks clean. In production, the planner hallucinates a subtask, the researcher runs it anyway, and the writer produces something confidently wrong. Nobody flagged the bad input because each agent trusted the previous one. This is the core problem with multi-agent orchestration that nobody talks about enough: the failure modes aren't in the individual agents, they're in the handoffs. A single LLM call has one point of failure. A chain of four has four — plus the interfaces between them.</p><p>The two frameworks I use most are CrewAI and LangGraph, and they represent genuinely different philosophies. CrewAI is high-level — you define roles, goals, and a process, and the framework manages delegation. It's fast to prototype and the role abstraction maps well to how non-technical stakeholders think about workflows. LangGraph is lower-level — you're building a state machine explicitly, with nodes and edges and conditional routing. More code, but you control exactly what state gets passed between steps, which makes debugging tractable. My rule: use CrewAI when the workflow is stable and the tasks are well-defined; use LangGraph when you need conditional branching, retries, or human-in-the-loop checkpoints.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "crewAIInc/crewAI",
+          "url": "https://github.com/crewAIInc/crewAI",
+          "note": "Framework for orchestrating role-playing, autonomous agent crews."
+        },
+        "usage_note": "I reach for CrewAI when I need to stand up a role-based pipeline quickly and the task decomposition is already clear.",
+        "code_example": {
+          "language": "python",
+          "code": "from crewai import Agent, Task, Crew, Process\n\nresearcher = Agent(\n    role=\"Market Researcher\",\n    goal=\"Find recent pricing data for enterprise SaaS tools in Europe\",\n    backstory=\"You are a thorough analyst who cites sources and flags uncertainty.\",\n    verbose=True\n)\n\nwriter = Agent(\n    role=\"Report Writer\",\n    goal=\"Summarize findings into a one-page executive brief\",\n    backstory=\"You write clearly for non-technical audiences and never invent facts.\",\n    verbose=True\n)\n\nresearch_task = Task(\n    description=\"Research current pricing tiers for Salesforce, HubSpot, and Pipedrive in CHF.\",\n    expected_output=\"A bullet list of pricing tiers with source URLs.\",\n    agent=researcher\n)\n\nwrite_task = Task(\n    description=\"Turn the research output into a concise executive summary.\",\n    expected_output=\"A 200-word summary suitable for a CFO.\",\n    agent=writer\n)\n\ncrew = Crew(\n    agents=[researcher, writer],\n    tasks=[research_task, write_task],\n    process=Process.sequential\n)\n\nresult = crew.kickoff()\nprint(result)"
+        },
+        "example_output": "## Executive Summary: Enterprise CRM Pricing (Europe, Q2 2025)\n\nSalesforce Sales Cloud starts at CHF 32/user/month (Starter).\nHubSpot Sales Hub Professional runs approximately CHF 45/user/month.\nPipedrive Essential is priced at CHF 15/user/month.\n\nPipedrive offers the lowest entry cost; Salesforce carries the highest\nlicensing overhead for teams under 20 seats. Recommend a pilot evaluation\nbefore committing to multi-year enterprise agreements."
+      },
+      {
+        "type": "prose",
+        "html": "<p>The honest trade-off: both frameworks add real overhead — more moving parts, more token spend, harder-to-read traces. A well-prompted single-agent loop solves more problems than people admit. Reach for multi-agent orchestration when the task genuinely decomposes into parallel or sequential specializations that would bloat a single context window, not because the architecture looks impressive on a slide.</p>"
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose"
+    ],
+    "inspired_by": null,
+    "og_image": "multi-agent-orchestration-what-actually-breaks-in-practice-hero.png"
   }
 ]
