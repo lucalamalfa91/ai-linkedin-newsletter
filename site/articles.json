@@ -6440,5 +6440,58 @@
     ],
     "inspired_by": null,
     "og_image": "multi-agent-orchestration-what-actually-breaks-in-practice-hero.png"
+  },
+  {
+    "slug": "rag-is-not-magic-what-i-learned-wiring-it-up-for-real",
+    "title": "RAG Is Not Magic: What I Learned Wiring It Up for Real",
+    "dek": "A field note on what actually breaks when you build RAG for enterprise clients — and what doesn't.",
+    "date": "2026-11-20",
+    "published_at": "2026-11-20T13:52:49.182206+00:00",
+    "technique": "Retrieval-Augmented Generation (RAG)",
+    "archetype": "field-note",
+    "skin": "quote-close",
+    "tags": [
+      "rag",
+      "retrieval",
+      "knowledge-bases",
+      "production",
+      "llm"
+    ],
+    "blocks": [
+      {
+        "type": "prose",
+        "html": "<p>A client in Zurich had a SharePoint full of internal policies — HR documents, procurement rules, compliance guidelines. About 4,000 files. They wanted employees to ask questions in plain language and get answers. Classic RAG territory. We scoped it, built a proof of concept in two weeks, and it worked beautifully in the demo. Then we handed it to real users and within three days the feedback was brutal: wrong answers, confident ones, citing documents that were two policy revisions out of date. The retrieval was pulling stale chunks and the model was doing exactly what it was told — synthesizing whatever came back. The problem wasn't the LLM. It was what we fed it.</p><p>That experience is the most useful thing I can pass on about Retrieval-Augmented Generation. The idea is straightforward: instead of relying on a model's frozen training knowledge, you retrieve relevant text at query time and include it in the prompt. But the technique lives or dies on retrieval quality, chunking strategy, and metadata hygiene — none of which feel glamorous until they go wrong in front of real users.</p>"
+      },
+      {
+        "type": "code_project",
+        "project": {
+          "name": "run-llama/llama_index",
+          "url": "https://github.com/run-llama/llama_index",
+          "note": "Data framework for building RAG pipelines over private data."
+        },
+        "usage_note": "I reach for LlamaIndex when a client's data lives across multiple formats — PDFs, Word docs, Notion pages — because its ingestion abstractions save a week of glue code.",
+        "code_example": {
+          "language": "python",
+          "code": "from llama_index.core import VectorStoreIndex, SimpleDirectoryReader\nfrom llama_index.core.node_parser import SentenceSplitter\nfrom llama_index.core import Settings\nfrom llama_index.llms.openai import OpenAI\nfrom llama_index.embeddings.openai import OpenAIEmbedding\n\nSettings.llm = OpenAI(model=\"gpt-4o\", temperature=0.1)\nSettings.embed_model = OpenAIEmbedding(model=\"text-embedding-3-small\")\nSettings.node_parser = SentenceSplitter(chunk_size=512, chunk_overlap=64)\n\ndocuments = SimpleDirectoryReader(\"./policy_docs\", recursive=True).load_data()\nindex = VectorStoreIndex.from_documents(documents)\n\nquery_engine = index.as_query_engine(similarity_top_k=5)\nresponse = query_engine.query(\n    \"What is the approval process for software purchases above 10,000 CHF?\"\n)\nprint(response)"
+        },
+        "example_output": "The approval process for software purchases above 10,000 CHF requires sign-off\nfrom the department head and a second approval from the CFO office.\nRequests must be submitted via the procurement portal with a cost-benefit summary.\n(Source: procurement-policy-v4.pdf, section 3.2)"
+      },
+      {
+        "type": "prose",
+        "html": "<p>The metadata piece — notice the <code>version</code> field in the Chroma example — is what we added after that Zurich incident. Every chunk now carries a document version and a last-modified date. At query time we filter out anything older than the current policy cycle before the similarity search even runs. It's unglamorous plumbing, but it's the difference between a system users trust and one they quietly stop using.</p><p>RAG also gets oversold as a drop-in solution for hallucination. It isn't. If the right document isn't in your corpus, or the chunk boundaries split a critical sentence across two pieces, or your embeddings don't capture domain-specific terminology well, the model will still confabulate — just with a citation attached. The retrieval step narrows the search space; it doesn't guarantee the answer is there. Treat it as a precision tool, not a safety net.</p>"
+      },
+      {
+        "type": "quote",
+        "text": "RAG moves the hard problem from the model to your data pipeline — and most teams don't realize that until users are already complaining."
+      }
+    ],
+    "block_signature": [
+      "prose",
+      "code_project",
+      "prose",
+      "quote"
+    ],
+    "inspired_by": null,
+    "og_image": "rag-is-not-magic-what-i-learned-wiring-it-up-for-real-hero.png"
   }
 ]
