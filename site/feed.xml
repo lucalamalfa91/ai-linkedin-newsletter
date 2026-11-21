@@ -4,6 +4,14 @@
   <link>https://ai-linkedin-newsletter.vercel.app/</link>
   <description>Practical AI architecture, one technique at a time — by Luca La Malfa.</description>
   <item>
+    <title>Prompt Caching: How to Stop Paying for the Same Tokens Twice</title>
+    <link>https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html</link>
+    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html</guid>
+    <pubDate>Sat, 21 Nov 2026 13:16:39 +0000</pubDate>
+    <description>A systematic look at prompt caching mechanics, where it actually saves money, and where it quietly fails you.</description>
+    <category>prompt-caching</category><category>cost-optimization</category><category>inference</category><category>anthropic</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2-hero.png" type="image/png"/>
+  </item>
+  <item>
     <title>RAG Is Not Magic: What I Learned Wiring It Up for Real</title>
     <link>https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-magic-what-i-learned-wiring-it-up-for-real.html</link>
     <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/rag-is-not-magic-what-i-learned-wiring-it-up-for-real.html</guid>
@@ -234,13 +242,5 @@
     <pubDate>Tue, 13 Oct 2026 12:30:23 +0000</pubDate>
     <description>A systematic look at how Retrieval-Augmented Generation works, where it breaks, and how to build it right.</description>
     <category>rag</category><category>retrieval</category><category>vector-search</category><category>llm</category><category>enterprise-ai</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/rag-what-it-actually-takes-to-make-retrieval-work-hero.png" type="image/png"/>
-  </item>
-  <item>
-    <title>What I Learned Letting Agents Run Unsupervised for a Week</title>
-    <link>https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-letting-agents-run-unsupervised-for-a-week.html</link>
-    <guid isPermaLink="true">https://ai-linkedin-newsletter.vercel.app/posts/what-i-learned-letting-agents-run-unsupervised-for-a-week.html</guid>
-    <pubDate>Sat, 10 Oct 2026 10:59:36 +0000</pubDate>
-    <description>Multi-agent orchestration is less about AI magic and more about disciplined workflow design — here's what that looks like in practice.</description>
-    <category>agents</category><category>multi-agent</category><category>orchestration</category><category>agentic-workflows</category><category>langgraph</category><enclosure url="https://ai-linkedin-newsletter.vercel.app/posts/images/what-i-learned-letting-agents-run-unsupervised-for-a-week-hero.png" type="image/png"/>
   </item>
 </channel></rss>

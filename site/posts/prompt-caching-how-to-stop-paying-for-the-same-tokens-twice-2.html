@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prompt Caching: How to Stop Paying for the Same Tokens Twice — The AI Architect</title>
+  <meta name="description" content="A systematic look at prompt caching mechanics, where it actually saves money, and where it quietly fails you.">
+  <meta property="og:title" content="Prompt Caching: How to Stop Paying for the Same Tokens Twice">
+  <meta property="og:description" content="A systematic look at prompt caching mechanics, where it actually saves money, and where it quietly fails you.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html">
+  <meta property="og:url" content="https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html">
+  <meta property="og:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2-hero.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:site_name" content="The AI Architect">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Prompt Caching: How to Stop Paying for the Same Tokens Twice">
+  <meta name="twitter:description" content="A systematic look at prompt caching mechanics, where it actually saves money, and where it quietly fails you.">
+  <meta name="twitter:image" content="https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2-hero.png">
+  <link rel="alternate" type="application/rss+xml" title="The AI Architect" href="/feed.xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "BlogPosting", "headline": "Prompt Caching: How to Stop Paying for the Same Tokens Twice", "description": "A systematic look at prompt caching mechanics, where it actually saves money, and where it quietly fails you.", "image": "https://ai-linkedin-newsletter.vercel.app/posts/images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2-hero.png", "datePublished": "2026-11-21T13:16:39.618531+00:00", "dateModified": "2026-11-21T13:16:39.618531+00:00", "mainEntityOfPage": {"@type": "WebPage", "@id": "https://ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html"}, "author": {"@type": "Person", "name": "Luca La Malfa"}, "publisher": {"@type": "Organization", "name": "The AI Architect"}, "keywords": "prompt-caching, cost-optimization, inference, anthropic"}</script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:            #F4F3EF;
+      --surface:       #FFFFFF;
+      --border:        #E4E3DF;
+      --text:          #111111;
+      --text-sub:      #444444;
+      --text-muted:    #888888;
+      --accent:        #2563EB;
+      --header-bg:     #0D1117;
+      --take-bg:       #FFFBEB;
+      --take-border:   #F59E0B;
+      --take-label:    #92400E;
+      --source-bg:     #EFEFEB;
+      --source-text:   #333333;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:            #101010;
+        --surface:       #1A1A1A;
+        --border:        #2B2B2B;
+        --text:          #EFEFEF;
+        --text-sub:      #AAAAAA;
+        --text-muted:    #666666;
+        --accent:        #60A5FA;
+        --header-bg:     #000000;
+        --take-bg:       #1A1200;
+        --take-border:   #D97706;
+        --take-label:    #FCD34D;
+        --source-bg:     #222222;
+        --source-text:   #CCCCCC;
+      }
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    .masthead {
+      background: var(--header-bg);
+      padding: 1.5rem 1.25rem;
+      text-align: center;
+    }
+
+    .masthead a {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.85);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 2.5rem 1.25rem 1rem;
+    }
+
+    .article-header { margin-bottom: 1.75rem; }
+
+    .source-chip {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    .article-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+
+    .article-dek {
+      font-size: 1.05rem;
+      color: var(--text-sub);
+      margin-bottom: 0.6rem;
+    }
+
+    .article-date {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* ── BLOCKS (each article is an ordered list of these; which ones appear, how many,
+       and in what order varies per article's editorial archetype — see config.py) ── */
+
+    .prose-block { font-size: 1rem; color: var(--text); margin: 1.25rem 0; }
+    .prose-block p { margin-bottom: 1.1rem; }
+    .prose-block p:last-child { margin-bottom: 0; }
+
+    /* ── DIAGRAMS ───────────────────────────────────────── */
+    .diagram-figure {
+      margin: 1.5rem 0;
+    }
+
+    .diagram-figure img {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      display: block;
+    }
+
+    /* ── CALLOUT: boxed treatment (deep-dive archetype) ──── */
+    .callout-box {
+      background: var(--take-bg);
+      border-left: 3px solid var(--take-border);
+      border-radius: 0 8px 8px 0;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+    }
+
+    .callout-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--take-label);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-box p { margin: 0; }
+
+    /* ── CALLOUT: pull-quote treatment (contrarian-take archetype) ── */
+    .callout-pullquote {
+      margin: 2rem 0;
+      padding: 0.5rem 0 0.5rem 1.25rem;
+      border-left: 3px solid var(--accent);
+    }
+
+    .pullquote-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .callout-pullquote p {
+      font-size: 1.3rem;
+      font-weight: 700;
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+
+    /* ── QUOTE block (a short first-person pull-quote) ───── */
+    .pull-quote {
+      margin: 2rem 0;
+      padding: 0 1.5rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: 700;
+      font-style: italic;
+      line-height: 1.4;
+      color: var(--accent);
+    }
+
+    /* ── LIST block (how-to archetype checklist) ─────────── */
+    .list-block { margin: 1.75rem 0; }
+
+    .list-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .checklist { list-style: none; }
+
+    .checklist li {
+      display: flex;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+      align-items: flex-start;
+    }
+
+    .checklist li:last-child { margin-bottom: 0; }
+
+    .list-badge {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #FFFFFF;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .list-item-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .list-item-detail { font-size: 0.85rem; color: var(--text-sub); margin-top: 0.2rem; }
+
+    /* ── CODE PROJECT block ───────────────────────────────── */
+    .project-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.1rem 1.25rem 1.3rem;
+      margin: 1.5rem 0;
+    }
+
+    .project-block-comparison { border-left: 3px solid var(--accent); }
+
+    .comparison-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.6rem;
+    }
+
+    .project-name { font-size: 0.95rem; margin-bottom: 0.5rem; }
+    .project-name a { color: var(--accent); text-decoration: none; font-weight: 700; }
+    .project-name a:hover { text-decoration: underline; }
+
+    .project-usage-note {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 0.9rem;
+    }
+
+    .code-label, .output-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .output-label { margin-top: 0.9rem; }
+
+    .code-block {
+      background: #0D1117;
+      color: #E6EDF3;
+      border-radius: 8px;
+      padding: 0.9rem 1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+    }
+
+    .code-block code { white-space: pre; }
+
+    .terminal-output {
+      background: #0D1117;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .terminal-dots {
+      display: flex;
+      gap: 0.35rem;
+      padding: 0.55rem 0.75rem;
+      background: #161B22;
+    }
+
+    .terminal-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3A3F47;
+      display: inline-block;
+    }
+
+    .terminal-output pre {
+      color: #7EE787;
+      font-size: 0.8rem;
+      line-height: 1.55;
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: 'SF Mono', Menlo, Consolas, monospace;
+      white-space: pre-wrap;
+    }
+
+    .inspired-by {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin: 1rem 0;
+    }
+
+    .inspired-by a { color: var(--accent); text-decoration: none; }
+
+    .tag-row { margin-top: 1.75rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+    .tag-chip {
+      font-size: 0.68rem;
+      font-weight: 600;
+      background: var(--source-bg);
+      color: var(--source-text);
+      padding: 0.18rem 0.6rem;
+      border-radius: 20px;
+      text-decoration: none;
+    }
+
+    .tag-chip:hover { color: var(--accent); }
+
+    /* ── SHARE ROW ────────────────────────────────────────── */
+    .share-row {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .share-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
+    .share-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-decoration: none;
+      background: var(--source-bg);
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    .share-link:hover { text-decoration: underline; }
+
+    /* ── RELATED READING ──────────────────────────────────── */
+    .related-section {
+      margin-top: 1.75rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .related-heading {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 0.9rem;
+    }
+
+    .related-card {
+      display: block;
+      padding: 0.75rem 0;
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .related-card:last-child { border-bottom: none; }
+
+    .related-technique {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .related-title {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .related-card:hover .related-title { color: var(--accent); }
+
+    .site-footer {
+      max-width: 660px;
+      margin: 1.5rem auto 0;
+      padding: 1.5rem 1.25rem 2.5rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="masthead">
+    <a href="../index.html">&larr; The AI Architect — Archive</a>
+  </header>
+
+  <div class="container">
+    <div class="article-header">
+      <span class="source-chip">Prompt Caching &amp; Cost Optimization</span>
+      <h1 class="article-title">Prompt Caching: How to Stop Paying for the Same Tokens Twice</h1>
+      <p class="article-dek">A systematic look at prompt caching mechanics, where it actually saves money, and where it quietly fails you.</p>
+      <p class="article-date">November 21, 2026</p>
+    </div>
+
+    <div class="prose-block">
+<p>Here is a number worth sitting with: on a typical RAG pipeline with a 40,000-token system prompt — legal documents, product catalogs, internal policy — you are paying to process those same tokens on every single request. If you run 10,000 requests a day, you are re-encoding that context 10,000 times. Anthropic&#x27;s prompt caching charges roughly 10% of the base input price for cache hits on Claude models. That is not a marginal improvement. On a busy pipeline, it is the difference between an AI feature that pencils out and one that doesn&#x27;t.</p><p>The mechanics are straightforward, which is part of why people underestimate how easy it is to get wrong. The model provider caches a prefix of your prompt — specifically, the portion up to a designated cache breakpoint. On subsequent requests, if the prefix matches exactly, you pay the cache-hit rate instead of the full input rate. The key word is <em>exactly</em>. Byte-for-byte. Any variation before the breakpoint — a timestamp injected into the system prompt, a user name interpolated too early, a whitespace difference — and you miss the cache entirely and pay full price anyway.</p>
+    </div>
+    <div class="prose-block">
+<p>The design question, then, is not whether to use prompt caching. It is how to structure your prompts so that the stable, expensive content always sits before the variable content. Think of your prompt as two zones: the frozen zone and the hot zone. The frozen zone is everything that doesn&#x27;t change per request — your system instructions, your retrieved documents, your few-shot examples. The hot zone is everything that does — the user&#x27;s message, the session turn, any per-request metadata. Caching only works if you are disciplined about keeping those zones separated and in the right order.</p><p>This sounds obvious until you look at how most prompt assembly code actually works in production. Teams build prompts by concatenating strings in whatever order felt natural when the feature was first written. The user&#x27;s name ends up in the system prompt header. The current date gets injected at the top for &#x27;context&#x27;. Retrieved chunks get shuffled by relevance score, so their order changes between requests. Each of these habits silently destroys cache hit rate. I have audited pipelines where teams were convinced they had caching enabled — they did, technically — but their effective hit rate was under 5% because the frozen zone was never actually frozen.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2-diagram-1.png" alt="Comparison: Aspect, Frozen Zone (cache this), Hot Zone (never cache)" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>There is a subtlety around cache TTL that most documentation glosses over. Anthropic&#x27;s cache has a five-minute TTL by default — if no request hits that cached prefix within five minutes, the cache is evicted and the next request pays full price to re-populate it. For high-traffic applications this is irrelevant. For batch jobs that run once an hour, or for low-volume enterprise tools with sporadic usage, the cache may never actually be warm when you need it. In those cases, you need to think about whether a periodic &#x27;keep-alive&#x27; request makes economic sense, or whether caching is simply the wrong tool for that traffic pattern.</p><p>Multi-turn conversations introduce another wrinkle. Each new turn extends the conversation history, which means the prefix you are caching grows with every exchange. Eventually the growing history itself becomes the expensive part — and you need to decide whether to cache the whole conversation so far, or periodically summarize and reset. Neither is obviously correct; it depends on how long your conversations run and how much context fidelity matters. The point is that caching is not a one-time configuration decision. It is an ongoing architectural concern that interacts with your conversation management strategy.</p>
+    </div>
+    <figure class="diagram-figure">
+      <img src="images/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2-diagram-2.png" alt="Assemble Prompt → Check Cache → Cache Hit? → Decode Hot Zone → Generate Output" loading="lazy">
+    </figure>
+    <div class="prose-block">
+<p>One thing I want to name plainly: prompt caching is not a substitute for prompt engineering. I have seen teams treat it as a cost escape hatch — stuff everything into a massive cached system prompt and stop thinking about what the model actually needs to see. A 100,000-token cached prompt that is 60% irrelevant content will still hurt your output quality, even if it&#x27;s cheap to process. The cache hit saves you money on input tokens; it does not save you from the attention dilution of feeding the model a wall of text it has to wade through. Optimize for cost and quality, not cost alone.</p>
+    </div>
+    <div class="callout-box">
+      <p class="callout-label">How I structure caches in client work</p>
+<p>In practice, I treat the cache breakpoint as an architectural boundary, not just a prompt detail. Before writing any prompt assembly code, I draw the frozen/hot line explicitly — usually in a comment or a schema — and enforce it in code review. On Claude, I place the cache_control breakpoint immediately after the last frozen-zone block. I also instrument cache hit rate as a metric from day one; if it drops below 80% on a high-traffic endpoint, that is a bug, not a tuning issue. The single most common fix I make in client pipelines is moving a date or user-identifier injection from the system prompt header down into the human turn where it belongs.</p>
+    </div>
+    <div class="project-block">
+      <p class="project-name"><a href="https://github.com/anthropics/claude-cookbooks" target="_blank" rel="noopener noreferrer">anthropics/claude-cookbooks</a> &mdash; Includes worked examples of prompt caching to cut latency and cost.</p>
+    </div>
+
+    <p class="inspired-by">Inspired by <a href="https://latent.space/p/ainews-gpt-6-2-astra-the-2-frontier-model-is-better-and-20-600-cheaper-but-has-mixed-reviews-6-2-sol/" target="_blank" rel="noopener noreferrer">[AINews] GPT-6.2 Astra, the #2 Frontier Model is better and 20%-600% cheaper, but has mixed reviews; 6.2 Sol likely main workhorse</a> (Latent Space)</p>
+
+    <div class="tag-row">
+      <a class="tag-chip" href="../tags/prompt-caching.html">prompt-caching</a>
+      <a class="tag-chip" href="../tags/cost-optimization.html">cost-optimization</a>
+      <a class="tag-chip" href="../tags/inference.html">inference</a>
+      <a class="tag-chip" href="../tags/anthropic.html">anthropic</a>
+    </div>
+
+    <div class="share-row">
+      <span class="share-label">Share</span>
+      <a class="share-link" href="https://twitter.com/intent/tweet?text=Prompt%20Caching%3A%20How%20to%20Stop%20Paying%20for%20the%20Same%20Tokens%20Twice&amp;url=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+      <a class="share-link" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a class="share-link" href="https://news.ycombinator.com/submitlink?u=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html&amp;t=Prompt%20Caching%3A%20How%20to%20Stop%20Paying%20for%20the%20Same%20Tokens%20Twice" target="_blank" rel="noopener noreferrer">Hacker News</a>
+      <a class="share-link" href="mailto:?subject=Prompt%20Caching%3A%20How%20to%20Stop%20Paying%20for%20the%20Same%20Tokens%20Twice&amp;body=https%3A//ai-linkedin-newsletter.vercel.app/posts/prompt-caching-how-to-stop-paying-for-the-same-tokens-twice-2.html" target="_blank" rel="noopener noreferrer">Email</a>
+    </div>
+
+    <section class="related-section">
+      <p class="related-heading">Related reading</p>
+      <a class="related-card" href="../posts/prompt-caching-the-simplest-way-to-cut-your-api-bill.html">
+        <span class="related-technique">Prompt Caching &amp; Cost Optimization</span>
+        <span class="related-title">Prompt Caching: The Simplest Way to Cut Your API Bill</span>
+      </a>
+      <a class="related-card" href="../posts/the-invoice-that-taught-me-to-stop-resending-the-same-tokens.html">
+        <span class="related-technique">Prompt Caching &amp; Cost Optimization</span>
+        <span class="related-title">The Invoice That Taught Me to Stop Resending the Same Tokens</span>
+      </a>
+      <a class="related-card" href="../posts/prompt-caching-stop-paying-twice-for-the-same-tokens.html">
+        <span class="related-technique">Prompt Caching &amp; Cost Optimization</span>
+        <span class="related-title">Prompt Caching: Stop Paying Twice for the Same Tokens</span>
+      </a>
+    </section>
+  </div>
+
+  <footer class="site-footer">
+    Written by Luca La Malfa, with Claude &middot; <a href="../index.html">Back to the archive</a>
+  </footer>
+
+  <script defer src="/_vercel/insights/script.js"></script>
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+</body>
+</html>
